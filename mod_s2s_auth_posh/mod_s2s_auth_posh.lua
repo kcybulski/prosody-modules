@@ -8,19 +8,22 @@ module:set_global();
 --local https = require 'ssl.https'
 --local http = require "socket.http";
 local json = require 'util.json'
-local serialization = require 'util.serialization'
 
-local nameprep = require "util.encodings".stringprep.nameprep;
-local to_unicode = require "util.encodings".idna.to_unicode;
-local cert_verify_identity = require "util.x509".verify_identity;
-local der2pem = require"util.x509".der2pem;
 local base64 = require"util.encodings".base64;
+local pem2der = require "util.x509".pem2der;
+local hashes = require"util.hashes";
+local build_url = require"socket.url".build;
+local async = require "util.async";
+local http = require"net.http";
+
+local cache = require "util.cache".new(100);
+
+local hash_order = { "sha-512", "sha-384", "sha-256", "sha-224", "sha-1" };
+local hash_funcs = { hashes.sha512, hashes.sha384, hashes.sha256, hashes.sha224, hashes.sha1 };
 
 local function posh_lookup(host_session, resume)
 	-- do nothing if posh info already exists
 	if host_session.posh ~= nil then return end
-
-	(host_session.log or module._log)("debug", "DIRECTION: %s", tostring(host_session.direction));
 
 	local target_host = false;
 	if host_session.direction == "incoming" then
@@ -29,90 +32,74 @@ local function posh_lookup(host_session, resume)
 		target_host = host_session.to_host;
 	end
 
-	local url = "https://"..target_host.."/.well-known/posh._xmpp-server._tcp.json"
-
-	(host_session.log or module._log)("debug", "Request POSH information for %s", tostring(target_host));
-	local request = http.request(url, nil, function(response, code, req)
-				(host_session.log or module._log)("debug", "Received POSH response");
-				local jwk = json.decode(response);
-				if not jwk then
-					(host_session.log or module._log)("error", "POSH response is not valid JSON!");
-					(host_session.log or module._log)("debug", tostring(response));
-				end
-				host_session.posh = {};
-				host_session.posh.jwk = jwk;
-				resume()
-		end)
-	return true;
-end
-
-function module.add_host(module)
-	local function on_new_s2s(event)
-		local host_session = event.origin;
-		if host_session.type == "s2sout" or host_session.type == "s2sin" or host_session.posh ~= nil then return end -- Already authenticated
-		
-		host_session.log("debug", "Pausing connection until POSH lookup is completed");
-		host_session.conn:pause()
-		local function resume()
-				host_session.log("debug", "POSH lookup completed, resuming connection");
-				host_session.conn:resume()
-			end
-		if not posh_lookup(host_session, resume) then
-			resume();
-		end
+	local cached = cache:get(target_host);
+	if cached and os.time() < cached.expires then
+		host_session.posh = { jwk = cached };
+		return false;
 	end
-	
-	-- New outgoing connections
-	module:hook("stanza/http://etherx.jabber.org/streams:features", on_new_s2s, 501);
-	module:hook("s2sout-authenticate-legacy", on_new_s2s, 200);
-	
-	-- New incoming connections
-	module:hook("s2s-stream-features", on_new_s2s, 10);
+	local log = host_session.log or module._log;
 
-	module:hook("s2s-authenticated", function(event)
-		local session = event.session;
-		if session.posh and not session.secure then
-			-- Bogus replies should trigger this path
-			-- How does this interact with Dialback?
-			session:close({
-				condition = "policy-violation",
-				text = "Secure server-to-server communication is required but was not "
-					..((session.direction == "outgoing" and "offered") or "used")
-			});
-			return false;
+	log("debug", "Session direction: %s", tostring(host_session.direction));
+
+	local url = build_url { scheme = "https", host = target_host, path = "/.well-known/posh/xmpp-server.json" };
+
+	log("debug", "Request POSH information for %s", tostring(target_host));
+	http.request(url, nil, function(response, code)
+		if code ~= 200 then
+			log("debug", "No or invalid POSH response received");
+			resume();
+			return;
 		end
-		-- Cleanup
-		session.posh = nil;
-	end);
+		log("debug", "Received POSH response");
+		local jwk = json.decode(response);
+		if not jwk then
+			log("error", "POSH response is not valid JSON!\n%s", tostring(response));
+			resume();
+			return;
+		end
+		host_session.posh = { orig = response };
+		jwk.expires = os.time() + tonumber(jwk.expires) or 3600;
+		host_session.posh.jwk = jwk;
+		cache:set(target_host, jwk);
+		resume();
+	end)
+	return true;
 end
 
 -- Do POSH authentication
 module:hook("s2s-check-certificate", function(event)
 	local session, cert = event.session, event.cert;
-	(session.log or module._log)("info", "Trying POSH authentication.");
+	local log = session.log or module._log;
+	log("info", "Trying POSH authentication.");
 	-- if session.cert_identity_status ~= "valid" and session.posh then
-	if session.posh then
-		local target_host = event.host;
+	local wait, done = async.waiter();
+	if posh_lookup(session, done) then
+		wait();
+	end
+	local posh = session.posh;
+	local jwk = posh and posh.jwk;
+	local fingerprints = jwk and jwk.fingerprints;
 
-		local jwk = session.posh.jwk;
- 
-		local connection_certs = session.conn:socket():getpeerchain();
-
-		local x5c_table = jwk.keys[1].x5c;
-
-		local wire_cert = connection_certs[1];
-		local jwk_cert = ssl.x509.load(der2pem(base64.decode(x5c_table[1])));
-
-		if (wire_cert and jwk_cert and
-			wire_cert:digest("sha1") == jwk_cert:digest("sha1")) then
-			session.cert_chain_status = "valid";
-			session.cert_identity_status = "valid";
-			(session.log or module._log)("debug", "POSH authentication succeeded!");
-			return true;
-		else
-			(session.log or module._log)("debug", "POSH authentication failed!");
-			(session.log or module._log)("debug", "(top wire sha1 vs top jwk sha1) = (%s vs %s)", wire_cert:digest("sha1"), jwk_cert:digest("sha1"));
-			return false;
+	local cert_der = pem2der(cert:pem());
+	local cert_hashes = {};
+	for i = 1, #hash_order do
+		cert_hashes[i] = base64.encode(hash_funcs[i](cert_der));
+	end
+	for i = 1, #fingerprints do
+		local fp = fingerprints[i];
+		for j = 1, #hash_order do
+			local hash = fp[hash_order[j]];
+			if cert_hashes[j] == hash then
+				session.cert_chain_status = "valid";
+				session.cert_identity_status = "valid";
+				log("debug", "POSH authentication succeeded!");
+				return true;
+			elseif hash then
+				-- Don't try weaker hashes
+				break;
+			end
 		end
 	end
+
+	log("debug", "POSH authentication failed!");
 end);
