@@ -135,10 +135,13 @@ local function handle_request(origin, stanza, xmlns, filename, filesize)
 		return nil, st.error_reply(stanza, "wait", "resource-constraint", "Quota reached");
 	end
 
-	local random_dir;
-	repeat random_dir = uuid();
-	until lfs.mkdir(join_path(storage_path, random_dir))
-		or not lfs.attributes(join_path(storage_path, random_dir, filename))
+	local random_dir = uuid();
+	local created, err = lfs.mkdir(join_path(storage_path, random_dir));
+
+	if not created then
+		module:log("error", "Could not create directory for slot: %s", err);
+		return nil, st.error_reply(stanza, "wait", "internal-server-failure");
+	end
 
 	local ok = datamanager.list_append(username, host, module.name, {
 		filename = filename, dir = random_dir, size = filesize, time = os.time() });
