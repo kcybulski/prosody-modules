@@ -44,9 +44,7 @@ function archive_store:append(username, key, value, when, with)
 	end
 	if is_stanza(value) then
 		value = st.preserialize(value);
-		value = function ()
-			return st.deserialize(envload("return "..serialize(value), "@stanza", {}));
-		end
+		value = envload("return xml"..serialize(value), "@stanza", { xml = st.deserialize })
 	else
 		value = envload("return "..serialize(value), "@data", {});
 	end
