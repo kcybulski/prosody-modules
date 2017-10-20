@@ -29,7 +29,7 @@ return function (arg)
 	load_unload_scripts(set.new(arg));
 	local session = { notopen = true };
 	local stream_callbacks = { default_ns = "jabber:client" };
-	
+
 	function stream_callbacks.streamopened(session)
 		session.notopen = nil;
 	end
@@ -48,7 +48,7 @@ return function (arg)
 			stats_dropped = stats_dropped + 1;
 		end
 	end
-	
+
 	local stream = xmppstream.new(session, stream_callbacks);
 	stream:feed("<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:client'>");
 	local line_count = 0;
@@ -60,7 +60,7 @@ return function (arg)
 			return 1;
 		end
 	end
-	
+
 	stderr("Summary");
 	stderr("-------");
 	stderr("");
