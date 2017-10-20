@@ -1,3 +1,4 @@
+-- luacheck: globals load_unload_scripts
 local set = require "util.set";
 
 local xmppstream = require "util.xmppstream";
