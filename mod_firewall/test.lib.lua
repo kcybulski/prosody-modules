@@ -30,7 +30,7 @@ return function (arg)
 	local session = { notopen = true };
 	local stream_callbacks = { default_ns = "jabber:client" };
 	
-	function stream_callbacks.streamopened()
+	function stream_callbacks.streamopened(session)
 		session.notopen = nil;
 	end
 	function stream_callbacks.streamclosed()
