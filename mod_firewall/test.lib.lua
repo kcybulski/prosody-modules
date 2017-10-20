@@ -27,7 +27,6 @@ return function (arg)
 	local stats_dropped, stats_passed = 0, 0;
 
 	load_unload_scripts(set.new(arg));
-	local session = { notopen = true };
 	local stream_callbacks = { default_ns = "jabber:client" };
 
 	function stream_callbacks.streamopened(session)
@@ -35,7 +34,7 @@ return function (arg)
 	end
 	function stream_callbacks.streamclosed()
 	end
-	function stream_callbacks.error(session, error_name, error_message)
+	function stream_callbacks.error(session, error_name, error_message) -- luacheck: ignore 212/session
 		stderr("Fatal error parsing XML stream: "..error_name..": "..tostring(error_message))
 		assert(false);
 	end
@@ -49,6 +48,7 @@ return function (arg)
 		end
 	end
 
+	local session = { notopen = true };
 	local stream = xmppstream.new(session, stream_callbacks);
 	stream:feed("<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:client'>");
 	local line_count = 0;
