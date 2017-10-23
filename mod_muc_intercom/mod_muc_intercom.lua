@@ -49,4 +49,4 @@ function check_message(data)
 	dest_room:broadcast_message(forward_stanza);
 end
 
-module:hook("message/bare", check_message, 10);
+module:hook("message/bare", check_message);
