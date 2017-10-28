@@ -5,7 +5,7 @@ local secure_domains, insecure_domains =
 	module:get_option_set("s2s_secure_domains", {})._items, module:get_option_set("s2s_insecure_domains", {})._items;
 
 local untrusted_fail_watchers = module:get_option_set("untrusted_fail_watchers", module:get_option("admins", {})) / jid_prep;
-local untrusted_fail_notification = module:get_option("untrusted_fail_notification", "Establishing a secure connection from $from_host to $to_host failed. Certificate hash: $sha1. $errors");
+local untrusted_fail_notification = module:get_option("untrusted_fail_notification", "Establishing a secure connection from $from_host to $to_host failed. Certificate hash: $sha256. $errors");
 
 local st = require "util.stanza";
 
