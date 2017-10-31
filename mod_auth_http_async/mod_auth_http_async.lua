@@ -26,9 +26,17 @@ end
 if rawget(_G, "base_parsed") == nil then
 	rawset(_G, "base_parsed", false)
 end
+if not have_async then -- FINE! Set your globals then
+	prosody.unlock_globals()
+	require "ltn12"
+	require "socket"
+	require "socket.http"
+	require "ssl.https"
+	prosody.lock_globals()
+end
 
 local function async_http_auth(url, username, password)
-module:log("debug", "async_http_auth()");
+	module:log("debug", "async_http_auth()");
 	local http = require "net.http";
 	local wait, done = async.waiter();
 	local content, code, request, response;
@@ -51,7 +59,8 @@ module:log("debug", "async_http_auth()");
 end
 
 local function sync_http_auth(url,username, password)
-module:log("debug", "sync_http_auth()");
+	module:log("debug", "sync_http_auth()");
+	require "ltn12";
 	local http = require "socket.http";
 	local https = require "ssl.https";
 	local request;
