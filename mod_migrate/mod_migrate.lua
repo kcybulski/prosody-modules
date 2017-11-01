@@ -62,9 +62,15 @@ function module.command(arg)
 				migrate_user(arg[i]);
 			end
 		else
-			for user in um.users(host) do
-				migrate_user(user);
-			end
+			xpcall(function()
+				for user in um.users(host) do
+					migrate_user(user);
+				end
+			end,
+			function (err)
+				module:log("error", "Could not list users, you'll have to supply them as arguments");
+				module:log("error", "The error was: %s", err);
+			end);
 		end
 	end
 end
