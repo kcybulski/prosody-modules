@@ -37,21 +37,21 @@ function archive:append(username, _, data, when, with)
 	data = tostring(data) .. "\n";
 
 	local day = dt.date(when);
-	local ok, err = dm.append_raw(username.."@"..day, module.host, self.store, "xml", data);
+	local ok, err = dm.append_raw(username.."@"..day, self.host, self.store, "xml", data);
 	if not ok then
 		return nil, err;
 	end
 
 	-- If the day-file is missing then we need to add it to the list of days
-	local first_of_day = not lfs.attributes(dm.getpath(username .. "@" .. day, module.host, self.store, "list"));
+	local first_of_day = not lfs.attributes(dm.getpath(username .. "@" .. day, self.host, self.store, "list"));
 
 	local offset = ok and err or 0;
 
 	local id = day .. "-" .. hmac_sha256(username.."@"..day.."+"..offset, data, true):sub(-16);
-	ok, err = dm.list_append(username.."@"..day, module.host, self.store,
+	ok, err = dm.list_append(username.."@"..day, self.host, self.store,
 		{ id = id, when = dt.datetime(when), with = with, offset = offset, length = #data });
 	if ok and first_of_day then
-		ok, err = dm.list_append(username, module.host, self.store, day);
+		ok, err = dm.list_append(username, self.host, self.store, day);
 	end
 	if not ok then
 		return nil, err;
@@ -65,7 +65,7 @@ function archive:_get_idx(username, id, dates)
 	for d = 1, #dates do
 		if date == dates[d] then
 			module:log("debug", "Loading items from %s", dates[d]);
-			local items = dm.list_load(username .. "@" .. dates[d], module.host, self.store) or empty;
+			local items = dm.list_load(username .. "@" .. dates[d], self.host, self.store) or empty;
 			for i = 1, #items do
 				if items[i].id == id then
 					return d, i, items;
@@ -159,7 +159,7 @@ function archive:find(username, query)
 		end
 		if not xmlfile then
 			date_open = date;
-			local filename = dm.getpath(username .. "@" .. date, module.host, self.store, "xml");
+			local filename = dm.getpath(username .. "@" .. date, self.host, self.store, "xml");
 			local ferr;
 			xmlfile, ferr = io.open(filename);
 			if not xmlfile then
@@ -181,7 +181,7 @@ function archive:find(username, query)
 			if not items then
 				module:log("debug", "Loading items from %s", date);
 				start_day = d;
-				items = dm.list_load(username .. "@" .. date, module.host, self.store) or empty;
+				items = dm.list_load(username .. "@" .. date, self.host, self.store) or empty;
 				if not rev then
 					first_item, last_item = 1, #items;
 				else
@@ -217,7 +217,7 @@ function archive:find(username, query)
 					if not data then return end
 					local ok, err = stream:feed(data);
 					if not ok then
-						module:log("warn", "Parse error in %s@%s/%s/%q[%d]: %s", username, module.host, self.store, i, err);
+						module:log("warn", "Parse error in %s@%s/%s/%q[%d]: %s", username, self.host, self.store, i, err);
 						reset_stream();
 					end
 					if result then
@@ -257,25 +257,25 @@ function archive:delete(username, query)
 		end
 	end
 	table.sort(remaining_dates);
-	local ok, err = dm.list_store(username, module.host, self.store, remaining_dates);
+	local ok, err = dm.list_store(username, self.host, self.store, remaining_dates);
 	if not ok then return ok, err; end
 	for d = 1, #dates do
 		if dates[d] < before then
-			os.remove(dm.getpath(username .. "@" .. dates[d], module.host, self.store, "list"));
-			os.remove(dm.getpath(username .. "@" .. dates[d], module.host, self.store, "xml"));
+			os.remove(dm.getpath(username .. "@" .. dates[d], self.host, self.store, "list"));
+			os.remove(dm.getpath(username .. "@" .. dates[d], self.host, self.store, "xml"));
 		end
 	end
 	return true;
 end
 
 function archive:dates(username)
-	return dm.list_load(username, module.host, self.store);
+	return dm.list_load(username, self.host, self.store);
 end
 
 local provider = {};
 function provider:open(store, typ)
 	if typ ~= "archive" then return nil, "unsupported-store"; end
-	return setmetatable({ store = store }, archive_mt);
+	return setmetatable({ host = module.host, store = store }, archive_mt);
 end
 
 function provider:purge(username)
