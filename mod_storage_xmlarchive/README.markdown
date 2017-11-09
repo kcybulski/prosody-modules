@@ -45,3 +45,21 @@ Compatibility
   0.9    Should work
   0.8    Does not work
   ------ ---------------
+
+Conversion to or from internal storage
+--------------------------------------
+
+This module stores data in a way that overlaps with the more recent
+archive support in `mod_storage_internal`, meaning eg [mod\_migrate]
+will not be able to cleanly convert to or from the `xmlarchive` format.
+
+To mitigate this, an migration command has been added to
+`mod_storage_xmlarchive`:
+
+``` bash
+prosodyctl mod_storage_xmlarchive convert $DIR internal $STORE $JID
+```
+
+Where `$DIR` is `to` or `from`, `$STORE` is eg `archive` or `archive2`
+for MAM and `muc_log` for MUC logs. Finally, `$JID` is the JID of the
+user or MUC room to me migrated, which can be repeated.
