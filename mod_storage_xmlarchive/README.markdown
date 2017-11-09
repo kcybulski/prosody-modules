@@ -4,7 +4,7 @@ labels:
 - 'Type-Storage'
 - ArchiveStorage
 summary: XML file based archive storage
-...
+---
 
 Introduction
 ============
@@ -50,7 +50,7 @@ Conversion to or from internal storage
 --------------------------------------
 
 This module stores data in a way that overlaps with the more recent
-archive support in `mod_storage_internal`, meaning eg [mod\_migrate]
+archive support in `mod_storage_internal`, meaning e.g. [mod_migrate]
 will not be able to cleanly convert to or from the `xmlarchive` format.
 
 To mitigate this, an migration command has been added to
