@@ -2,10 +2,9 @@
 
 local sm = require"core.storagemanager";
 local um = require"core.usermanager";
-local mm = require"core.modulemanager";
 
 function module.command(arg)
-	local host, source_stores, migrate_to, user = unpack(arg);
+	local host, source_stores, migrate_to = unpack(arg);
 	if not migrate_to then
 		return print("Usage: prosodyctl mod_migrate example.com <source-store>[-<store-type>] <target-driver> [users]*");
 	end
