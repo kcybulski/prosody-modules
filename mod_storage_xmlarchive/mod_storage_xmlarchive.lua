@@ -269,7 +269,11 @@ function archive:delete(username, query)
 end
 
 function archive:dates(username)
-	return dm.list_load(username, self.host, self.store);
+	local dates, err = dm.list_load(username, self.host, self.store);
+	if not dates then return dates, err; end
+	assert(type(dates[1]) == "string" and type(dates[#dates]) == "string",
+		"Archive does not appear to be in xmlarchive format");
+	return dates;
 end
 
 local provider = {};
