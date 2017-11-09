@@ -301,3 +301,92 @@ function provider:purge(username)
 end
 
 module:provides("storage", provider);
+
+
+function module.command(arg)
+	local jid = require "util.jid";
+	if arg[1] == "convert" and (arg[2] == "to" or arg[2] == "from") and arg[4] then
+		local convert;
+		if arg[2] == "to" then
+			local xml = require "util.xml";
+			function convert(user, host, store)
+				local dates, err = archive.dates({ host = host, store = store }, user);
+				if not dates then assert(not err, err); return end
+				assert(dm.list_store(user, host, store, nil));
+				for _, date in ipairs(dates) do
+					print(date);
+					local items = assert(dm.list_load(user .. "@" .. date, host, store));
+					local xmlfile = assert(io.open(dm.getpath(user .. "@" .. date, host, store, "xml")));
+					for _, item in ipairs(items) do
+						assert(xmlfile:seek("set", item.offset));
+						local data = assert(xmlfile:read(item.length));
+						assert(#data == item.length, "short read");
+						data = assert(xml.parse(data));
+						data = st.preserialize(data);
+						data.key = item.id;
+						data.with = item.with;
+						data.when = tonumber(item.when) or dt.parse(item.when);
+						data.attr.stamp = item.when;
+						data.attr.stamp_legacy = dt.legacy(data.when);
+						assert(dm.list_append(user, host, store, data));
+					end
+				end
+			end
+		else -- convert from internal
+			function convert(user, host, store)
+				local items, err = dm.list_load(user, host, store);
+				if not items then assert(not err, err); return end
+				local dates = {};
+				local dayitems, date, xmlfile;
+				for _, item in ipairs(items) do
+					local meta = {
+						id = item.key;
+						with = item.with;
+						when = item.when or dt.parse(item.attr.stamp);
+					};
+					local current_date = dt.date(meta.when);
+					if current_date ~= date then
+						if xmlfile then
+							assert(xmlfile:close());
+						end
+						if dayitems then
+							assert(dm.list_store(user .. "@" .. date, host, store, dayitems));
+						end
+						print(current_date);
+						dayitems = {};
+						date = current_date;
+						table.insert(dates, date);
+						xmlfile = assert(io.open(dm.getpath(user .. "@" .. date, host, store, "xml"), "w"));
+					end
+					item.attr.stamp, item.attr.stamp_legacy = nil, nil;
+					local stanza = tostring(st.deserialize(item)) .. "\n";
+					meta.offset, meta.length = xmlfile:seek(), #stanza;
+					assert(xmlfile:write(stanza));
+					table.insert(dayitems, meta);
+				end
+				assert(xmlfile:close());
+				assert(dm.list_store(user .. "@" .. date, host, store, dayitems));
+				assert(dm.list_store(user, host, store, dates));
+			end
+		end
+
+		local store = arg[4];
+		if arg[3] == "internal" then
+			for i = 5, #arg do
+				local user, host = jid.prepped_split(arg[i]);
+				if not user then
+					print(string.format("Argument #%d (%q) is an invalid JID, aborting", i, arg[i]));
+					os.exit(1);
+				end
+				convert(user, host, store);
+			end
+			print("Done");
+			return 0;
+		else
+			print("Currently only conversion to/from mod_storage_internal is supported");
+			print("Check out https://modules.prosody.im/mod_migrate");
+		end
+	end
+	print("prosodyctl mod_storage_xmlarchive convert (from|to) internal (archive|archive2|muc_log) user@host");
+end
+
