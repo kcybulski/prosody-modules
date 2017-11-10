@@ -6,7 +6,7 @@ Introduction
 ============
 
 mod\_net\_dovecotauth is a server implementation of the Dovecot
-authentication protocol. It allows you to authenticate eg Postfix
+authentication protocol. It allows you to authenticate e.g. Postfix
 against your Prosody installation.
 
 Due to missing support for virtal hosts in this protocol, only one host
