@@ -60,6 +60,6 @@ To mitigate this, an migration command has been added to
 prosodyctl mod_storage_xmlarchive convert $DIR internal $STORE $JID
 ```
 
-Where `$DIR` is `to` or `from`, `$STORE` is eg `archive` or `archive2`
+Where `$DIR` is `to` or `from`, `$STORE` is e.g. `archive` or `archive2`
 for MAM and `muc_log` for MUC logs. Finally, `$JID` is the JID of the
 user or MUC room to me migrated, which can be repeated.

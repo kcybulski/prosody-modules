@@ -5,7 +5,7 @@ Why
 
 When shutting down, a number of sessions, connections and other things
 are teared down. Due to all these things happening very quickly,
-sometimes eg client unavailable notifications don't make it to all
+sometimes e.g. client unavailable notifications don't make it to all
 remote contacts because the server-to-server connections are teared down
 just after.
 
