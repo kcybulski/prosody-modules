@@ -82,7 +82,7 @@ function driver:dates(node)
 			dates[i], i = dir, i+1;
 		end
 	end
-	if dates[1] == nil then return noop, 0; end
+	if dates[1] == nil then return nil end
 	table.sort(dates);
 	return dates;
 end
