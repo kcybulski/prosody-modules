@@ -103,7 +103,7 @@ function driver:find(node, query)
 		local today, time, data, err, item;
 		local inner_start, inner_stop, inner_step;
 		local outer_start, outer_stop, outer_step = 1, #dates, 1;
-		if query and query.reverse then 
+		if query and query.reverse then
 			outer_start, outer_stop, outer_step = outer_stop, outer_start, -outer_step;
 			seek_once = query.before;
 			if seek_once then
@@ -119,7 +119,7 @@ function driver:find(node, query)
 				data, err = data_load(node, host, datastore .. "/" .. today);
 				if data then
 					inner_start, inner_stop, inner_step = 1, #data, 1;
-					if query and query.reverse then 
+					if query and query.reverse then
 						inner_start, inner_stop, inner_step = inner_stop, inner_start, -inner_step;
 					end
 					if seek_once then
