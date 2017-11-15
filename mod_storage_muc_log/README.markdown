@@ -3,21 +3,21 @@ labels:
 - 'Stage-Alpha'
 - ArchiveStorage
 summary: 'Storage module using mod\_muc\_log data with new stanza archive API'
-...
+---
 
 Introduction
 ============
 
-[mod\_muc\_log](mod_muc_log.html) provided logging of chatrooms running on
-the server to Prosody's data store. This module gives access to this
-data using the 0.10+ stanza archive API, allowing legacy log data to be
-used with [mod\_mam\_muc](mod_mam_muc.html) and
-[mod\_http\_muc\_log](mod_http_muc_log.html).
+[mod\_muc\_log] provided logging of chatrooms running on the server to
+Prosody's data store. This module gives access to this data using the
+0.10+ stanza archive API, allowing legacy log data to be used with
+[mod\_mam\_muc] and [mod\_http\_muc\_log].
 
 Details
 =======
 
-Replace mod\_muc\_log (and mod\_muc\_log\_http) in your config with
+Replace [mod\_muc\_log] and [mod\_muc\_log\_http] in your config
+with
 
 ``` {.lua}
 Component "conference.example.org" "muc"
