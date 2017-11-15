@@ -38,7 +38,7 @@ Examples
 ========
 
 ``` sh
-prosodyctl migrate example.com accounts,roster,private,vcard sql
+prosodyctl mod_migrate example.com accounts,roster,private,vcard sql
 ```
 
 Compatibility
