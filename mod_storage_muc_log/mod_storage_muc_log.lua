@@ -1,4 +1,4 @@
--- luacheck: ignore 212/self 431/err
+-- luacheck: ignore 212/self 431/err 131/open
 
 local datamanager = require"core.storagemanager".olddm;
 local xml_parse = require"util.xml".parse;
