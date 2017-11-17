@@ -24,7 +24,8 @@ local read_timeout = module:get_option_number("external_auth_timeout", 5);
 local blocking = module:get_option_boolean("external_auth_blocking", not(have_async and server.event and lpty.getfd));
 local auth_processes = module:get_option_number("external_auth_processes", 1);
 
-assert(script_type == "ejabberd" or script_type == "generic", "Config error: external_auth_protocol must be 'ejabberd' or 'generic'");
+assert(script_type == "ejabberd" or script_type == "generic",
+	"Config error: external_auth_protocol must be 'ejabberd' or 'generic'");
 assert(not host:find(":"), "Invalid hostname");
 
 
@@ -108,7 +109,8 @@ function do_query(kind, username, password)
 		(script_type == "generic" and response:gsub("\r?\n$", "") == "1") then
 			return true;
 	else
-		log("warn", "Unable to interpret data from auth process, %s", (response:match("^error:") and response) or ("["..#response.." bytes]"));
+		log("warn", "Unable to interpret data from auth process, %s",
+			(response:match("^error:") and response) or ("["..#response.." bytes]"));
 		return nil, "internal-server-error";
 	end
 end
