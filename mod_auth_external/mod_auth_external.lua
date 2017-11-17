@@ -115,7 +115,6 @@ function do_query(kind, username, password)
 	end
 end
 
-local host = module.host;
 local provider = {};
 
 function provider.test_password(username, password)
