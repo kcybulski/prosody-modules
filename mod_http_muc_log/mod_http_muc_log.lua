@@ -77,6 +77,8 @@ local function find_once(room, query, retval)
 	return iter();
 end
 
+local lazy = module:get_option_boolean(module.name .. "_lazy_calendar", true);
+
 -- Produce the calendar view
 local function years_page(event, path)
 	local response = event.response;
@@ -93,6 +95,14 @@ local function years_page(event, path)
 			local when = datetime.parse(date.."T00:00:00Z");
 			local t = os_date("!*t", when);
 			dates:set(t.year, t.month, t.day, when);
+		end
+	elseif lazy then
+		-- Lazy with many false positives
+		local first_day = find_once(room, nil, 3);
+		local last_day = find_once(room, { reverse = true }, 3);
+		for when = first_day, last_day, 86400 do
+			local t = os_date("!*t", when);
+			dates:set(t.year, t.month, t.day, when );
 		end
 	else
 		-- Collect date the hard way
