@@ -129,7 +129,9 @@ function provider.user_exists(username)
 	return do_query("isuser", username);
 end
 
-function provider.create_user(username, password) return nil, "Account creation/modification not available."; end
+function provider.create_user(username, password) -- luacheck: ignore 212
+	return nil, "Account creation/modification not available.";
+end
 
 function provider.get_sasl_handler()
 	local testpass_authentication_profile = {
