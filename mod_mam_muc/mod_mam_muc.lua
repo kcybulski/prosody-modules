@@ -231,6 +231,7 @@ module:hook("iq-set/bare/"..xmlns_mam..":query", function(event)
 		origin.send(st.error_reply(stanza, "cancel", "internal-server-error"));
 		return true;
 	end
+	local total = tonumber(err);
 
 	local msg_reply_attr = { to = stanza.attr.from, from = stanza.attr.to };
 
@@ -288,7 +289,7 @@ module:hook("iq-set/bare/"..xmlns_mam..":query", function(event)
 	origin.send(st.reply(stanza)
 		:tag("fin", { xmlns = xmlns_mam, queryid = qid, complete = complete })
 			:add_child(rsm.generate {
-				first = first, last = last }));
+				first = first, last = last, count = total }));
 	return true;
 end);
 
