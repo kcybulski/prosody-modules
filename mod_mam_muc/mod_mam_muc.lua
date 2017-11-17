@@ -252,6 +252,7 @@ module:hook("iq-set/bare/"..xmlns_mam..":query", function(event)
 				:tag("forwarded", { xmlns = xmlns_forward })
 					:tag("delay", { xmlns = xmlns_delay, stamp = timestamp(when) }):up();
 
+		-- Strip <x> tag, containing the original senders JID, unless the room makes this public
 		if room:get_whois() ~= "anyone" then
 			item:maptags(function (tag)
 				if tag.name == "x" and tag.attr.xmlns == xmlns_muc_user then
