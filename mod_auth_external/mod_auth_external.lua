@@ -44,6 +44,12 @@ for i = 1, auth_processes do
 	ptys[i] = lpty.new(pty_options);
 end
 
+function module.unload()
+	for i = 1, auth_processes do
+		ptys[i]:endproc();
+	end
+end
+
 local curr_process = 0;
 function send_query(text)
 	curr_process = (curr_process%auth_processes)+1;
