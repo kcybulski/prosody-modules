@@ -65,6 +65,9 @@ local t_diff = os_time(os_date("*t")) - os_time(os_date("!*t"));
 local function time(t)
 	return os_time(t) + t_diff;
 end
+local function date_floor(t)
+	return t - t % 86400;
+end
 
 -- Fetch one item
 local function find_once(room, query, retval)
@@ -113,7 +116,7 @@ local function years_page(event, path)
 			if not when then break; end
 			local t = os_date("!*t", when);
 			dates:set(t.year, t.month, t.day, when );
-			next_day = when + (86400 - (when % 86400));
+			next_day = date_floor(when) + 86400;
 		until not next_day;
 	end
 
