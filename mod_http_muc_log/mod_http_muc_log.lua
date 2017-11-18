@@ -103,11 +103,15 @@ local function years_page(event, path)
 		-- Lazy with many false positives
 		local first_day = find_once(room, nil, 3);
 		local last_day = find_once(room, { reverse = true }, 3);
-		first_day = date_floor(first_day);
-		last_day = date_floor(last_day);
-		for when = first_day, last_day, 86400 do
-			local t = os_date("!*t", when);
-			dates:set(t.year, t.month, t.day, when);
+		if first_day and last_day then
+			first_day = date_floor(first_day);
+			last_day = date_floor(last_day);
+			for when = first_day, last_day, 86400 do
+				local t = os_date("!*t", when);
+				dates:set(t.year, t.month, t.day, when);
+			end
+		else
+			return; -- 404
 		end
 	else
 		-- Collect date the hard way
