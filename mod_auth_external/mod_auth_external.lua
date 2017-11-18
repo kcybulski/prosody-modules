@@ -50,6 +50,8 @@ function module.unload()
 	end
 end
 
+module:hook_global("server-cleanup", module.unload);
+
 local curr_process = 0;
 function send_query(text)
 	curr_process = (curr_process%auth_processes)+1;
