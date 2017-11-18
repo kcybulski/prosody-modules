@@ -439,10 +439,15 @@ if module:get_option_boolean("muc_log_presences", true) then
 	end);
 end
 
-module:hook("muc-room-destroyed", function(event)
-	local room_node = jid_split(event.room.jid);
-	archive:delete(room_node);
-end);
+if not archive.delete then
+	module:log("warn", "Storage driver %s does not support deletion", archive._provided_by);
+	module:log("warn", "Archived message will persist after a room has been destroyed");
+else
+	module:hook("muc-room-destroyed", function(event)
+		local room_node = jid_split(event.room.jid);
+		archive:delete(room_node);
+	end);
+end
 
 -- And role/affiliation changes?
 
