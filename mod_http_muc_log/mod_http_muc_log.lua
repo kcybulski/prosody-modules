@@ -191,11 +191,12 @@ local function logs_page(event, path)
 		return years_page(event, path);
 	end
 	if not public_room(room) then return end
+	local day_start = datetime.parse(date.."T00:00:00Z");
 
 	local logs, i = {}, 1;
 	local iter, err = archive:find(room, {
-		["start"] = datetime.parse(date.."T00:00:00Z");
-		["end"]   = datetime.parse(date.."T23:59:59Z");
+		["start"] = day_start;
+		["end"]   = day_start + 86399;
 	});
 	if not iter then
 		module:log("warn", "Could not search archive: %s", err or "no error");
