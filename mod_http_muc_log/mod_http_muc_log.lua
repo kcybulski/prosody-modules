@@ -242,6 +242,9 @@ local function logs_page(event, path)
 				break;
 			end
 		end
+	elseif lazy then
+		next_when = datetime.date(day_start + 86400);
+		prev_when = datetime.date(day_start - 86400);
 	else
 
 		module:log("debug", "Find next date with messages");
