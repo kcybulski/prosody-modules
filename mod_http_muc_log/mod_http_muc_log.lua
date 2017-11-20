@@ -245,7 +245,7 @@ local function logs_page(event, path)
 	elseif lazy then
 		next_when = datetime.date(day_start + 86400);
 		prev_when = datetime.date(day_start - 86400);
-	else
+	elseif first and last then
 
 		module:log("debug", "Find next date with messages");
 		next_when = find_once(room, { after = last }, 3);
