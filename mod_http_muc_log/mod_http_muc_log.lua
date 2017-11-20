@@ -183,7 +183,7 @@ end
 local function logs_page(event, path)
 	local response = event.response;
 
-	-- FIXME In the year, 252525, if MUC is still alive,
+	-- FIXME In the year, 105105, if MUC is still alive,
 	-- if Prosody can survive... Enjoy this Y10k bug
 	local room, date = path:match("^(.-)/(%d%d%d%d%-%d%d%-%d%d)$");
 	room = nodeprep(room);
