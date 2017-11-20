@@ -174,7 +174,7 @@ local function years_page(event, path)
 		jid = get_room(room).jid;
 		years = years;
 		links = {
-			{ href = "../", rel = "up", text = "Back to room list" },
+			{ href = "../", rel = "up", text = "Room list" },
 		};
 	});
 end
@@ -268,7 +268,7 @@ local function logs_page(event, path)
 		jid = get_room(room).jid;
 		lines = logs;
 		links = {
-			{ href = "./", rel = "up", text = "Back to calendar" },
+			{ href = "./", rel = "up", text = "Calendar" },
 			{ href = prev_when, rel = "prev", text = prev_when},
 			{ href = next_when, rel = "next", text = next_when},
 		};
