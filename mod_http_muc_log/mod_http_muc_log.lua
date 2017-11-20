@@ -249,8 +249,6 @@ local function logs_page(event, path)
 		if next_when then
 			next_when = datetime.date(next_when);
 			module:log("debug", "Next message: %s", next_when);
-		else
-			next_when = "";
 		end
 
 		module:log("debug", "Find prev date with messages");
@@ -258,8 +256,6 @@ local function logs_page(event, path)
 		if prev_when then
 			prev_when = datetime.date(prev_when);
 			module:log("debug", "Previous message: %s", prev_when);
-		else
-			prev_when = "";
 		end
 	end
 
