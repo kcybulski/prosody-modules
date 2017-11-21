@@ -230,7 +230,7 @@ local function logs_page(event, path)
 		first = first or key;
 		last = key;
 	end
-	if i == 1 then return end -- No items
+	if i == 1 and not lazy then return end -- No items
 
 	local next_when, prev_when = "", "";
 	local date_list = archive.dates and archive:dates(room);
