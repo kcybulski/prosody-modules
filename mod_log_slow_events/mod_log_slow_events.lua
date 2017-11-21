@@ -1,3 +1,5 @@
+module:set_global();
+
 local time = require "socket".gettime;
 local base64_decode = require "util.encodings".base64.decode;
 
@@ -52,7 +54,9 @@ function event_wrapper(handlers, event_name, event_data)
 	return ret;
 end
 
-module:wrap_event(false, event_wrapper);
 local http_events = require "net.http.server"._events;
 module:wrap_object_event(http_events, false, event_wrapper);
 
+function module.add_host(module)
+	module:wrap_event(false, event_wrapper);
+end
