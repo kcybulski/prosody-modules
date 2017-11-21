@@ -57,6 +57,7 @@ end
 local http_events = require "net.http.server"._events;
 module:wrap_object_event(http_events, false, event_wrapper);
 
+module:wrap_event(false, event_wrapper);
 function module.add_host(module)
 	module:wrap_event(false, event_wrapper);
 end
