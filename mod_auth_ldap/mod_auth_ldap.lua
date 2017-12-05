@@ -55,7 +55,7 @@ function ldap_do(method, retry_count, ...)
 	return dn, attr;
 end
 
-local function get_user(username)
+function get_user(username)
 	module:log("debug", "get_user(%q)", username);
 	return ldap_do("search", 2, {
 		base = ldap_base;
