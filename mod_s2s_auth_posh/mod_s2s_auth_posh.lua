@@ -86,6 +86,11 @@ module:hook("s2s-check-certificate", function(event)
 	local jwk = posh and posh.jwk;
 	local fingerprints = jwk and jwk.fingerprints;
 
+	if not fingerprints then
+		log("debug", "No POSH authentication data available");
+		return;
+	end
+
 	local cert_der = pem2der(cert:pem());
 	local cert_hashes = {};
 	for i = 1, #hash_order do
