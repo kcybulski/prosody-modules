@@ -78,7 +78,6 @@ module:hook("s2s-check-certificate", function(event)
 	end
 
 	log("info", "Trying POSH authentication.");
-	-- if session.cert_identity_status ~= "valid" and session.posh then
 	local wait, done = async.waiter();
 	if posh_lookup(session, done) then
 		wait();
