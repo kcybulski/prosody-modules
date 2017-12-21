@@ -5,8 +5,6 @@
 -- http://tools.ietf.org/html/draft-miller-posh-03
 --
 module:set_global();
---local https = require 'ssl.https'
---local http = require "socket.http";
 local json = require 'util.json'
 
 local base64 = require"util.encodings".base64;
