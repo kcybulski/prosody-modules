@@ -33,9 +33,13 @@ local function posh_lookup(host_session, resume)
 	end
 
 	local cached = cache:get(target_host);
-	if cached and os.time() < cached.expires then
-		host_session.posh = { jwk = cached };
-		return false;
+	if cached then
+		if os.time() > cached.expires then
+			cache:set(target_host, nil);
+		else
+			host_session.posh = { jwk = cached };
+			return false;
+		end
 	end
 	local log = host_session.log or module._log;
 
