@@ -63,3 +63,27 @@ prosodyctl mod_storage_xmlarchive convert $DIR internal $STORE $JID
 Where `$DIR` is `to` or `from`, `$STORE` is e.g. `archive` or `archive2`
 for MAM and `muc_log` for MUC logs. Finally, `$JID` is the JID of the
 user or MUC room to me migrated, which can be repeated.
+
+Data structure
+==============
+
+Data is split in three kinds of files and messages are grouped by day.
+Prosodys `util.datamanager` is used, so all special characters in these
+filenames are escaped and reside under `hostname/store` in Prosodys Data
+directory, commonly `/var/lib/prosody`.
+
+`username.list`
+:   A list of dates in `YYYY-MM-DD` format.
+
+`username@YYYY-MM-DD.list`
+:   Index containing metadata for messages stored on that day.
+
+`username@YYYY-MM-DD.xml`
+:   Messages in textual XML format, separated by newlines.
+
+This makes it fairly simple and fast to find messages by timestamp.
+Queries that are not time based, but limited to a specific contact may
+be expensive as potentially the entire archive will be read.
+
+Each archive ID is of the form `YYYY-MM-DD-random`, making lookups by
+archive id just as simple as time based queries.
