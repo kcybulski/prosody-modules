@@ -116,8 +116,8 @@ function condition_handlers.IN_ROSTER_GROUP(group)
 end
 
 function condition_handlers.SUBSCRIBED()
-	return "(to_node and rostermanager.is_contact_subscribed(to_node, to_host, bare_from))",
-	       { "rostermanager", "split_to", "bare_from" };
+	return "(bare_to == bare_from or to_node and rostermanager.is_contact_subscribed(to_node, to_host, bare_from))",
+	       { "rostermanager", "split_to", "bare_to", "bare_from" };
 end
 
 function condition_handlers.PAYLOAD(payload_ns)
