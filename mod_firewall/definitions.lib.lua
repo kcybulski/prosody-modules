@@ -40,7 +40,7 @@ function definition_handlers.RATE(name, line)
 				single = function ()
 					return new_throttle(rate*burst, burst);
 				end;
-				
+
 				multi = function ()
 					local cache = require "util.cache".new(max_throttles, deny_when_full and evict_only_unthrottled or nil);
 					return {
