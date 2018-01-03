@@ -259,7 +259,7 @@ function condition_handlers.LIMIT(spec)
 	if not param then
 		return ("not global_throttle_%s:poll(1)"):format(name), { "globalthrottle:"..name, unpack(meta_deps) };
 	end
-	return ("not multi_throttle_%s:poll_on(%s, 1)"):format(name, param), { "multithrottle:"..name, unpack(meta_deps) };	
+	return ("not multi_throttle_%s:poll_on(%s, 1)"):format(name, param), { "multithrottle:"..name, unpack(meta_deps) };
 end
 
 function condition_handlers.ORIGIN_MARKED(name_and_time)

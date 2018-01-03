@@ -571,7 +571,7 @@ function load_script(script)
 		unload_script(script, true);
 	end
 	local chain_functions, err = compile_firewall_rules(script);
-	
+
 	if not chain_functions then
 		module:log("error", "Error compiling %s: %s", script, err or "unknown error");
 		return;
