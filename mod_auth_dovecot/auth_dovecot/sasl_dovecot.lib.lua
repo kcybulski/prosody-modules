@@ -139,7 +139,7 @@ function method:send(...)
 	if msg:sub(-1) ~= "\n" then
 		msg = msg .. "\n"
 	end
-	module:log("debug", "sending %q", msg:sub(1,-2));
+	-- module:log("debug", "sending %q", msg:sub(1,-2));
 	local ok, err = self.conn:send(msg);
 	if not ok then
 		log("error", "Could not write to socket: %s", err);
