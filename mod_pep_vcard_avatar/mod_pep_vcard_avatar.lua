@@ -2,6 +2,7 @@
 -- Copyright (C) 2008-2014 Matthew Wild
 -- Copyright (C) 2008-2014 Waqas Hussain
 -- Copyright (C) 2014 Kim Alvefur
+-- Copyright (c) 2018 Daniel Gultsch
 --
 -- This project is MIT/X11 licensed. Please see the
 -- COPYING file in the source package for more information.
@@ -143,3 +144,55 @@ local function on_publish(event)
 end
 
 module:hook("pep-publish-item", on_publish, 1);
+
+local function calculate_avatar_hash(username)
+	local vcard = get_vcard(username)
+	local photo = vcard and vcard:get_child("PHOTO")
+	if photo then
+		local photo_type = photo:get_child_text("TYPE");
+		local photo_b64 = photo:get_child_text("BINVAL");
+		local photo_raw = photo_b64 and base64.decode(photo_b64);
+		if photo_raw and photo_type then
+			return sha1(photo_raw, true);
+		end
+	end
+	return ""
+end
+
+local function get_avatar_hash(username, host)
+	local session = prosody.hosts[host] and prosody.hosts[host].sessions[username]
+	if not session then
+		return nil
+	end
+	if not session.avatar_hash then
+		session.avatar_hash  = calculate_avatar_hash(username)
+	end
+	return session.avatar_hash
+end
+
+local function on_send_presence(event)
+	local stanza, session = event.stanza, event.origin
+	if stanza.attr.type then
+		return
+	end
+	local hash = get_avatar_hash(session.username, session.host)
+	if hash and hash ~= "" then
+		local x_vcard_update = stanza:get_child("x","vcard-temp:x:update")
+		if not x_vcard_update then
+			x_vcard_update = st.stanza("x",{xmlns="vcard-temp:x:update"})
+			stanza:add_child(x_vcard_update)
+		end
+		local photo = x_vcard_update:get_child("photo")
+		if not photo then
+			photo = st.stanza("photo")
+			photo:text(hash)
+			x_vcard_update:add_child(photo)
+		elseif photo:get_text() then
+			photo:text(hash)
+		end
+	end
+end
+
+module:hook("pre-presence/full", on_send_presence)
+module:hook("pre-presence/bare", on_send_presence)
+module:hook("pre-presence/host", on_send_presence)
