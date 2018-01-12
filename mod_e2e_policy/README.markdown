@@ -9,7 +9,7 @@ Configuration
 Enable the module as any other:
 
     modules_enabled = {
-      "mod_e2e_policy";
+      "e2e_policy";
     }
 
 You can then set some options to configure your desired policy:
