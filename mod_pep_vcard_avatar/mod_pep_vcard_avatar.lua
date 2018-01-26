@@ -187,8 +187,6 @@ local function on_send_presence(event)
 			photo = st.stanza("photo")
 			photo:text(hash)
 			x_vcard_update:add_child(photo)
-		elseif photo:get_text() then
-			photo:text(hash)
 		end
 	end
 end
