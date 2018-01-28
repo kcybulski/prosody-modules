@@ -5,14 +5,14 @@
 -- http://tools.ietf.org/html/draft-miller-posh-03
 --
 module:set_global();
-local json = require 'util.json'
+local json = require "util.json";
 
-local base64 = require"util.encodings".base64;
+local base64 = require "util.encodings".base64;
 local pem2der = require "util.x509".pem2der;
-local hashes = require"util.hashes";
-local build_url = require"socket.url".build;
+local hashes = require "util.hashes";
+local build_url = require "socket.url".build;
 local async = require "util.async";
-local http = require"net.http";
+local http = require "net.http";
 
 local cache = require "util.cache".new(100);
 
@@ -46,7 +46,7 @@ local function posh_lookup(host_session, resume)
 	local url = build_url { scheme = "https", host = target_host, path = "/.well-known/posh/xmpp-server.json" };
 
 	log("debug", "Request POSH information for %s", tostring(target_host));
-	http.request(url, nil, function(response, code)
+	http.request(url, nil, function (response, code)
 		if code ~= 200 then
 			log("debug", "No or invalid POSH response received");
 			resume();
@@ -69,7 +69,7 @@ local function posh_lookup(host_session, resume)
 end
 
 -- Do POSH authentication
-module:hook("s2s-check-certificate", function(event)
+module:hook("s2s-check-certificate", function (event)
 	local session, cert = event.session, event.cert;
 	local log = session.log or module._log;
 	if session.cert_identity_status == "valid" then
