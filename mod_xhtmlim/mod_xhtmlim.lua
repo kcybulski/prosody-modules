@@ -81,7 +81,7 @@ local function sanitize_xhtml(tag)
 				elseif attr == "src" or attr == "href" then
 					local urlattr = url.parse(value);
 					local scheme = urlattr and urlattr.scheme;
-					if scheme ~= "http" and scheme ~= "https" and scheme ~= "mailto" and scheme == "xmpp" and scheme ~= "cid" then
+					if scheme ~= "http" and scheme ~= "https" and scheme ~= "mailto" and scheme ~= "xmpp" and scheme ~= "cid" then
 						tag.attr[attr] = "https://url.was.invalid/";
 					end
 				end
