@@ -6,7 +6,7 @@
 --
 
 local new_sasl = require "util.sasl".new;
-local json_encode = require "util.json";
+local json = require "util.json";
 local http = require "socket.http";
 
 local options = module:get_option("auth_custom_http");
@@ -42,7 +42,7 @@ end
 function provider.get_sasl_handler()
 	local getpass_authentication_profile = {
 		plain_test = function(sasl, username, password, realm)
-			local postdata = json_encode({ username = username, password = password });
+			local postdata = json.encode({ username = username, password = password });
 			local result = http.request(post_url, postdata);
 			return result == "true", true;
 		end,
@@ -52,4 +52,3 @@ end
 
 
 module:provides("auth", provider);
-
