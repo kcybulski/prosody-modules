@@ -15,7 +15,9 @@ Configuration
 ``` lua
 VirtualHost "example.com"
 authentication = "custom_http"
-auth_custom_http = "http://api.example.com/auth"
+auth_custom_http = {
+  post_url = "http://api.example.com/auth";
+}
 ```
 
 Protocol
