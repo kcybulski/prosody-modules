@@ -14,7 +14,7 @@ Details
 
 This module has two modes. One mode requires users to opt-in to be
 searchable, then allows users to search the list of those users. The
-second mode allows search accross all users.
+second mode allows search across all users.
 
 Usage
 =====

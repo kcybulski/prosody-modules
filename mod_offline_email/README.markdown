@@ -45,7 +45,7 @@ Caveats/Todos/Bugs
 ==================
 
 -   Currently SMTP sending blocks the whole server. This should not be
-    noticable if your mail server is on the same machine as Prosody.
+    noticeable if your mail server is on the same machine as Prosody.
 -   There is not (yet) any way to configure forwarding to an email
     address other than your JID (idea... use email address in vcard?)
 -   Enable/disable this feature per user?

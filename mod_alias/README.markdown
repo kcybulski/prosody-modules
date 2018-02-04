@@ -17,7 +17,7 @@ sending the user a helpful message, requiring humans to decide what they
 actually want to do.
 
 This doesn't require any special support on other clients or servers,
-just the ability to recieve messages.
+just the ability to receive messages.
 
 Configuration
 =============

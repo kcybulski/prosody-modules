@@ -11,7 +11,7 @@ By default mod_smacks sends back error stanzas for every unacked message
 stanza when the hibernation times out.
 This leads to "message not delivered" errors displayed in clients.
 
-When you are certain that *all* your clients use MAM, this is unneccessary and
+When you are certain that *all* your clients use MAM, this is unnecessary and
 confuses users (the message will eventually be delivered via MAM).
 
 This module therefore monkeypatches mod_smacks to silently drop those

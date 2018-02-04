@@ -45,7 +45,7 @@ also take a JID for limiting output to matching users or servers.
   cipher           The OpenSSL cipher string for the currently used cipher
   encryption       Encryption algorithm used
   bits, algbits    Secret bits involved in the cipher
-  authentication   The authentication algoritm used
+  authentication   The authentication algorithm used
   mac              Message authentication algorithm used
   key              Key exchange mechanism used.
   export           Whethere an export cipher is used

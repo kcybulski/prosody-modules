@@ -12,4 +12,4 @@ Configuration
 =============
 
 After installing and adding the module to `modules_enabled` you can
-specify a limit with `max_resources` wich defaults to 10.
+specify a limit with `max_resources` which defaults to 10.

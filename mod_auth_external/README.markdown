@@ -101,7 +101,7 @@ Example: `setpass:username:example.com:abc123`
 
 Note: The password can contain colons. Make sure to handle that.
 
-ejabberd compatibilty
+ejabberd compatibility
 ---------------------
 
 ejabberd implements a similar protocol. The main difference is that
