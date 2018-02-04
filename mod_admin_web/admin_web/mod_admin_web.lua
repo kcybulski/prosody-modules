@@ -223,7 +223,7 @@ function module.add_host(module)
 		end
 	end
 
-	-- Add incomming s2s sessions
+	-- Add incoming s2s sessions
 	for session in pairs(incoming_s2s) do
 		if session.to_host == module.host then
 			add_host(session, "in", module.host);
