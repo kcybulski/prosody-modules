@@ -571,7 +571,7 @@ module:add_feature("http://jabber.org/protocol/disco#items");
 --module:hook("account-disco-items", iq_disco_items);
 --[[
 module:hook("iq/host", function(data)
-	-- IQ to a local host recieved
+	-- IQ to a local host received
 	local origin, stanza = data.origin, data.stanza;
 	if stanza.attr.type == "get" or stanza.attr.type == "set" then
 		return module:fire_event("iq/host/"..stanza.tags[1].attr.xmlns..":"..stanza.tags[1].name, data);
