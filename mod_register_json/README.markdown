@@ -27,7 +27,7 @@ Where the encoded content is this (example) JSON Array:
     {"username":"usernameofchoice","password":"theuserpassword","ip":"theremoteaddroftheuser","mail":"usermail@usermaildomain.tld","auth\_token":"yourauthtokenofchoice"}\</code\>
 
 Your form implementation needs to pass **all** parameters, the
-auth\_token is needed to prevent misuses, if the request is successfull
+auth\_token is needed to prevent misuses, if the request is successful
 the server will answer with status code 200 and with the body of the
 response containing the token which your web app can send via e-mail to
 the user to complete the registration.

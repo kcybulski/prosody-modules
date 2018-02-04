@@ -10,7 +10,7 @@ Introduction
 Namespace Delegation is an extension which allows server to delegate
 some features handling to an entity/component. Typical use case is an
 external PEP service, but it can be used more generally when your
-prefered server lack one internal feature and you found an external
+preferred server lack one internal feature and you found an external
 component which can do it.
 
 Details

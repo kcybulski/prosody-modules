@@ -7,7 +7,7 @@ Introduction
 
 This module produces info level log messages with the certificate status
 and fingerprint every time an s2s connection is established. It can also
-optionally store this in persistant storage.
+optionally store this in persistent storage.
 
 **info** jabber.org has a trusted valid certificate with SHA1:
 11:C2:3D:87:3F:95:F8:13:F8:CA:81:33:71:36:A7:00:E0:01:95:ED

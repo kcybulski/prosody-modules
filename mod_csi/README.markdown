@@ -13,7 +13,7 @@ would rather not get some less urgent things pushed to it.
 However this module does not do anything by itself. Deciding what things
 are considered "less urgent" is left to other modules.
 
--   [mod\_throttle\_presence](/mod_throttle_presence.html) supresses
+-   [mod\_throttle\_presence](/mod_throttle_presence.html) suppresses
     presence updates
 -   [mod\_filter\_chatstates](/mod_filter_chatstates.html) removes chat
     states (*Someone is typing...*)

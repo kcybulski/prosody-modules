@@ -5,7 +5,7 @@ labels:
 ...
 
 This module tries to squash incoming identical presence stanzas to save
-some bandwith at the cost of increased memory use.
+some bandwidth at the cost of increased memory use.
 
 Configuration
 =============

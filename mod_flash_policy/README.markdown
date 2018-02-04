@@ -14,7 +14,7 @@ connecting port (5222 in the case of default xmpp). Responding on port
 584 is tricky because it requires root priviliges to set up a socket on
 a port \< 1024.
 
-This plugins filters the incomming data from the flash client. So when
+This plugins filters the incoming data from the flash client. So when
 the client connects with prosody it immediately sends a xml request
 string (`<policy-file-request/>\0`). Prosody responds with a flash
 cross-domain-policy. See
