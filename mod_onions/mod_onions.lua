@@ -54,7 +54,7 @@ local function socks5_connect_sent(conn, data)
 		return;
 	end
 
-	module:log("debug", "Succesfully connected to SOCKS5 proxy.");
+	module:log("debug", "Successfully connected to SOCKS5 proxy.");
 
 	local response = byte(data, 4);
 
