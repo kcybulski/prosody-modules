@@ -241,7 +241,7 @@ function module.add_host(module)
 			return; -- Already done DANE lookup
 		end
 		dane_lookup(host_session, resume);
-		-- Let it run in parallell until we need to check the cert
+		-- Let it run in parallel until we need to check the cert
 	end
 
 	-- New outgoing connections
