@@ -84,7 +84,7 @@ local function handle_request(event, path, authed_user)
 	end
 
 	if user_host ~= path_items[1] or user_node ~= path_items[2] then
-		-- To only give admins acces to anything, move the inside of this block after authz
+		-- To only give admins access to anything, move the inside of this block after authz
 		--module:log("debug", "%s wants access to %s@%s[%s], is admin?", authed_user, p_user, p_host, p_store)
 		if not is_admin(authed_user, p_host) then
 			return 403;
