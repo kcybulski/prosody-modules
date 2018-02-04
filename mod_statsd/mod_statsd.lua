@@ -15,7 +15,7 @@ local options = module:get_option("statsd") or {}
 local sock = socket.udp()
 sock:setpeername(options.hostname or "127.0.0.1", options.port or 8125)
 
--- Metrics are namespaced by ".", and seperated by newline
+-- Metrics are namespaced by ".", and separated by newline
 function clean(s) return (s:gsub("[%.:\n]", "_")) end
 
 -- A 'safer' send function to expose
