@@ -91,14 +91,14 @@ module:add_item("adhoc",
 				local group, err = groups:get(fields.group);
 				if group then
 					if err then
-						return false, "An error occured on the server. Please try again later.";
+						return false, "An error occurred on the server. Please try again later.";
 					else
 						return false, "That group already exists";
 					end
 				end
 
 				if not groups:set(fields.group, { [user] = true }) then
-					return false, "An error occured while creating the group";
+					return false, "An error occurred while creating the group";
 				end
 
 				return true, ("The %s group has been created"):format(fields.group);
@@ -126,7 +126,7 @@ module:add_item("adhoc",
 				local group, err = groups:get(fields.group);
 				if not group then
 					if err then
-						return false, "An error occured on the server. Please try again later.";
+						return false, "An error occurred on the server. Please try again later.";
 					else
 						return false, "No such group";
 					end
@@ -136,7 +136,7 @@ module:add_item("adhoc",
 				end
 
 				if not memberships:set(fields.group, user, true) then
-					return false, "An error occured while adding you to the group";
+					return false, "An error occurred while adding you to the group";
 				end
 
 				for member in pairs(group) do
