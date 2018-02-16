@@ -1,11 +1,10 @@
 local prosody = prosody;
 local core_process_stanza = prosody.core_process_stanza;
 
-local wrapclient = require "net.server".wrapclient;
+local addclient = require "net.server".addclient;
 local s2s_new_outgoing = require "core.s2smanager".new_outgoing;
 local initialize_filters = require "util.filters".initialize;
 local st = require "util.stanza";
-local socket = require "socket";
 
 local portmanager = require "core.portmanager";
 
@@ -180,19 +179,13 @@ end
 
 local function connect_socks5(host_session, connect_host, connect_port)
 
-	local conn, handler = socket.tcp();
-
 	module:log("debug", "Connecting to " .. connect_host .. ":" .. connect_port);
 
 	-- this is not necessarily the same as .to_host (it can be that this is from the onions_map)
 	host_session.socks5_to = connect_host;
 	host_session.socks5_port = connect_port;
 
-	conn:settimeout(0);
-
-	local success, err = conn:connect(proxy_ip, proxy_port);
-
-	conn = wrapclient(conn, connect_host, connect_port, socks5listener, "*a");
+	local conn = addclient(proxy_ip, proxy_port, socks5listener, "*a");
 
 	socks5listener.register_outgoing(conn, host_session);
 
