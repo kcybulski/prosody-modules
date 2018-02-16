@@ -8,7 +8,7 @@ Introduction
 ============
 
 This is a plugin that implements the JID prep protocol defined in
-http://xmpp.org/extensions/inbox/jidprep.html
+<http://xmpp.org/extensions/inbox/jidprep.html>
 
 Details
 =======
