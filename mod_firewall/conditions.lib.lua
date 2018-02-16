@@ -277,7 +277,7 @@ function condition_handlers.ORIGIN_MARKED(name_and_time)
 end
 
 function condition_handlers.SENT_DIRECTED_PRESENCE_TO_SENDER()
-	return "not not session.directed[from]", { "from" };
+	return "not not (session.directed and session.directed[from])", { "from" };
 end
 
 -- TO FULL JID?
