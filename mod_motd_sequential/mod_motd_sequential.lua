@@ -29,8 +29,8 @@ module:hook("resource-bind",
     local mod_stanza;
     for i = alreadyseen, max do
             motd_stanza =
-                    st.message({ to = session.username..'@'..session.host, from = motd_jid })
-                            :tag("body"):text(motd_messagesets[i]);
+                    st.message({ to = session.username..'@'..session.host, from = motd_jid },
+                            motd_messagesets[i]);
             core_route_stanza(hosts[host], motd_stanza);
             module:log("debug", "MOTD send to user %s@%s", session.username, session.host);
     end

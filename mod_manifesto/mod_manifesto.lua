@@ -103,7 +103,7 @@ module:hook("resource-bind", function (event)
 				SERVICES = "    "..table.concat(bad_hosts, "\n    ");
 				CONTACTVIA = contact_method, CONTACT = contact;
 			};
-			session.send(st.message({ type = "headline", from = host }):tag("body"):text(message:gsub("$(%w+)", vars)));
+			session.send(st.message({ type = "headline", from = host }, message:gsub("$(%w+)", vars)));
 			notified[session.username] = now;
 		end
 	end);

@@ -89,8 +89,7 @@ local function on_message(event)
 
 	-- Send the reply stanza
 	local reply_stanza = st.message({ from = host, to = userjid,
-					type = "chat" });
-	reply_stanza = reply_stanza:body(session.fulltext);
+					type = "chat" }, session.fulltext);
 	module:send(reply_stanza);
 
 	return true;

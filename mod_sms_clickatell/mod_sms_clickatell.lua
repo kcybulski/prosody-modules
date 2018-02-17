@@ -150,7 +150,7 @@ end
 function dmsg(jid, msg)
 	module:log("debug", msg or "nil");
 	if jid ~= nil then
-		send_stanza(st.message({to=jid, from=component_host, type='chat'}):tag("body"):text(msg or "nil"):up());
+		send_stanza(st.message({to=jid, from=component_host, type='chat'}, msg or "nil"));
 	end
 end
 
@@ -498,7 +498,7 @@ function message_stanza_handler(origin, stanza)
 	-- Now parse the message
 	if stanza.attr.to == component_host then
 		-- Messages directly to the component jget echoed
-		origin.send(st.message({to=stanza.attr.from, from=component_host, type='chat'}):tag("body"):text(msg.body):up());
+		origin.send(st.message({to=stanza.attr.from, from=component_host, type='chat'}, msg.body));
 	elseif users[from_bjid].data.roster[to.node] ~= nil then
 		-- If message contains a body, send message to SMS Test User
 		if msg.body ~= nil then
