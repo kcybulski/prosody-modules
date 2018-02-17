@@ -25,7 +25,7 @@ end
 function dmsg(jid, msg)
 	module:log("debug", msg or "nil");
 	if jid ~= nil then
-		module:send(st.message({to=jid, from=component_host, type='chat'}):tag("body"):text(msg or "nil"):up());
+		module:send(st.message({to=jid, from=component_host, type='chat'}, msg or "nil"));
 	end
 end
 
@@ -100,7 +100,7 @@ function user:login()
 			timer.add_task(self.data.refreshrate, function() return users[self.jid]:sync(); end)
 		end
 	else
-		module:send(st.message({to=self.jid, from=component_host, type='chat'}):tag("body"):text("You are not signed in."));
+		module:send(st.message({to=self.jid, from=component_host, type='chat'}, "You are not signed in."));
 	end
 end
 
@@ -196,17 +196,17 @@ function user:twitterAction(line, params)
 		end
 		http_add_action(line, url, action.method, post, function(...) self:twitterActionResult(...) end);
 	else
-		module:send(st.message({to=self.jid, from=component_host, type='chat'}):tag("body"):text("Wrong twitter action!"):up());
+		module:send(st.message({to=self.jid, from=component_host, type='chat'}, "Wrong twitter action!"));
 	end
 end
 
 local twitterActionResultMap = {
 	PublicTimeline = {exec=function(jid, response)
-		--module:send(st.message({to=jid, from=component_host, type='chat'}):tag("body"):text(print_r(response)):up());
+		--module:send(st.message({to=jid, from=component_host, type='chat'}, print_r(response)));
 		return
 	end},
 	HomeTimeline = {exec=function(jid, response)
-		--module:send(st.message({to=jid, from=component_host, type='chat'}):tag("body"):text(print_r(response)):up());
+		--module:send(st.message({to=jid, from=component_host, type='chat'}, print_r(response)));
 		return
 	end},
 	FriendsTimeline = {function(jid, response)
@@ -416,7 +416,7 @@ function message_stanza_handler(event)
 	if stanza.attr.to == component_host then
 		if msg.body == "!myinfo" then
 			if users[from_bjid] ~= nil then
-				origin.send(st.message({to=stanza.attr.from, from=component_host, type='chat'}):tag("body"):text(print_r(users[from_bjid])):up());
+				origin.send(st.message({to=stanza.attr.from, from=component_host, type='chat'}, print_r(users[from_bjid])));
 			end
 		end
 		-- Other messages go to twitter

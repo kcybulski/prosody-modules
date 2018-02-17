@@ -26,7 +26,7 @@ function handle_alias(event)
 			local error_message = alias_response:gsub("%$([%w_]+)", function (v)
 					return replacements[v] or nil;
 				end);
-			local message = st.message{ type = "chat", from = alias, to = event.stanza.attr.from }:tag("body"):text(error_message);
+			local message = st.message({ type = "chat", from = alias, to = event.stanza.attr.from }, error_message);
 			module:send(message);
 			return event.origin.send(st.error_reply(event.stanza, "cancel", "gone", error_message));
 		end
