@@ -14,7 +14,8 @@ local function authenticate (event, path)
 	local response = event.response;
 	local headers = request.headers;
 	if not headers.authorization then
-		return 400
+		response.headers.www_authenticate = ("Basic realm=%q"):format(realm);
+		return 401
 	end
 	local from_jid, password = b64_decode(headers.authorization:match"[^ ]*$"):match"([^:]*):(.*)";
 	from_jid = jid_prep(from_jid);
