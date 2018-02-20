@@ -70,6 +70,7 @@ function default_filter_set.bytes_in(bytes, session)
 					session.log("debug", "Resuming paused session");
 					session.conn:resume();
 				end
+				session.log("debug", "mod_limits feeding %d bytes of delayed data into stream", #outstanding_data);
 				-- Handle what we can of the outstanding data
 				session.data(outstanding_data);
 			end);
