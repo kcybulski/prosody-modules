@@ -40,8 +40,6 @@ read_globals = {
 	"module.get_option_set",
 	"module.get_option_string",
 	"module.handle_items",
-	"module.has_feature",
-	"module.has_identity",
 	"module.hook",
 	"module.hook_global",
 	"module.hook_object_event",
