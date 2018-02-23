@@ -1,12 +1,16 @@
 local adns = require "net.adns";
 local async = require "util.async";
+local inet_pton = require "util.net".pton;
 
 local rbl = module:get_option_string("registration_rbl");
 
 local function reverse(ip, suffix)
-	local a,b,c,d = ip:match("^(%d+).(%d+).(%d+).(%d+)$");
-	if not a then return end
-	return ("%d.%d.%d.%d.%s"):format(d,c,b,a, suffix);
+	local n, err = inet_pton(ip);
+	if not n then return n, err end
+	if #n == 4 then
+		local a,b,c,d = n:byte(1,4);
+		return ("%d.%d.%d.%d.%s"):format(d,c,b,a, suffix);
+	end
 end
 
 module:hook("user-registering", function (event)
