@@ -1,4 +1,5 @@
 module:depends("http");
+local nodeprep = require "util.encodings".stringprep.nodeprep;
 
 local jid_split = require "util.jid".split;
 local json = require "util.json";
@@ -15,9 +16,15 @@ function client_closed(response)
 end
 
 function serve_stream(event, node)
+	local response = event.response;
+
+	node = nodeprep(node);
+	if node == nil then
+		return 400;
+	end
+
 	module:log("debug", "Client subscribed to: %s", node);
 
-	local response = event.response;
 	response.on_destroy = client_closed;
 	response._eventsource_node = node;
 
