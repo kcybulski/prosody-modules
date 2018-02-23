@@ -1,6 +1,7 @@
 local adns = require "net.adns";
 local async = require "util.async";
 local inet_pton = require "util.net".pton;
+local to_hex = require "util.hex".to;
 
 local rbl = module:get_option_string("registration_rbl");
 
@@ -10,6 +11,8 @@ local function reverse(ip, suffix)
 	if #n == 4 then
 		local a,b,c,d = n:byte(1,4);
 		return ("%d.%d.%d.%d.%s"):format(d,c,b,a, suffix);
+	elseif #n == 16 then
+		return to_hex(n):reverse():gsub("%x", "%1.") .. suffix;
 	end
 end
 
