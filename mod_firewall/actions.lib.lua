@@ -213,6 +213,14 @@ function action_handlers.UNMARK_ORIGIN(name)
 	return [[session.firewall_marked_]]..idsafe(name)..[[ = nil;]]
 end
 
+function action_handlers.MARK_USER(name)
+	return [[if session.firewall_marks then session.firewall_marks.]]..idsafe(name)..[[ = current_timestamp; end]], { "timestamp" };
+end
+
+function action_handlers.UNMARK_USER(name)
+	return [[if session.firewall_marks then session.firewall_marks.]]..idsafe(name)..[[ = nil; end]], { "timestamp" };
+end
+
 function action_handlers.ADD_TO(spec)
 	local list_name, value = spec:match("(%S+) (.+)");
 	local meta_deps = {};

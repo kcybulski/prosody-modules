@@ -303,6 +303,10 @@ local definition_handlers = module:require("definitions");
 local condition_handlers = module:require("conditions");
 local action_handlers = module:require("actions");
 
+if module:get_option_boolean("firewall_experimental_user_marks", false) then
+	module:require"marks";
+end
+
 local function new_rule(ruleset, chain)
 	assert(chain, "no chain specified");
 	local rule = { conditions = {}, actions = {}, deps = {} };
