@@ -4,7 +4,9 @@ local blacklist = module:get_option_inherited_set("s2s_blacklist", {});
 
 module:hook("route/remote", function (event)
 	if blacklist:contains(event.to_host) then
-		module:send(st.error_reply(event.stanza, "cancel", "not-allowed", "Communication with this domain is restricted"));
+		if event.stanza.attr.type ~= "error" then
+			module:send(st.error_reply(event.stanza, "cancel", "not-allowed", "Communication with this domain is restricted"));
+		end
 		return true;
 	end
 end, 100);
