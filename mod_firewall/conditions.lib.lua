@@ -276,6 +276,20 @@ function condition_handlers.ORIGIN_MARKED(name_and_time)
 	return ("not not session.firewall_marked_"..idsafe(name));
 end
 
+function condition_handlers.USER_MARKED(name_and_time)
+	local name, time = name_and_time:match("^%s*([%w_]+)%s+%(([^)]+)s%)%s*$");
+	if not name then
+		name = name_and_time:match("^%s*([%w_]+)%s*$");
+	end
+	if not name then
+		error("Error parsing mark name, see documentation for usage examples");
+	end
+	if time then
+		return ("(current_timestamp - (session.firewall_marks and session.firewall_marks.%s or 0)) < %d"):format(idsafe(name), tonumber(time)), { "timestamp" };
+	end
+	return ("not not (session.firewall_marks and session.firewall_marks."..idsafe(name)..")");
+end
+
 function condition_handlers.SENT_DIRECTED_PRESENCE_TO_SENDER()
 	return "not not (session.directed and session.directed[from])", { "from" };
 end
