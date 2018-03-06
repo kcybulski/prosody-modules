@@ -62,6 +62,7 @@ function definition_handlers.RATE(name, line)
 end
 
 local list_backends = {
+	-- %LIST name: memory (limit: number)
 	memory = {
 		init = function (self, type, opts)
 			if opts.limit then
@@ -88,6 +89,8 @@ local list_backends = {
 			return self.items[item] == true;
 		end;
 	};
+
+	-- %LIST name: http://example.com/ (ttl: number, pattern: pat, hash: sha1)
 	http = {
 		init = function (self, url, opts)
 			local poll_interval = assert(tonumber(opts.ttl or "3600"), "invalid ttl for <"..url.."> (expected number of seconds)");
@@ -140,6 +143,8 @@ local list_backends = {
 			return self.items and self.items[item] == true;
 		end;
 	};
+
+	-- %LIST: file:/path/to/file
 	file = {
 		init = function (self, file_spec, opts)
 			local filename = file_spec:gsub("^file:", "");
