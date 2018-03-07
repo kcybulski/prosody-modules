@@ -69,8 +69,6 @@ read_globals = {
 	"module.http_url",
 }
 globals = {
-	"_M",
-
 	-- Methods that can be set on module API
 	"module.unload",
 	"module.add_host",
