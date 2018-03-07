@@ -1,4 +1,8 @@
 cache = true
+allow_defined_top = true
+unused_secondaries = false
+codes = true
+ignore = { "411/err", "421/err", "411/ok", "421/ok", "211/_ENV" };
 read_globals = {
 	"prosody",
 	"hosts",
@@ -77,7 +81,3 @@ globals = {
 	"module.restore",
 	"module.command",
 }
-allow_defined_top = true
-unused_secondaries = false
-codes = true
-ignore = { "411/err", "421/err", "411/ok", "421/ok", "211/_ENV" };
