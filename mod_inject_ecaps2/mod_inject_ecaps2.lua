@@ -62,7 +62,7 @@ end
 local function caps_handler(event)
 	local origin = event.origin;
 
-	if origin.presence:get_child("c", "urn:xmpp:caps") then
+	if origin.presence == nil or origin.presence:get_child("c", "urn:xmpp:caps") then
 		return;
 	end
 
