@@ -18,12 +18,12 @@ local function calculate_hash(disco_info)
 	local identities, features, extensions = {}, {}, {};
 	for _, tag in ipairs(disco_info) do
 		if tag.name == "identity" then
-			t_insert(identities, ((tag.attr.category or "").."\x1f"..
-			                      (tag.attr.type or "").."\x1f"..
-					      (tag.attr["xml:lang"] or "").."\x1f"..
-					      (tag.attr.name or "").."\x1f\x1e"));
+			t_insert(identities, ((tag.attr.category or "").."\31"..
+			                      (tag.attr.type or "").."\31"..
+					      (tag.attr["xml:lang"] or "").."\31"..
+					      (tag.attr.name or "").."\31\30"));
 		elseif tag.name == "feature" then
-			t_insert(features, (tag.attr.var or "").."\x1f");
+			t_insert(features, (tag.attr.var or "").."\31");
 		elseif tag.name == "x" and tag.attr.xmlns == "jabber:x:data" then
 			local form = {};
 			for _, field in ipairs(tag.tags) do
@@ -32,19 +32,19 @@ local function calculate_hash(disco_info)
 					for _, value in ipairs(field.tags) do
 						if value.name == "value" and value.attr.xmlns == "jabber:x:data" then
 							value = #value.tags == 0 and value:get_text();
-							if value then t_insert(values, value.."\x1f"); end
+							if value then t_insert(values, value.."\31"); end
 						end
 					end
 					t_sort(values);
 					if #values > 0 then
-						t_insert(form, field.attr.var.."\x1f"..t_concat(values, "\x1f").."\x1f\x1e");
+						t_insert(form, field.attr.var.."\31"..t_concat(values, "\31").."\31\30");
 					else
-						t_insert(form, field.attr.var.."\x1f\x1e");
+						t_insert(form, field.attr.var.."\31\30");
 					end
 				end
 			end
 			t_sort(form);
-			form = t_concat(form, "\x1d").."\x1d";
+			form = t_concat(form, "\29").."\29";
 			t_insert(extensions, form);
 		else
 			return nil, "Unknown element in disco#info";
@@ -53,9 +53,9 @@ local function calculate_hash(disco_info)
 	t_sort(identities);
 	t_sort(features);
 	t_sort(extensions);
-	if #identities > 0 then identities = t_concat(identities, "\x1c").."\x1c"; else identities = "\x1c"; end
-	if #features > 0 then features = t_concat(features).."\x1c"; else features = "\x1c"; end
-	if #extensions > 0 then extensions = t_concat(extensions, "\x1c").."\x1c"; else extensions = "\x1c"; end
+	if #identities > 0 then identities = t_concat(identities, "\28").."\28"; else identities = "\28"; end
+	if #features > 0 then features = t_concat(features).."\28"; else features = "\28"; end
+	if #extensions > 0 then extensions = t_concat(extensions, "\28").."\28"; else extensions = "\28"; end
 	return features..identities..extensions;
 end
 
