@@ -71,7 +71,11 @@ local function caps_handler(event)
 		return;
 	end
 
-	local extension_string = calculate_hash(disco_info);
+	local extension_string, err = calculate_hash(disco_info);
+	if extension_string == nil then
+		module:log("warn", "Failed to calculate ecaps2 hash: %s", err)
+		return;
+	end
 
 	local ecaps2 = st.stanza("c", { xmlns = "urn:xmpp:caps" });
 	for algo in algorithms do
