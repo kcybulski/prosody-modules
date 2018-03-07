@@ -3,7 +3,7 @@ module:depends("cache_c2s_caps");
 local st = require "util.stanza";
 
 local function iq_stanza_handler(event)
-	local origin, stanza = event.origin, event.stanza;
+	local stanza = event.stanza;
 	local type = stanza.attr.type;
 
 	local query = stanza:get_child("query", "http://jabber.org/protocol/disco#info");
