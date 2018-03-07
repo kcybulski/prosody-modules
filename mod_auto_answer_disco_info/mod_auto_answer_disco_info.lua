@@ -15,6 +15,10 @@ local function iq_stanza_handler(event)
 	local node = query.attr.node;
 
 	local target_session = prosody.full_sessions[to];
+	if target_session == nil then
+		return;
+	end
+
 	local disco_info = target_session.caps_cache;
 	if disco_info ~= nil and (node == nil or node == disco_info.attr.node) then
 		local iq = st.reply(stanza);
