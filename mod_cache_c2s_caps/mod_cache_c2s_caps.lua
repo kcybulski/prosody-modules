@@ -1,5 +1,4 @@
 local st_iq = require "util.stanza".iq;
-local jid_split = require "util.jid".split;
 local uuid_gen = require "util.uuid".generate;
 local calculate_hash = require "util.caps".calculate_hash;
 
