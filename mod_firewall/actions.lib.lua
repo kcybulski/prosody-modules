@@ -228,4 +228,9 @@ function action_handlers.ADD_TO(spec)
 	return ("list_%s:add(%s);"):format(list_name, value), { "list:"..list_name, unpack(meta_deps) };
 end
 
+function action_handlers.UNSUBSCRIBE_SENDER()
+	return "rostermanager.unsubscribed(to_node, to_host, bare_from)",
+	       { "rostermanager", "split_to", "bare_to", "bare_from" };
+end
+
 return action_handlers;
