@@ -64,7 +64,7 @@ function archive:_get_idx(username, id, dates)
 	local date = id:sub(1, 10);
 	for d = 1, #dates do
 		if date == dates[d] then
-			module:log("debug", "Loading items from %s", dates[d]);
+			module:log("debug", "Loading index for %s", dates[d]);
 			local items = dm.list_load(username .. "@" .. dates[d], self.host, self.store) or empty;
 			for i = 1, #items do
 				if items[i].id == id then
@@ -154,6 +154,7 @@ function archive:find(username, query)
 	local date_open, xmlfile;
 	local function read_xml(date, offset, length)
 		if xmlfile and date ~= date_open then
+			module:log("debug", "Closing XML file for %s", date_open);
 			xmlfile:close();
 			xmlfile = nil;
 		end
@@ -166,6 +167,7 @@ function archive:find(username, query)
 				module:log("error", "Error: %s", ferr);
 				return nil, ferr;
 			end
+			module:log("debug", "Opened XML file %s", filename);
 		end
 		local pos, err = xmlfile:seek("set", offset);
 		if pos ~= offset then
@@ -179,7 +181,7 @@ function archive:find(username, query)
 		for d = start_day, last_day, step do
 			local date = dates[d];
 			if not items then
-				module:log("debug", "Loading items from %s", date);
+				module:log("debug", "Loading index for %s", date);
 				start_day = d;
 				items = dm.list_load(username .. "@" .. date, self.host, self.store) or empty;
 				if not rev then
@@ -269,6 +271,7 @@ function archive:delete(username, query)
 end
 
 function archive:dates(username)
+	module:log("debug", "Loading root index for %s", username);
 	local dates, err = dm.list_load(username, self.host, self.store);
 	if not dates then return dates, err; end
 	assert(type(dates[1]) == "string" and type(dates[#dates]) == "string",
