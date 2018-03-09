@@ -17,17 +17,26 @@ local template = [[
 <body><script>converse.initialize(%s);</script>
 ]]
 
+local more_options = module:get_option("conversejs_options");
+
 module:provides("http", {
 	route = {
 		GET = function (event)
-			event.response.headers.content_type = "text/html";
-			return template:format(json_encode({
-				-- debug = true,
+			local converse_options = {
 				bosh_service_url = module:http_url("bosh","/http-bind");
 				websocket_url = has_ws and module:http_url("websocket","xmpp-websocket"):gsub("^http", "ws") or nil;
 				authentication = module:get_option_string("authentication") == "anonymous" and "anonymous" or "login";
 				jid = module.host;
-			}));
+			};
+
+			if type(more_options) == "table" then
+				for k,v in pairs(more_options) do
+					converse_options[k] = v;
+				end
+			end
+
+			event.response.headers.content_type = "text/html";
+			return template:format(json_encode(converse_options));
 		end;
 	}
 });
