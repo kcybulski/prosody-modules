@@ -70,3 +70,7 @@ Note that the following options are automatically provided, and
 -   `bosh_service_url`
 -   `websocket_url` *if `mod_websocket` is available*
 
+Compatibility
+=============
+
+Should work with Prosody 0.9 and later. Websocket support requires 0.10.
