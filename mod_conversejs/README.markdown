@@ -17,14 +17,35 @@ VirtualHost that it is loaded onto.
 Configuration
 =============
 
-The module itself has no configuration. It uses
-[authentication settings][doc:authentication] to determine whether to
-configure Converse.js to use `login` or `anonymous` mode.
+The module uses general Prosody options for basic configuration. It
+should just work after loading it.
 
-It also determines the [BOSH][mod_bosh] and [WebSocket][mod_websocket]
-URL automatically, see their respective documentation for how to configure
-them.
+``` {.lua}
+modules_enabled = {
+    -- other modules...
+    "conversejs";
+}
+```
 
-See Prosodys [HTTP configuration][doc:http] for HTTP related options.
+Authentication
+--------------
+
+[Authentication settings][doc:authentication] are used determine
+whether to configure Converse.js to use `login` or `anonymous` mode.
+
+Connection methods
+------------------
+
+It also determines the [BOSH][mod_bosh] and
+[WebSocket][mod_websocket] URL automatically, see their respective
+documentation for how to configure them. Both connection methods are
+loaded automatically.
+
+HTTP
+----
+
+See Prosodys [HTTP configuration][doc:http] for HTTP related
+options.
+
 
 
