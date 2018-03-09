@@ -47,5 +47,26 @@ HTTP
 See Prosodys [HTTP configuration][doc:http] for HTTP related
 options.
 
+Other
+-----
 
+To pass [other Converse.js
+options](https://conversejs.org/docs/html/configuration.html), or
+override the derived settings, one can set `conversejs_options` like
+this:
+
+``` {.lua}
+converse_options = {
+    debug = true;
+    view_mode = "fullscreen";
+}
+```
+
+Note that the following options are automatically provided, and
+**overriding them may cause problems**:
+
+-   `authentication` *based on Prosodys authentication settings*
+-   `jid` *the current `VirtualHost`*
+-   `bosh_service_url`
+-   `websocket_url` *if `mod_websocket` is available*
 
