@@ -43,7 +43,7 @@ if next(captcha_options) ~= nil then
 			recaptcha_display_error = display_options and display_options.recaptcha_error
 			and ("&error="..display_options.recaptcha_error) or "";
 		}, {
-			__index = function (t, k)
+			__index = function (_, k)
 				if captcha_options[k] then return captcha_options[k]; end
 				module:log("error", "Missing parameter from captcha_options: %s", k);
 			end
@@ -164,7 +164,6 @@ function generate_success(event, form)
 end
 
 function generate_register_response(event, form, ok, err)
-	local message;
 	event.response.headers.content_type = "text/html; charset=utf-8";
 	if ok then
 		return generate_success(event, form);
