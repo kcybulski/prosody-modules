@@ -36,6 +36,7 @@ local function handler(event)
 			});
 		end
 	end
+	table.sort(http_apps, function (a, b) return a.name < b.name; end);
 	event.response.headers.content_type = "text/html";
 	return render(base_template, {
 		title = "HTTP Apps";
