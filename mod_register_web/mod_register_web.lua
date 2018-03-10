@@ -114,7 +114,12 @@ function generate_page(event, display_options)
 end
 
 function register_user(form, origin)
-	local prepped_username = nodeprep(form.username);
+	local username = form.username;
+	local password = form.password;
+	local confirm_password = form.confirm_password;
+	form.username, form.password, form.confirm_password = nil, nil, nil;
+
+	local prepped_username = nodeprep(username);
 	if not prepped_username then
 		return nil, "Username contains forbidden characters";
 	end
@@ -124,15 +129,15 @@ function register_user(form, origin)
 	if usermanager.user_exists(prepped_username, module.host) then
 		return nil, "Username already taken";
 	end
-	local registering = { username = prepped_username , host = module.host, ip = origin.conn:ip(), allowed = true }
+	local registering = { username = prepped_username , host = module.host, additional = form, ip = origin.conn:ip(), allowed = true }
 	module:fire_event("user-registering", registering);
 	if not registering.allowed then
 		return nil, registering.reason or "Registration not allowed";
 	end
-	if form.confirm_password ~= form.password then
+	if confirm_password ~= password then
 		return nil, "Passwords don't match";
 	end
-	local ok, err = usermanager.create_user(prepped_username, form.password, module.host);
+	local ok, err = usermanager.create_user(prepped_username, password, module.host);
 	if ok then
 		local extra_data = {};
 		for field in pairs(extra_fields) do
