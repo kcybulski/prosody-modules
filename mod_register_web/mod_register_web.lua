@@ -127,7 +127,7 @@ function register_user(form, origin)
 	local registering = { username = prepped_username , host = module.host, ip = origin.conn:ip(), allowed = true }
 	module:fire_event("user-registering", registering);
 	if not registering.allowed then
-		return nil, "Registration not allowed";
+		return nil, registering.reason or "Registration not allowed";
 	end
 	if form.confirm_password ~= form.password then
 		return nil, "Passwords don't match";
