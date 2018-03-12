@@ -183,8 +183,13 @@ local available_deps = {
 	is_admin = { global_code = [[local is_admin = require "core.usermanager".is_admin;]]};
 	core_post_stanza = { global_code = [[local core_post_stanza = prosody.core_post_stanza;]] };
 	zone = { global_code = function (zone)
-		assert(idsafe(zone), "Invalid zone name: "..zone);
-		return ("local zone_%s = zones[%q] or {};"):format(zone, zone);
+		local var = zone;
+		if var == "$local" then
+			var = "_local"; -- See #1090
+		else
+			assert(idsafe(var), "Invalid zone name: "..zone);
+		end
+		return ("local zone_%s = zones[%q] or {};"):format(var, zone);
 	end };
 	date_time = { global_code = [[local os_date = os.date]]; local_code = [[local current_date_time = os_date("*t");]] };
 	time = { local_code = function (what)
