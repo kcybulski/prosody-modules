@@ -87,12 +87,14 @@ function condition_handlers.TYPE(type)
 end
 
 local function zone_check(zone, which)
+	local zone_var = zone;
+	if zone == "$local" then zone_var = "_local" end
 	local which_not = which == "from" and "to" or "from";
 	return ("(zone_%s[%s_host] or zone_%s[%s] or zone_%s[bare_%s]) "
 		.."and not(zone_%s[%s_host] or zone_%s[%s] or zone_%s[bare_%s])"
 		)
-		:format(zone, which, zone, which, zone, which,
-		zone, which_not, zone, which_not, zone, which_not), {
+		:format(zone_var, which, zone_var, which, zone_var, which,
+		zone_var, which_not, zone_var, which_not, zone_var, which_not), {
 			"split_to", "split_from", "bare_to", "bare_from", "zone:"..zone
 		};
 end
