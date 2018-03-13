@@ -117,6 +117,7 @@ function register_user(form, origin)
 	local username = form.username;
 	local password = form.password;
 	local confirm_password = form.confirm_password;
+	local jid = nil;
 	form.username, form.password, form.confirm_password = nil, nil, nil;
 
 	local prepped_username = nodeprep(username);
@@ -139,6 +140,7 @@ function register_user(form, origin)
 	end
 	local ok, err = usermanager.create_user(prepped_username, password, module.host);
 	if ok then
+		jid = prepped_username.."@"..module.host
 		local extra_data = {};
 		for field in pairs(extra_fields) do
 			local field_value = form[field];
@@ -156,17 +158,17 @@ function register_user(form, origin)
 			ip = origin.conn:ip(),
 		});
 	end
-	return ok, err;
+	return jid, err;
 end
 
-function generate_success(event, form)
-	return render(success_tpl, { jid = nodeprep(form.username).."@"..module.host });
+function generate_success(event, jid)
+	return render(success_tpl, { jid = jid });
 end
 
-function generate_register_response(event, form, ok, err)
+function generate_register_response(event, jid, err)
 	event.response.headers.content_type = "text/html; charset=utf-8";
-	if ok then
-		return generate_success(event, form);
+	if jid then
+		return generate_success(event, jid);
 	else
 		return generate_page(event, { register_error = err });
 	end
@@ -177,8 +179,8 @@ function handle_form(event)
 	local form = http.formdecode(request.body);
 	verify_captcha(request, form, function (ok, err)
 		if ok then
-			local register_ok, register_err = register_user(form, request);
-			response:send(generate_register_response(event, form, register_ok, register_err));
+			local jid, register_err = register_user(form, request);
+			response:send(generate_register_response(event, jid, register_err));
 		else
 			response:send(generate_page(event, { register_error = err }));
 		end
