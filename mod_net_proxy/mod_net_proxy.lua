@@ -14,6 +14,36 @@ local ip = require "util.ip";
 local net = require "util.net";
 local portmanager = require "core.portmanager";
 
+-- Backwards Compatibility
+local function net_ntop_bc(input)
+	if input:len() == 4 then
+		return string.format("%d.%d.%d.%d", input:byte(1, 4));
+	elseif input:len() == 16 then
+		local octets = { nil, nil, nil, nil, nil, nil, nil, nil };
+
+		-- Convert received bytes into IPv6 address and skip leading zeroes for each group
+		for index = 1, 8 do
+			high, low = input:byte(index * 2 - 1, index * 2);
+			octets[index] = string.format("%x", high * 256 + low);
+		end
+		local address = table.concat(octets, ":", 1, 8);
+
+		-- Search for the longest sequence of zeroes
+		local token;
+		local length = (address:match("^0:[0:]+()") or 1) - 1;
+		for s in address:gmatch(":0:[0:]+") do
+			if length < #s then
+				length, token = #s, s;
+			end
+		end
+
+		-- Return the shortened IPv6 address
+		return address:gsub(token or "^0:[0:]+", "::", 1);
+	end
+end
+
+local net_ntop = net.ntop or net_ntop_bc
+
 -- Utility Functions
 local function _table_invert(input)
 	local output = {};
@@ -197,11 +227,11 @@ PROTO_HANDLERS["PROXYv2"].callback = function(conn, session)
 
 		-- Parse source and destination addresses
 		if addr_family == ADDR_FAMILY.INET then
-			src_addr = net.ntop(payload:sub(offset, offset + 3)); offset = offset + 4;
-			dst_addr = net.ntop(payload:sub(offset, offset + 3)); offset = offset + 4;
+			src_addr = net_ntop(payload:sub(offset, offset + 3)); offset = offset + 4;
+			dst_addr = net_ntop(payload:sub(offset, offset + 3)); offset = offset + 4;
 		elseif addr_family == ADDR_FAMILY.INET6 then
-			src_addr = net.ntop(payload:sub(offset, offset + 15)); offset = offset + 16;
-			dst_addr = net.ntop(payload:sub(offset, offset + 15)); offset = offset + 16;
+			src_addr = net_ntop(payload:sub(offset, offset + 15)); offset = offset + 16;
+			dst_addr = net_ntop(payload:sub(offset, offset + 15)); offset = offset + 16;
 		elseif addr_family == ADDR_FAMILY.UNIX then
 			src_addr = payload:sub(offset, offset + 107); offset = offset + 108;
 			dst_addr = payload:sub(offset, offset + 107); offset = offset + 108;
