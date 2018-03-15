@@ -116,12 +116,12 @@ frontend f-xmpp
 	
 backend b-xmpp-c2s
 	balance roundrobin
-	option independant-streams
+	option independent-streams
 	server mycoolprosodybox 192.168.10.10:15222 send-proxy-v2
 	
 backend b-xmpp-s2s
 	balance roundrobin
-	option independant-streams
+	option independent-streams
 	server mycoolprosodybox 192.168.10.10:15269 send-proxy-v2
 ```
 
