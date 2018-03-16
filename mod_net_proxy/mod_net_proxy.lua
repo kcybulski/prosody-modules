@@ -23,7 +23,7 @@ local function net_ntop_bc(input)
 
 		-- Convert received bytes into IPv6 address and skip leading zeroes for each group
 		for index = 1, 8 do
-			high, low = input:byte(index * 2 - 1, index * 2);
+			local high, low = input:byte(index * 2 - 1, index * 2);
 			octets[index] = string.format("%x", high * 256 + low);
 		end
 		local address = table.concat(octets, ":", 1, 8);
