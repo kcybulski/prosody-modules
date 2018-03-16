@@ -28,6 +28,8 @@ module:provides("http", {
 				authentication = module:get_option_string("authentication") == "anonymous" and "anonymous" or "login";
 				jid = module.host;
 				default_domain = module.host;
+				domain_placeholder = module.host;
+				allow_registration = module:get_option_boolean("allow_registration", false);
 			};
 
 			local view_mode_css = "converse";
