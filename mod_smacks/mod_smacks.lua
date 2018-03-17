@@ -236,7 +236,7 @@ local function wrap_session_out(session, resume)
 		end
 		-- send out last ack as per revision 1.5.2 of XEP-0198
 		if session.smacks and session.conn then
-			(session.sends2s or session.send)(st.stanza("a", { xmlns = session.smacks, h = tostring(session.handled_stanza_count) }));
+			(session.sends2s or session.send)(st.stanza("a", { xmlns = session.smacks, h = string.format("%d", session.handled_stanza_count) }));
 		end
 		return session_close(...);
 	end
@@ -322,7 +322,7 @@ function handle_r(origin, stanza, xmlns_sm)
 	end
 	module:log("debug", "Received ack request, acking for %d", origin.handled_stanza_count);
 	-- Reply with <a>
-	(origin.sends2s or origin.send)(st.stanza("a", { xmlns = xmlns_sm, h = tostring(origin.handled_stanza_count) }));
+	(origin.sends2s or origin.send)(st.stanza("a", { xmlns = xmlns_sm, h = string.format("%d", origin.handled_stanza_count) }));
 	return true;
 end
 module:hook_stanza(xmlns_sm2, "r", function (origin, stanza) return handle_r(origin, stanza, xmlns_sm2); end);
@@ -470,7 +470,7 @@ function handle_resume(session, stanza, xmlns_sm)
 		if old_session and session.username == old_session.username
 		and session.host == old_session.host
 		and old_session.h then
-			session.send(st.stanza("failed", { xmlns = xmlns_sm, h = tostring(old_session.h) })
+			session.send(st.stanza("failed", { xmlns = xmlns_sm, h = string.format("%d", old_session.h) })
 				:tag("item-not-found", { xmlns = xmlns_errors })
 			);
 		else
@@ -505,7 +505,7 @@ function handle_resume(session, stanza, xmlns_sm)
 		c2s_sessions[session.conn] = original_session;
 
 		original_session.send(st.stanza("resumed", { xmlns = xmlns_sm,
-			h = original_session.handled_stanza_count, previd = id }));
+			h = string.format("%d", original_session.handled_stanza_count), previd = id }));
 
 		-- Fake an <a> with the h of the <resume/> from the client
 		original_session:dispatch_stanza(st.stanza("a", { xmlns = xmlns_sm,
