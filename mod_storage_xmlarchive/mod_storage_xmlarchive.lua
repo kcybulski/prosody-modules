@@ -60,6 +60,7 @@ function archive:append(username, _, data, when, with)
 end
 
 function archive:_get_idx(username, id, dates)
+	module:log("debug", "Looking for item with id %q", id);
 	dates = dates or self:dates(username) or empty;
 	local date = id:sub(1, 10);
 	for d = 1, #dates do
