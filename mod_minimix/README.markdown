@@ -29,15 +29,18 @@ only the account itself joins each groupchat. Which sessions have joined
 which groups are kept track of. Groupchat messages are then forked to
 those sessions, similar to how normal chat messages work.
 
-## Known issues
+Known issues
+------------
 
 -   You can never leave.
 -   You will never see anyone leave.
 
-## Unknown issues
+Unknown issues
+--------------
 
 -   Probably many.
 
-# Compatibility
+Compatibility
+=============
 
 Briefly tested with Prosody trunk (as of this writing).
