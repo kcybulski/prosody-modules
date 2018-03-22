@@ -3,7 +3,7 @@ local st = require "util.stanza";
 
 local rooms = module:depends"muc".rooms;
 
-module:hook("presence/bare", function (event)
+module:hook("presence/full", function (event)
 	local stanza, origin = event.stanza, event.origin;
 	if stanza.attr.type ~= nil then return end
 
