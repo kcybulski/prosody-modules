@@ -1,7 +1,7 @@
 Account based MUC joining
 =========================
 
-Normally when joing a MUC groupchat, it is each individual client that
+Normally when joining a MUC groupchat, it is each individual client that
 joins. This means their presence in the group is tied to the session,
 which can be short-lived or unstable, especially in the case of mobile
 clients.
