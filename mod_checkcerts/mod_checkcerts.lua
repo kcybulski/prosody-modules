@@ -1,3 +1,4 @@
+local config = require "core.configmanager";
 local ssl = require"ssl";
 local datetime_parse = require"util.datetime".parse;
 local load_cert = ssl.loadcertificate;
@@ -45,20 +46,20 @@ local function check_certs_validity()
 		ssl_config = config.get("*", "ssl");
 	end
 	if not ssl_config or not ssl_config.certificate then
-		log("warn", "Could not find a certificate to check");
+		module:log("warn", "Could not find a certificate to check");
 		return;
 	end
 
 	local certfile = ssl_config.certificate;
 	local fh, ferr = io.open(certfile); -- Load the file.
 	if not fh then
-		log("warn", "Could not open certificate %s", ferr);
+		module:log("warn", "Could not open certificate %s", ferr);
 		return;
 	end
 	local cert, lerr = load_cert(fh:read("*a")); -- And parse
 	fh:close();
 	if not cert then
-		log("warn", "Could not parse certificate %s: %s", certfile, lerr or "");
+		module:log("warn", "Could not parse certificate %s: %s", certfile, lerr or "");
 		return;
 	end
 
