@@ -15,7 +15,7 @@ Example usage
 
 Example echo bot in PHP:
 
-```
+``` php
 <?php 
 
 // Receive and decode message JSON
