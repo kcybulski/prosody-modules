@@ -32,7 +32,7 @@ echo json_encode(array(
 ```
 
 Configuration
--------------
+=============
 
   Option                                 Description
   ------------------------------------   -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -40,10 +40,10 @@ Configuration
   component\_post\_stanzas               A list of stanza types to forward over HTTP. Defaults to `{ "message" }`.
 
 Details
--------
+=======
 
 Requests
-========
+--------
 
 Each received stanza is converted into a JSON object, and submitted to `component_post_url` using a HTTP POST request.
 
@@ -64,7 +64,7 @@ Additionally, the JSON object may contain the following properties:
 
 
 Responses
-=========
+---------
 
 If you wish to respond to a stanza, you may include a reply when you respond to the HTTP request.
 
@@ -80,7 +80,7 @@ If 'stanza' is set, it overrides all of the above, and the supplied stanza is se
 sent by components must have a 'to' and 'from'.
 
 Presence
-========
+--------
 
 By default the module automatically handles presence to provide an always-on component, that automatically accepts subscription requests.
 
@@ -89,6 +89,6 @@ this by adding "presence" to the component\_post\_stanzas option in your config.
 
 
 Compatibility
--------------
+=============
 
 Should work with all versions of Prosody from 0.9 upwards.
