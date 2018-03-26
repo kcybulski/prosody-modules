@@ -34,6 +34,20 @@ echo json_encode(array(
 Configuration
 =============
 
+The module is quite flexible, but should generally be loaded as a component like this:
+
+```
+Component "yourservice.example.com" "component_http"
+  component_post_url = "https://example.com/your-api"
+```
+
+Such a component would handle traffic for all JIDs with 'yourservice.example.com' as the hostname, such
+as 'foobar@yourservice.example.com'. Although this example uses a subdomain, there is no requirement for
+the component to use a subdomain.
+
+Available configuration options are:
+
+
   Option                                 Description
   ------------------------------------   -------------------------------------------------------------------------------------------------------------------------------------------------
   component\_post\_url                   The URL that will handle incoming stanzas
