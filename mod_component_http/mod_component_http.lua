@@ -42,8 +42,8 @@ function handle_stanza(event)
 	});
 	http.request(url, {
 		body = request_body;
-	}, function (response_text, code, req, response)
-		if stanza.attr.type == "error" then return; end -- Avoid error loops, don't reply to error stanzas		
+	}, function (response_text, code, _, response)
+		if stanza.attr.type == "error" then return; end -- Avoid error loops, don't reply to error stanzas
 		if code == 200 and response_text and response.headers["content-type"] == "application/json" then
 			local response_data = json.decode(response_text);
 			if response_data.stanza then
@@ -86,7 +86,7 @@ end
 
 -- Simple handler for an always-online JID that allows everyone to subscribe to presence
 local function default_presence_handler(event)
-	local origin, stanza = event.origin, event.stanza;
+	local stanza = event.stanza;
 	module:log("debug", "Handling %s", tostring(stanza));
 	if stanza.attr.type == "probe" then
 		module:send(st.presence({ to = stanza.attr.from, from = stanza.attr.to.."/default" }));
@@ -94,7 +94,7 @@ local function default_presence_handler(event)
 		module:send(st.presence({ type = "subscribed", to = stanza.attr.from, from = stanza.attr.to.."/default" }));
 		module:send(st.presence({ to = stanza.attr.from, from = stanza.attr.to.."/default" }));
 	elseif stanza.attr.type == "unsubscribe" then
-		module:send(st.presence({ type = "unavailable", to = stanza.attr.from, from = stanza.attr.to.."/default" }));	
+		module:send(st.presence({ type = "unavailable", to = stanza.attr.from, from = stanza.attr.to.."/default" }));
 	end
 	return true;
 end
