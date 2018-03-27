@@ -310,7 +310,7 @@ end
 
 local function serve_hello(event)
 	event.response.headers.content_type = "text/html;charset=utf-8"
-	return "<!DOCTYPE html>\n<h1>Hello from mod_"..module.name.."!</h1>\n";
+	return "<!DOCTYPE html>\n<h1>Hello from mod_"..module.name.." on "..module.host.."!</h1>\n";
 end
 
 module:provides("http", {
