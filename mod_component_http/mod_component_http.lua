@@ -32,7 +32,7 @@ local function error_reply(stanza, code)
 end
 
 function handle_stanza(event)
-	local origin, stanza = event.origin, event.stanza;
+	local stanza = event.stanza;
 	local request_body = json.encode({
 		to = stanza.attr.to;
 		from = stanza.attr.from;
@@ -50,7 +50,7 @@ function handle_stanza(event)
 				local reply_stanza = xml.parse(response_data.stanza);
 				if reply_stanza then
 					reply_stanza.attr.from, reply_stanza.attr.to = stanza.attr.to, stanza.attr.from;
-					return origin.send(reply_stanza);
+					module:send(reply_stanza);
 				else
 					module:log("warn", "Unable to parse reply stanza");
 				end
@@ -66,14 +66,14 @@ function handle_stanza(event)
 					reply_stanza:tag("body"):text(tostring(response_data.body)):up();
 				end
 				module:log("debug", "Sending %s", tostring(reply_stanza));
-				return origin.send(reply_stanza);
+				module:send(reply_stanza);
 			end
-			return;
 		elseif code >= 200 and code <= 299 then
-			return true;
+			return;
 		else
-			return origin.send(error_reply(stanza, code));
+			module:send(error_reply(stanza, code));
 		end
+		return true;
 	end);
 	return true;
 end
