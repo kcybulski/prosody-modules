@@ -109,7 +109,7 @@ module:hook("iq/host/"..namespace..":request", function (event)
 	local filename = request.attr.filename;
 	local filesize = tonumber(request.attr.size);
 	local get_url, put_url = handle_request(
-		origin, stanza, legacy_namespace, filename, filesize);
+		origin, stanza, namespace, filename, filesize);
 
 	if not get_url then
 		-- error was already sent

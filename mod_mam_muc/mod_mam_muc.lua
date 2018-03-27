@@ -30,6 +30,10 @@ local each_room = rawget(mod_muc, "each_room") or function() return it.values(ro
 local new_muc = not rooms;
 if new_muc then
 	rooms = module:shared"muc/rooms";
+else
+	-- COMPAT: We don't (currently?) support injecting stanza-id
+	-- on Prosody 0.10 and prior, which is required by mam:2
+	xmlns_mam = "urn:xmpp:mam:1";
 end
 local get_room_from_jid = rawget(mod_muc, "get_room_from_jid") or
 	function (jid)
