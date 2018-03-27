@@ -98,6 +98,7 @@ your XMPP backend running on 192.168.10.10 using the PROXYv2 protocol:
 
 ```
 defaults d-xmpp
+  log global
 	mode tcp
 	option redispatch
 	option tcplog
