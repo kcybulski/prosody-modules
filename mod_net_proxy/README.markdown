@@ -36,7 +36,13 @@ shall be used or not, you need to configure separate ports for all the services
 that should be exposed with PROXY protocol support:
 
 ```lua
-proxy_ports = {15222, 15269}
+--[[
+	Hint: While you can manually override the ports this module is listening on with
+	the "proxy_ports" directive, it is highly recommended to not set it and instead
+	only configure the appropriate mappings with "proxy_port_mappings", which will
+	automatically start listening on all mapped ports.
+]]--
+
 proxy_port_mappings = {
 	[15222] = "c2s",
 	[15269] = "s2s"
@@ -84,7 +90,6 @@ for both modules, configured as tcp/15222 (C2S) and tcp/15269 (S2S):
 ```lua
 c2s_ports = {5222}
 s2s_ports = {5269}
-proxy_ports = {15222, 15269}
 proxy_port_mappings = {
 	[15222] = "c2s",
 	[15269] = "s2s"
