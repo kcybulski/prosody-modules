@@ -37,22 +37,40 @@ that should be exposed with PROXY protocol support:
 
 ```lua
 --[[
-	Hint: While you can manually override the ports this module is listening on with
-	the "proxy_ports" directive, it is highly recommended to not set it and instead
-	only configure the appropriate mappings with "proxy_port_mappings", which will
-	automatically start listening on all mapped ports.
-]]--
-
+  Maps TCP ports to a specific Prosody network service. Further information about
+  available service names can be found further down below in the module documentation.
+]]-- 
 proxy_port_mappings = {
 	[15222] = "c2s",
 	[15269] = "s2s"
 }
+
+--[[
+  Specifies a list of trusted hosts or networks which may use the PROXY protocol
+  If not specified, it will default to: 127.0.0.1, ::1 (local connections only)
+  An empty table ({}) can be configured to allow connections from any source.
+  Please read the module documentation about potential security impact.
+]]-- 
+proxy_trusted_proxies = {
+	"192.168.10.1",
+	"172.16.0.0/16"
+}
+
+--[[
+  While you can manually override the ports this module is listening on with
+  the "proxy_ports" directive, it is highly recommended to not set it and instead
+  only configure the appropriate mappings with "proxy_port_mappings", which will
+  automatically start listening on all mapped ports.
+
+  Example: proxy_ports = { 15222, 15269 }
+]]--
 ```
 
 The above example configuration, which needs to be placed in the global section,
-would listen on both tcp/15222 and tcp/15269. All incoming connections to these ports
-have to be initiated by a PROXYv1 or PROXYv2 sender and will get mapped to the
-configured service name after initializating the connection.
+would listen on both tcp/15222 and tcp/15269. All incoming connections have to 
+originate from trusted hosts/networks (configured by _proxy_trusted_proxies_) and
+must be initiated by a PROXYv1 or PROXYv2 sender. After processing the PROXY
+protocol, those connections will get mapped to the configured service name.
 
 Please note that each port handled by _mod_net_proxy_ must be mapped to another
 service name by adding an item to _proxy_port_mappings_, otherwise a warning will

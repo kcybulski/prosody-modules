@@ -67,9 +67,15 @@ local PROTO_HANDLERS = {
 };
 local PROTO_HANDLER_STATUS = { SUCCESS = 0, POSTPONE = 1, FAILURE = 2 };
 
+-- Configuration Variables
+local config_mappings = module:get_option("proxy_port_mappings", {});
+local config_ports = module:get_option_set("proxy_ports", {});
+local config_trusted_proxies = module:get_option_set("proxy_trusted_proxies", {"127.0.0.1", "::1"});
+
 -- Persistent In-Memory Storage
 local sessions = {};
 local mappings = {};
+local trusted_networks = set.new();
 
 -- Proxy Data Methods
 local proxy_data_mt = {}; proxy_data_mt.__index = proxy_data_mt;
@@ -314,10 +320,37 @@ local function wrap_proxy_connection(conn, session, proxy_data)
 	return service_listener.onincoming(conn, session.buffer);
 end
 
+local function is_trusted_proxy(conn)
+	-- If no trusted proxies were configured, trust any incoming connection
+	-- While this may seem insecure, the module defaults to only trusting 127.0.0.1 and ::1
+	if trusted_networks:empty() then
+		return true;
+	end
+
+	-- Iterate through all trusted proxies and check for match against connected IP address
+	local conn_ip = ip.new_ip(conn:ip());
+	for trusted_network in trusted_networks:items() do
+		if ip.match(trusted_network.ip, conn_ip, trusted_network.cidr) then
+			return true;
+		end
+	end
+
+	-- Connection does not match any trusted proxy
+	return false;
+end
+
 -- Network Listener Methods
 local listener = {};
 
 function listener.onconnect(conn)
+	-- Check if connection is coming from a trusted proxy
+	if not is_trusted_proxy(conn) then
+		conn:close();
+		module:log("warn", "Dropped connection from untrusted proxy: %s", conn:ip());
+		return;
+	end
+
+	-- Initialize session variables
 	sessions[conn] = {
 		handler = nil;
 		buffer = nil;
@@ -388,9 +421,19 @@ end
 
 listener.ondetach = listener.ondisconnect;
 
+-- Parse trusted proxies which can either contain single hosts or networks
+if not config_trusted_proxies:empty() then
+	for trusted_proxy in config_trusted_proxies:items() do
+		local network = {};
+		network.ip, network.cidr = ip.parse_cidr(trusted_proxy);
+		trusted_networks:add(network);
+	end
+else
+	module:log("warn", "No trusted proxies configured, all connections will be accepted - this might be dangerous");
+end
+
 -- Process all configured port mappings and generate a list of mapped ports
 local mapped_ports = {};
-local config_mappings = module:get_option("proxy_port_mappings", {});
 for port, mapping in pairs(config_mappings) do
 	table.insert(mapped_ports, port);
 	mappings[port] = {
@@ -400,7 +443,6 @@ for port, mapping in pairs(config_mappings) do
 end
 
 -- Log error message when user manually specifies ports without configuring the necessary port mappings
-local config_ports = module:get_option_set("proxy_ports", {});
 if not config_ports:empty() then
 	local missing_ports = config_ports - set.new(mapped_ports);
 	if not missing_ports:empty() then
