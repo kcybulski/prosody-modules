@@ -12,6 +12,7 @@ local bit = assert(softreq "bit" or softreq "bit32", "No bit module found. See h
 local hex = require "util.hex";
 local ip = require "util.ip";
 local net = require "util.net";
+local set = require "util.set";
 local portmanager = require "core.portmanager";
 
 -- Backwards Compatibility
@@ -387,17 +388,23 @@ end
 
 listener.ondetach = listener.ondisconnect;
 
--- Initialize the module by processing all configured port mappings
-local config_ports = module:get_option_set("proxy_ports", {});
+-- Process all configured port mappings and generate a list of mapped ports
+local mapped_ports = {};
 local config_mappings = module:get_option("proxy_port_mappings", {});
-for port in config_ports do
-	if config_mappings[port] ~= nil then
-		mappings[port] = {
-			service_name = config_mappings[port],
-			service = nil
-		};
-	else
-		module:log("warn", "No port<>service mapping found for port: %d", port);
+for port, mapping in pairs(config_mappings) do
+	table.insert(mapped_ports, port);
+	mappings[port] = {
+		service_name = mapping,
+		service = nil,
+	};
+end
+
+-- Log error message when user manually specifies ports without configuring the necessary port mappings
+local config_ports = module:get_option_set("proxy_ports", {});
+if not config_ports:empty() then
+	local missing_ports = config_ports - set.new(mapped_ports);
+	if not missing_ports:empty() then
+		module:log("error", "Missing port<>service mappings for these ports: %s", tostring(missing_ports));
 	end
 end
 
@@ -405,4 +412,5 @@ end
 module:provides("net", {
 	name = "proxy";
 	listener = listener;
+	default_ports = mapped_ports;
 });
