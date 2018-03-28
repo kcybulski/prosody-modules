@@ -195,7 +195,7 @@ PROTO_HANDLERS["PROXYv2"].callback = function(conn, session)
 
 	-- Ensure that version number is correct
 	if version ~= 0x2 then
-		module:log("error", "Received unsupported PROXYv2 version from %s: %d", conn:ip(), version);
+		module:log("warn", "Received unsupported PROXYv2 version from %s: %d", conn:ip(), version);
 		return PROTO_HANDLER_STATUS.FAILURE, nil;
 	end
 
@@ -259,7 +259,7 @@ PROTO_HANDLERS["PROXYv2"].callback = function(conn, session)
 		-- Return successful response with gathered proxy data
 		return PROTO_HANDLER_STATUS.SUCCESS, proxy_data;
 	else
-		module:log("error", "Received unsupported PROXYv2 command from %s: 0x%02X", conn:ip(), command);
+		module:log("warn", "Received unsupported PROXYv2 command from %s: 0x%02X", conn:ip(), command);
 		return PROTO_HANDLER_STATUS.FAILURE, nil;
 	end
 end
@@ -285,7 +285,7 @@ local function wrap_proxy_connection(conn, session, proxy_data)
 	local mapping = mappings[conn:serverport()];
 	if mapping == nil then
 		conn:close();
-		module:log("error", "Connection %s@%s terminated: Could not find mapping for port %d",
+		module:log("warn", "Connection %s@%s terminated: Could not find mapping for port %d",
 			conn:ip(), conn:proxyip(), conn:serverport());
 		return;
 	end
@@ -297,7 +297,7 @@ local function wrap_proxy_connection(conn, session, proxy_data)
 			mapping.service = service;
 		else
 			conn:close();
-			module:log("error", "Connection %s@%s terminated: Could not process mapping for unknown service %s",
+			module:log("warn", "Connection %s@%s terminated: Could not process mapping for unknown service %s",
 				conn:ip(), conn:proxyip(), mapping.service_name);
 			return;
 		end
@@ -377,7 +377,7 @@ function listener.onincoming(conn, data)
 	else
 		-- This code should be never reached, but is included for completeness
 		conn:close();
-		module:log("error", "Connection terminated: Received invalid protocol handler response with code %d", response);
+		module:log("warn", "Connection terminated: Received invalid protocol handler response with code %d", response);
 		return;
 	end
 end
