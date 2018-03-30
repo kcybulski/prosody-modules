@@ -17,7 +17,7 @@ local server = require "net.http.server";
 local function get_content_len(response, body)
 	local len = response.headers.content_length;
 	if len then return len; end
-	if not body then body = request.body; end
+	if not body then body = response.body; end
 	if body then return #tostring(body); end
 end
 
