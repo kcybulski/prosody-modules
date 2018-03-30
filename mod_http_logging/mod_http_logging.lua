@@ -14,16 +14,20 @@ module:set_global();
 
 local server = require "net.http.server";
 
+local function log_response(response, body)
+	body = body or response.body;
+	local len = response.headers.content_length or (body and #body) or "-";
+	local request = response.request;
+	local ip = request.conn:ip();
+	local req = string.format("%s %s HTTP/%s", request.method, request.path, request.httpversion);
+	local date = os.date("%d/%m/%Y:%H:%M:%S %z");
+	module:log("info", "%s - - [%s] \"%s\" %d %s", ip, date, req, response.status_code, tostring(len));
+end
+
 local send_response = server.send_response;
 local function log_and_send_response(response, body)
 	if not response.finished then
-		body = body or response.body;
-		local len = body and #body or "-";
-		local request = response.request;
-		local ip = request.conn:ip();
-		local req = string.format("%s %s HTTP/%s", request.method, request.path, request.httpversion);
-		local date = os.date("%d/%m/%Y:%H:%M:%S %z");
-		module:log("info", "%s - - [%s] \"%s\" %d %s", ip, date, req, response.status_code, tostring(len));
+		log_response(response, body);
 	end
 	return send_response(response, body);
 end
