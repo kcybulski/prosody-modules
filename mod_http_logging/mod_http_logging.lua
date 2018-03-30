@@ -41,11 +41,20 @@ local function log_and_send_response(response, body)
 	return send_response(response, body);
 end
 
+local send_file = server.send_file;
+local function log_and_send_file(response, f)
+	if not response.finished then
+		log_response(response);
+	end
+	return send_file(response, f);
+end
+
 if module.wrap_object_event then
 	-- Use object event wrapping, allows clean unloading of the module
 	module:wrap_object_event(server._events, false, function (handlers, event_name, event_data)
 		if event_data.response then
 			event_data.response.send = log_and_send_response;
+			event_data.response.send_file = log_and_send_file;
 		end
 		return handlers(event_name, event_data);
 	end);
@@ -53,7 +62,9 @@ else
 	-- Fall back to monkeypatching, unlikely to behave nicely in the
 	-- presence of other modules also doing this
 	server.send_response = log_and_send_response;
+	server.send_file = log_and_send_file;
 	function module.unload()
 		server.send_response = send_response;
+		server.send_file = send_file;
 	end
 end
