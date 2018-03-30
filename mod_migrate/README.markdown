@@ -21,6 +21,10 @@ given if separated by commas.
 `<target-driver>` is the storage driver to copy data to, sans the
 `mod_storage_` prefix.
 
+`mod_migrate` tries to request a list of users from `usermanager`, but
+this does not always work. If so, you can supply usernames as arguments
+after the target driver.
+
 The process is something like this:
 
 1.  Decide on the future configuration and add for example SQL
