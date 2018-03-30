@@ -70,9 +70,7 @@ $store_file_name = $CONFIG_STORE_DIR . '/store-' . hash('sha256', $upload_file_n
 $request_method = $_SERVER['REQUEST_METHOD'];
 
 if(array_key_exists('v', $_GET) === TRUE && $request_method === 'PUT') {
-	$headers = getallheaders();
-
-	$upload_file_size = $headers['Content-Length'];
+	$upload_file_size = $_SERVER['HTTP_CONTENT_LENGTH'];
 	$upload_token = $_GET['v'];
 
 	$calculated_token = hash_hmac('sha256', "$upload_file_name $upload_file_size", $CONFIG_SECRET);
