@@ -24,7 +24,10 @@ end
 local function log_response(response, body)
 	local len = tostring(get_content_len(response, body) or "-");
 	local request = response.request;
-	local ip = request.ip or request.conn:ip();
+	local ip = request.ip;
+	if not ip and request.conn then
+		ip = request.conn:ip();
+	end
 	local req = string.format("%s %s HTTP/%s", request.method, request.path, request.httpversion);
 	local date = os.date("%d/%m/%Y:%H:%M:%S %z");
 	module:log("info", "%s - - [%s] \"%s\" %d %s", ip, date, req, response.status_code, len);
