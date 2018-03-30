@@ -14,14 +14,20 @@ module:set_global();
 
 local server = require "net.http.server";
 
+local function get_content_len(response, body)
+	local len = response.headers.content_length;
+	if len then return len; end
+	if not body then body = request.body; end
+	if body then return #tostring(body); end
+end
+
 local function log_response(response, body)
-	body = body or response.body;
-	local len = response.headers.content_length or (body and #body) or "-";
+	local len = tostring(get_content_len(response, body) or "-");
 	local request = response.request;
 	local ip = request.conn:ip();
 	local req = string.format("%s %s HTTP/%s", request.method, request.path, request.httpversion);
 	local date = os.date("%d/%m/%Y:%H:%M:%S %z");
-	module:log("info", "%s - - [%s] \"%s\" %d %s", ip, date, req, response.status_code, tostring(len));
+	module:log("info", "%s - - [%s] \"%s\" %d %s", ip, date, req, response.status_code, len);
 end
 
 local send_response = server.send_response;
