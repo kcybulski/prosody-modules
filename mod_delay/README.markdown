@@ -10,8 +10,8 @@ Introduction
 This module adds "Delayed Delivery"-tags to every message stanza passing
 the server containing the current time on that server.
 
-This adds accurate message timings even when the message is delayed by slow networks
-on the receiving client or by any event.
+This makes remote clients aware of when Prosody received this message, which
+could be different from the time at which the client actually sent it.
 
 Compatibility
 =============
