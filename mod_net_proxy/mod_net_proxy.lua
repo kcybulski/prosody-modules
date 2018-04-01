@@ -159,6 +159,7 @@ PROTO_HANDLERS["PROXYv1"].callback = function(conn, session)
 	local _, err = ip.new_ip(src_addr);
 	if err ~= nil then
 		module:log("warn", "Received unparseable PROXYv1 source address from %s: %s", conn:ip(), src_addr);
+		return PROTO_HANDLER_STATUS.FAILURE, nil;
 	end
 	_, err = ip.new_ip(dst_addr);
 	if err ~= nil then
