@@ -5,6 +5,8 @@
 -- This file is MIT/X11 licensed.
 
 local t_insert = table.insert;
+local s_match = string.match;
+local s_sub = string.sub;
 local st = require"util.stanza";
 local jid = require"util.jid";
 local dataform = require"util.dataforms".new;
@@ -17,6 +19,7 @@ local xmlns_push = "urn:xmpp:push:0";
 local include_body = module:get_option_boolean("push_notification_with_body", false);
 local include_sender = module:get_option_boolean("push_notification_with_sender", false);
 local max_push_errors = module:get_option_number("push_max_errors", 50);
+local dummy_body = module:get_option_string("push_notification_important_body", "");
 
 local host_sessions = prosody.hosts[module.host].sessions;
 local push_errors = {};
@@ -208,21 +211,75 @@ local function push_disable(event)
 end
 module:hook("iq-set/self/"..xmlns_push..":disable", push_disable);
 
--- clone a stanza and strip it
-local function strip_stanza(stanza)
-	local tags = {};
-	local new = { name = stanza.name, attr = { xmlns = stanza.attr.xmlns, type = stanza.attr.type }, tags = tags };
-	for i=1,#stanza do
-		local child = stanza[i];
-		if type(child) == "table" then		-- don't add raw text nodes
-			if child.name then
-				child = strip_stanza(child);
-				t_insert(tags, child);
-			end
-			t_insert(new, child);
+-- Patched version of util.stanza:find() that supports giving stanza names
+-- without their namespace, allowing for every namespace.
+local function find(self, path)
+	local pos = 1;
+	local len = #path + 1;
+
+	repeat
+		local xmlns, name, text;
+		local char = s_sub(path, pos, pos);
+		if char == "@" then
+			return self.attr[s_sub(path, pos + 1)];
+		elseif char == "{" then
+			xmlns, pos = s_match(path, "^([^}]+)}()", pos + 1);
 		end
+		name, text, pos = s_match(path, "^([^@/#]*)([/#]?)()", pos);
+		name = name ~= "" and name or nil;
+		if pos == len then
+			if text == "#" then
+				local child = xmlns ~= nil and self:get_child(name, xmlns) or self:child_with_name(name);
+				return child and child:get_text() or nil;
+			end
+			return xmlns ~= nil and self:get_child(name, xmlns) or self:child_with_name(name);
+		end
+		self = xmlns ~= nil and self:get_child(name, xmlns) or self:child_with_name(name);
+	until not self
+	return nil;
+end
+
+-- is this push a high priority one (this is needed for ios apps not using voip pushes)
+local function is_important(stanza)
+	local st_name = stanza and stanza.name or nil;
+	if not st_name then return false; end	-- nonzas are never important here
+	if st_name == "presence" then
+		return false;						-- same for presences
+	elseif st_name == "message" then
+		-- unpack carbon copies
+		local stanza_direction = "in";
+		local carbon;
+		local st_type;
+		-- support carbon copied message stanzas having an arbitrary message-namespace or no message-namespace at all
+		if not carbon then carbon = find(stanza, "{urn:xmpp:carbons:2}/forwarded/message"); end
+		if not carbon then carbon = find(stanza, "{urn:xmpp:carbons:1}/forwarded/message"); end
+		stanza_direction = carbon and stanza:child_with_name("sent") and "out" or "in";
+		if carbon then stanza = carbon; end
+		st_type = stanza.attr.type;
+		
+		-- headline message are always not important
+		if st_type == "headline" then return false; end
+		
+		-- carbon copied outgoing messages are not important
+		if carbon and stanza_direction == "out" then return false; end
+		
+		-- We can't check for body contents in encrypted messages, so let's treat them as important
+		-- Some clients don't even set a body or an empty body for encrypted messages
+		
+		-- check omemo https://xmpp.org/extensions/inbox/omemo.html
+		if stanza:get_child("encrypted", "eu.siacs.conversations.axolotl") or stanza:get_child("encrypted", "urn:xmpp:omemo:0") then return true; end
+		
+		-- check xep27 pgp https://xmpp.org/extensions/xep-0027.html
+		if stanza:get_child("x", "jabber:x:encrypted") then return true; end
+		
+		-- check xep373 pgp (OX) https://xmpp.org/extensions/xep-0373.html
+		if stanza:get_child("openpgp", "urn:xmpp:openpgp:0") then return true; end
+		
+		local body = stanza:get_child_text("body");
+		if st_type == "groupchat" and stanza:get_child_text("subject") then return false; end		-- groupchat subjects are not important here
+		return body ~= nil and body ~= "";			-- empty bodies are not important
 	end
-	return setmetatable(new, st.stanza_mt);
+	return false;		-- this stanza wasn't one of the above cases --> it is not important, too
 end
 
 local push_form = dataform {
@@ -231,7 +288,6 @@ local push_form = dataform {
 	{ name = "pending-subscription-count"; type = "text-single"; };
 	{ name = "last-message-sender"; type = "jid-single"; };
 	{ name = "last-message-body"; type = "text-single"; };
-	{ name = "last-message-priority"; type = "text-single"; };
 };
 
 -- http://xmpp.org/extensions/xep-0357.html#publishing
@@ -269,18 +325,10 @@ local function handle_notify_request(stanza, node, user_push_services)
 			end
 			if stanza and include_body then
 				form_data["last-message-body"] = stanza:get_child_text("body");
+			elseif stanza and dummy_body ~= "" and is_important(stanza) then
+				form_data["last-message-body"] = dummy_body;
 			end
 			push_publish:add_child(push_form:form(form_data));
-			if stanza and push_info.include_payload == "stripped" then
-				push_publish:tag("payload", { type = "stripped" })
-					:add_child(strip_stanza(stanza));
-				push_publish:up(); -- / payload
-			end
-			if stanza and push_info.include_payload == "full" then
-				push_publish:tag("payload", { type = "full" })
-					:add_child(st.clone(stanza));
-				push_publish:up(); -- / payload
-			end
 			push_publish:up(); -- / notification
 			push_publish:up(); -- / publish
 			push_publish:up(); -- / pubsub

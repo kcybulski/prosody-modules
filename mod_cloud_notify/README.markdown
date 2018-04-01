@@ -21,29 +21,37 @@ or messages waiting in the smacks queue.
 The business rules outlined [here] are all honored[^2].
 
 To cooperate with [mod_smacks] this module consumes some events:
-"smacks-ack-delayed", "smacks-hibernation-start" and "smacks-hibernation-end".
+`smacks-ack-delayed`, `smacks-hibernation-start` and `smacks-hibernation-end`.
 These events allow this module to send out notifications for messages received
 while the session is hibernated by [mod_smacks] or even when smacks
 acknowledgements for messages are delayed by a certain amount of seconds
-configurable with the [mod_smacks] setting "smacks_max_ack_delay".
+configurable with the [mod_smacks] setting `smacks_max_ack_delay`.
 
-The "smacks_max_ack_delay" setting allows to send out notifications to clients
+The `smacks_max_ack_delay` setting allows to send out notifications to clients
 which aren't already in smacks hibernation state (because the read timeout or
-connection close didn't happen already) but also aren't responding to acknowledgement
-request in a timely manner, thus allowing conversations to be smoother under such
-circumstances.
+connection close didn't already happen) but also aren't responding to acknowledgement
+request in a timely manner. This setting thus allows conversations to be smoother
+under such circumstances.
 
-The new event "cloud-notify-ping" can be used by any module to send out a cloud
+The new event `cloud-notify-ping` can be used by any module to send out a cloud
 notification to either all registered endpoints for the given user or only the endpoints
 given in the event data.
+
+The config setting `push_notification_important_body` can be used to specify an alternative
+body text to send to the remote pubsub node if the stanza is encrypted or has a body.
+This way the real contents of the message aren't revealed to the push appserver but it
+can still see that the push is important.
+This is used by Chatsecure on iOS to send out high priority pushes in those cases for example.
 
 Configuration
 =============
 
-  Option                            Default   Description
-  --------------------------------- --------- ------------------------------------------------------------------
-  `push_notification_with_body`     `false`   Whether or not to send the message body to remote pubsub node.
-  `push_notification_with_sender`   `false`   Whether or not to send the message sender to remote pubsub node.
+  Option                               Default   Description
+  ------------------------------------ --------- ---------------------------------------------------------------------------------------------------------------
+  `push_notification_with_body`        `false`   Whether or not to send the message body to remote pubsub node.
+  `push_notification_with_sender`      `false`   Whether or not to send the message sender to remote pubsub node.
+  `push_max_errors`                    `50`      How much persistent push errors are tolerated before notifications for the identifier in question are disabled
+  `push_notification_important_body`   ``        The body text to use when the stanza is important (see above), no message body is sent if this is empty
 
 There are privacy implications for enabling these options because
 plaintext content and metadata will be shared with centralized servers
