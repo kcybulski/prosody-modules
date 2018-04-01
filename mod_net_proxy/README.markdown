@@ -134,7 +134,7 @@ defaults d-xmpp
 	timeout server 60m
 
 frontend f-xmpp
-	bind :5222,:5269	
+	bind :::5222,:::5269 v4v6
 	use_backend b-xmpp-c2s if { dst_port eq 5222 }
 	use_backend b-xmpp-s2s if { dst_port eq 5269 }
 	
