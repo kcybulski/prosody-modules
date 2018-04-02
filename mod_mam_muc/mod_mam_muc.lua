@@ -8,7 +8,10 @@ if module:get_host_type() ~= "component" then
 	return;
 end
 
-local xmlns_mam     = "urn:xmpp:mam:2";
+-- Note: Can't implement urn:xmpp:mam:2 because we catch messages after
+-- they have already been broadcast, so they can no longer be modified.
+
+local xmlns_mam     = "urn:xmpp:mam:1";
 local xmlns_delay   = "urn:xmpp:delay";
 local xmlns_forward = "urn:xmpp:forward:0";
 local xmlns_st_id   = "urn:xmpp:sid:0";
@@ -26,19 +29,13 @@ local it = require"util.iterators";
 -- Support both old and new MUC code
 local mod_muc = module:depends"muc";
 local rooms = rawget(mod_muc, "rooms");
-local each_room = rawget(mod_muc, "each_room") or function() return it.values(rooms); end;
-local new_muc = not rooms;
-if new_muc then
-	rooms = module:shared"muc/rooms";
-else
-	-- COMPAT: We don't (currently?) support injecting stanza-id
-	-- on Prosody 0.10 and prior, which is required by mam:2
-	xmlns_mam = "urn:xmpp:mam:1";
+if not rooms then
+	module:log("warn", "mod_mam_muc is compatible with Prosody up to 0.10.x, use mod_muc_mam with later versions");
+	module:depends("muc_mam");
+	return;
 end
-local get_room_from_jid = rawget(mod_muc, "get_room_from_jid") or
-	function (jid)
-		return rooms[jid];
-	end
+local each_room = function() return it.values(rooms); end;
+local get_room_from_jid = function (jid) return rooms[jid]; end
 
 local is_stanza = st.is_stanza;
 local tostring = tostring;
@@ -86,7 +83,7 @@ end
 local send_history, save_to_history;
 
 	-- Override history methods for all rooms.
-if not new_muc then -- 0.10 or older
+do -- 0.10 or older
 	module:hook("muc-room-created", function (event)
 		local room = event.room;
 		if archiving_enabled(room) then
@@ -377,8 +374,6 @@ function send_history(self, to, stanza)
 		next_stanza = function() end; -- events should define this iterator
 	};
 
-	module:fire_event("muc-get-history", event);
-
 	for msg in event.next_stanza, event do
 		self:_route_stanza(msg);
 	end
@@ -420,27 +415,7 @@ function save_to_history(self, stanza)
 		with = with .. "<" .. stanza.attr.type
 	end
 
-	local id = archive:append(room_node, nil, stored_stanza, time_now(), with);
-
-	if id then
-		stanza:add_direct_child(st.stanza("stanza-id", { xmlns = xmlns_st_id, by = self.jid, id = id }));
-	end
-end
-
-module:hook("muc-broadcast-message", function (event)
-	local room, stanza = event.room, event.stanza;
-	if stanza:get_child("body") then
-		save_to_history(room, stanza);
-	end
-end);
-
-if module:get_option_boolean("muc_log_presences", true) then
-	module:hook("muc-occupant-joined", function (event)
-		save_to_history(event.room, st.stanza("presence", { from = event.nick }));
-	end);
-	module:hook("muc-occupant-left", function (event)
-		save_to_history(event.room, st.stanza("presence", { type = "unavailable", from = event.nick }));
-	end);
+	archive:append(room_node, nil, stored_stanza, time_now(), with);
 end
 
 if not archive.delete then

@@ -9,8 +9,8 @@ Introduction
 
 This module logs the conversation of chatrooms running on the server to
 Prosody's archive storage. To access them you will need a client with
-support for [XEP-0313: Message Archive Management] or a module such
-as [mod\_http\_muc\_log].
+support for [XEP-0313: Message Archive Management] **version 0.5** or
+a module such as [mod_http_muc_log].
 
 Usage
 =====
@@ -48,13 +48,13 @@ max_history_messages = 20;
 Compatibility
 =============
 
-  ------- --------------------------------------------
-  trunk   Works best
+  ------- -------------------
+  trunk   Use mod\_muc\_mam instead
   0.10    Works partially, only XEP-0313 version 0.5
   0.9     Does not work
   0.8     Does not work
-  ------- --------------------------------------------
+  ------- -------------------
 
 Prosody trunk (after April 2014) has a major rewrite of the MUC module,
-allowing easier integration. Without this (0.10), some features do not
-work, such as correct advertising and join/part logging.
+allowing easier integration, but this module is not compatible with
+that.
