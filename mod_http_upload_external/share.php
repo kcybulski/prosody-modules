@@ -70,7 +70,7 @@ $store_file_name = $CONFIG_STORE_DIR . '/store-' . hash('sha256', $upload_file_n
 $request_method = $_SERVER['REQUEST_METHOD'];
 
 if(array_key_exists('v', $_GET) === TRUE && $request_method === 'PUT') {
-	$upload_file_size = $_SERVER['HTTP_CONTENT_LENGTH'];
+	$upload_file_size = $_SERVER['CONTENT_LENGTH'];
 	$upload_token = $_GET['v'];
 
 	$calculated_token = hash_hmac('sha256', "$upload_file_name $upload_file_size", $CONFIG_SECRET);
@@ -104,9 +104,9 @@ if(array_key_exists('v', $_GET) === TRUE && $request_method === 'PUT') {
 		header('Content-Disposition: attachment');
 		header('Content-Type: application/octet-stream');
 		header('Content-Length: '.filesize($store_file_name));
-		header('Content-Security-Policy: "default-src \'none\'"');
-		header('X-Content-Security-Policy: "default-src \'none\'"');
-		header('X-WebKit-CSP: "default-src 'none'"');
+                header("Content-Security-Policy: \"default-src 'none'\"");
+                header("X-Content-Security-Policy: \"default-src 'none'\"");
+                header("X-WebKit-CSP: \"default-src 'none'\"");
 		if($request_method !== 'HEAD') {
 			readfile($store_file_name);
 		}
