@@ -14,8 +14,12 @@ local HMAC = require "util.hashes".hmac_sha256;
 
 -- config
 local file_size_limit = module:get_option_number(module.name .. "_file_size_limit", 100 * 1024 * 1024); -- 100 MB
-local base_url = assert(module:get_option_string(module.name .. "_base_url"), module.name .. "_base_url is a required option");
-local secret = assert(module:get_option_string(module.name .. "_secret"), module.name .. "_secret is a required option");
+local base_url = assert(module:get_option_string(module.name .. "_base_url"),
+	module.name .. "_base_url is a required option");
+local secret = assert(module:get_option_string(module.name .. "_secret"),
+	module.name .. "_secret is a required option");
+
+local token_protocol = module:get_option_string(module.name .. "_protocol", "v1");
 
 -- depends
 module:depends("disco");
@@ -39,14 +43,19 @@ module:add_extension(dataform {
 	{ name = "max-file-size", type = "text-single" },
 }:form({ ["max-file-size"] = tostring(file_size_limit) }, "result"));
 
-local function magic_crypto_dust(random, filename, filesize)
-	local message = string.format("%s/%s %d", random, filename, filesize);
+local function magic_crypto_dust(random, filename, filesize, filetype)
+	local param, message;
+	if token_protocol == "v1" then
+		param, message = "v", string.format("%s/%s %d", random, filename, filesize);
+	else
+		param, message = "v2", string.format("%s/%s\0%d\0%s", random, filename, filesize, filetype);
+	end
 	local digest = HMAC(secret, message, true);
 	random, filename = http.urlencode(random), http.urlencode(filename);
-	return base_url .. random .. "/" .. filename, "?v=" .. digest;
+	return base_url .. random .. "/" .. filename, "?"..param.."=" .. digest;
 end
 
-local function handle_request(origin, stanza, xmlns, filename, filesize)
+local function handle_request(origin, stanza, xmlns, filename, filesize, filetype)
 	-- local clients only
 	if origin.type ~= "c2s" then
 		module:log("debug", "Request for upload slot from a %s", origin.type);
@@ -71,7 +80,7 @@ local function handle_request(origin, stanza, xmlns, filename, filesize)
 		return nil, nil;
 	end
 	local random = uuid();
-	local get_url, verify = magic_crypto_dust(random, filename, filesize);
+	local get_url, verify = magic_crypto_dust(random, filename, filesize, filetype);
 	local put_url = get_url .. verify;
 
 	module:log("info", "Handing out upload slot %s to %s@%s", get_url, origin.username, origin.host);
@@ -85,9 +94,10 @@ module:hook("iq/host/"..legacy_namespace..":request", function (event)
 	local request = stanza.tags[1];
 	local filename = request:get_child_text("filename");
 	local filesize = tonumber(request:get_child_text("size"));
+	local filetype = request.attr["content-type"] or "application/octet-stream";
 
 	local get_url, put_url = handle_request(
-		origin, stanza, legacy_namespace, filename, filesize);
+		origin, stanza, legacy_namespace, filename, filesize, filetype);
 
 	if not get_url then
 		-- error was already sent
@@ -108,8 +118,10 @@ module:hook("iq/host/"..namespace..":request", function (event)
 	local request = stanza.tags[1];
 	local filename = request.attr.filename;
 	local filesize = tonumber(request.attr.size);
+	local filetype = request.attr["content-type"] or "application/octet-stream";
+
 	local get_url, put_url = handle_request(
-		origin, stanza, namespace, filename, filesize);
+		origin, stanza, namespace, filename, filesize, filetype);
 
 	if not get_url then
 		-- error was already sent
