@@ -229,8 +229,10 @@ function action_handlers.ADD_TO(spec)
 end
 
 function action_handlers.UNSUBSCRIBE_SENDER()
-	return "rostermanager.unsubscribed(to_node, to_host, bare_from)",
-	       { "rostermanager", "split_to", "bare_to", "bare_from" };
+	return "rostermanager.unsubscribed(to_node, to_host, bare_from);\
+	rostermanager.roster_push(to_node, to_host, bare_from);\
+	core_post_stanza(session, st.presence({ from = bare_to, to = bare_from, type = \"unsubscribed\" }));",
+	       { "rostermanager", "core_post_stanza", "st", "split_to", "bare_to", "bare_from" };
 end
 
 return action_handlers;
