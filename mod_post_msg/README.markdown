@@ -7,8 +7,9 @@ Introduction
 
 Sometimes it's useful to have different interfaces to access XMPP.
 
-This is example of sending message using HTTP POST to XMPP. For sure we
-need user auth information.
+This module allows sending XMPP
+[`<message>`](https://xmpp.org/rfcs/rfc6121.html#message) stanzas via a
+simple HTTP API.
 
 Example usage
 -------------
