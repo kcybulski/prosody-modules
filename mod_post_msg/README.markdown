@@ -29,6 +29,13 @@ URL format
 The base URL defaults to `/msg`. This can be configured via Prosodys
 [HTTP path settings][doc:http].
 
+Authentication
+--------------
+
+Authentication is done by HTTP Basic.
+
+    Authentication: Basic BASE64( "username@virtualhost:password" )
+
 Payload formats
 ---------------
 
