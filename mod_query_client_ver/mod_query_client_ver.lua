@@ -61,7 +61,7 @@ module:add_item("adhoc",
 	module:require "adhoc".new("Query all currently connected clients", "ping",
 	function (self, data, state)
 		for jid, session in pairs(prosody.full_sessions) do
-			if session.jid == module.host then
+			if session.host == module.host then
 				session.send(st.iq({ id = version_id, type = "get", from = module.host, to = session.full_jid }):query(xmlns_iq_version));
 			end
 		end
