@@ -17,7 +17,7 @@ Example usage
 
 This would send a message to user@example.com from me@example.com
 
-Details
--------
+Acknowledgements
+----------------
 
-Some code borrowed from mod\_webpresence
+Some code originally borrowed from mod\_webpresence
