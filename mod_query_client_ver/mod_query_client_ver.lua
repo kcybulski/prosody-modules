@@ -58,7 +58,7 @@ module:hook("iq-error/host/"..disco_id, function()
 end);
 
 module:add_item("adhoc",
-	module:require "adhoc".new("Query all currently connected clients", "ping",
+	module:require "adhoc".new("Query all currently connected clients", module.name,
 	function (self, data, state)
 		for jid, session in pairs(prosody.full_sessions) do
 			if session.host == module.host then
