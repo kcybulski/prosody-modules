@@ -21,6 +21,14 @@ This would send a message to user\@example.com from me\@example.com
 Details
 =======
 
+URL format
+----------
+
+    /msg/ [recipient [@host] ].
+
+The base URL defaults to `/msg`. This can be configured via Prosodys
+[HTTP path settings][doc:http].
+
 Payload formats
 ---------------
 
