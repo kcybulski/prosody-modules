@@ -42,7 +42,7 @@ function handle_stanza(event)
 	});
 	http.request(url, {
 		body = request_body;
-	}, function (response_text, code, _, response)
+	}, function (response_text, code, response)
 		if stanza.attr.type == "error" then return; end -- Avoid error loops, don't reply to error stanzas
 		if code == 200 and response_text and response.headers["content-type"] == "application/json" then
 			local response_data = json.decode(response_text);
