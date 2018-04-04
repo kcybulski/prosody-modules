@@ -56,3 +56,15 @@ end);
 module:hook("iq-error/host/"..disco_id, function()
 	return true; -- Doesn't reply to disco#info? Weird, but ignore for now.
 end);
+
+module:add_item("adhoc",
+	module:require "adhoc".new("Query all currently connected clients", "ping",
+	function (self, data, state)
+		for jid, session in pairs(prosody.full_sessions) do
+			if session.jid == module.host then
+				session.send(st.iq({ id = version_id, type = "get", from = module.host, to = session.full_jid }):query(xmlns_iq_version));
+			end
+		end
+		return { info = "Ok, check your logs for results", status = "completed" }
+	end));
+
