@@ -66,5 +66,5 @@ module:add_item("adhoc",
 			end
 		end
 		return { info = "Ok, check your logs for results", status = "completed" }
-	end));
+	end, "admin"));
 
