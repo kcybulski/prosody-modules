@@ -7,6 +7,7 @@ local test_password = require "core.usermanager".test_password;
 local b64_decode = require "util.encodings".base64.decode;
 local formdecode = require "net.http".formdecode;
 local xml = require"util.xml";
+local json = require "util.json";
 
 local function require_valid_user(f)
 	return function(event, path)
@@ -57,6 +58,11 @@ local function handle_post(event, path, authed_user)
 			end
 			message:tag("html", {xmlns="http://jabber.org/protocol/xhtml-im"}):add_child(html):up();
 		end
+	elseif body_type == "application/json" then
+		local post_body = json.decode(request.body);
+		if not post_body then return 400; end
+		message = msg({ to = post_body.to or to, from = authed_user,
+		                type = post_body.type or "chat"}, post_body.body);
 	else
 		return 415;
 	end
