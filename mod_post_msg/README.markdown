@@ -20,6 +20,4 @@ This would send a message to user@example.com from me@example.com
 Details
 -------
 
-By Kim Alvefur \<zash@zash.se\>
-
 Some code borrowed from mod\_webpresence
