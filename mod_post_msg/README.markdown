@@ -27,7 +27,8 @@ Payload formats
 Supported formats are:
 
 `text/plain`
-:   The HTTP body is used as message `<body>`.
+:   The HTTP body is used as plain text message payload, in the `<body>`
+    element.
 
 `application/x-www-form-urlencoded`
 :   Allows more fields to be specified.
@@ -43,7 +44,7 @@ The form data format allow the following fields:
 :   [Message type.](https://xmpp.org/rfcs/rfc6121.html#message-syntax-type)
 
 `body`
-:   Plain text message payload.
+:   Plain text message payload which goes in the `<body>` element.
 
 Acknowledgements
 ----------------
