@@ -48,9 +48,14 @@ Supported formats are:
 `application/x-www-form-urlencoded`
 :   Allows more fields to be specified.
 
+`application/json`
+:   Similar to form data.
+
+Which one is selected via the `Content-Type` HTTP header.
+
 ### Data fields
 
-The form data format allow the following fields:
+The form data and JSON formats allow the following fields:
 
 `to`
 :   Can be used instead of having the receiver in the URL.
