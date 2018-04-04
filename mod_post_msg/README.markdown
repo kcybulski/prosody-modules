@@ -1,6 +1,6 @@
 ---
 summary: 'Receives HTTP POST request, parses it and relays it into XMPP.'
-...
+---
 
 Introduction
 ============
@@ -15,7 +15,7 @@ Example usage
 
     curl http://example.com:5280/msg/user -u me@example.com:mypassword -H "Content-Type: text/plain" -d "Server@host has just crashed!"
 
-This would send a message to user@example.com from me@example.com
+This would send a message to user\@example.com from me\@example.com
 
 Acknowledgements
 ----------------
