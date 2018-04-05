@@ -344,6 +344,13 @@ end
 local listener = {};
 
 function listener.onconnect(conn)
+	-- Silently drop connections with an IP address of <nil>, which can happen when the socket was closed before the
+	-- responsible net.server backend was able to grab the IP address of the connecting client.
+	if conn:ip() == nil then
+		conn:close();
+		return;
+	end
+
 	-- Check if connection is coming from a trusted proxy
 	if not is_trusted_proxy(conn) then
 		conn:close();
