@@ -22,6 +22,7 @@ local more_options = module:get_option("conversejs_options");
 module:provides("http", {
 	route = {
 		GET = function (event)
+			local allow_registration = module:get_option_boolean("allow_registration", false);
 			local converse_options = {
 				bosh_service_url = module:http_url("bosh","/http-bind");
 				websocket_url = has_ws and module:http_url("websocket","xmpp-websocket"):gsub("^http", "ws") or nil;
@@ -29,7 +30,8 @@ module:provides("http", {
 				jid = module.host;
 				default_domain = module.host;
 				domain_placeholder = module.host;
-				allow_registration = module:get_option_boolean("allow_registration", false);
+				allow_registration = allow_registration;
+				registration_domain = allow_registration and module.host or nil;
 			};
 
 			local view_mode_css = "converse";
