@@ -17,7 +17,13 @@ local template = [[
 <link rel="stylesheet" type="text/css" media="screen" href="https://cdn.conversejs.org/css/%s.min.css">
 <script charset="utf-8" src="https://cdn.conversejs.org/dist/converse.min.js"></script>
 </head>
-<body><script>converse.initialize(%s);</script></body>
+<body>
+<noscript>
+<h1>Converse.js</h1>
+<p>I&apos;m sorry, but this XMPP client application won&apos;t work without JavaScript.</p>
+</noscript>
+<script>converse.initialize(%s);</script>
+</body>
 </html>
 ]]
 
