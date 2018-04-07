@@ -11,10 +11,14 @@ end);
 
 local template = [[
 <!DOCTYPE html>
+<html>
+<head>
 <meta charset="utf-8">
 <link rel="stylesheet" type="text/css" media="screen" href="https://cdn.conversejs.org/css/%s.min.css">
 <script charset="utf-8" src="https://cdn.conversejs.org/dist/converse.min.js"></script>
-<body><script>converse.initialize(%s);</script>
+</head>
+<body><script>converse.initialize(%s);</script></body>
+</html>
 ]]
 
 local more_options = module:get_option("conversejs_options");
