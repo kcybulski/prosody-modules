@@ -21,6 +21,21 @@ local template = [[
 <noscript>
 <h1>Converse.js</h1>
 <p>I&apos;m sorry, but this XMPP client application won&apos;t work without JavaScript.</p>
+<p>Perhaps you would like to try one of these clients:</p>
+<dl>
+<dt>Desktop</dt>
+<dd><ul>
+<li><a href="https://gajim.org/">Gajim</a></li>
+<li><a href="https://poez.io/">Poezio</a></li>
+<li><a href="https://swift.im/">Swift</a></li>
+</ul></dd>
+<dt>Mobile</dt>
+<dd><ul>
+<li><a href="https://github.com/siacs/Conversations">Conversations</a></li>
+<li><a href="https://yaxim.org/">Yaxim</a></li>
+</ul></dd>
+</dl>
+<p><a href="https://xmpp.org/software/clients.html">More clients...</a></p>
 </noscript>
 <script>converse.initialize(%s);</script>
 </body>
