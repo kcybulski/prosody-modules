@@ -58,7 +58,10 @@ if next(captcha_options) ~= nil then
 			};
 		}, function (verify_result, code)
 			local result = json(verify_result);
-			if result.success == true then
+			if not result then
+				module:log("warn", "Unable to decode response from recaptcha: [%d] %s", code, verify_result);
+				callback(false, "Captcha API error");
+			elseif result.success == true then
 				callback(true);
 			else
 				callback(false, t_concat(result["error-codes"]));
