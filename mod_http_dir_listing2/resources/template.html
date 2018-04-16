@@ -7,7 +7,9 @@
   <body>
     <h1>Index of {path}</h1>
 
-		{filelist}
+		<ul class="filelist">{filelist#
+			<li class="{item.class}"><a href="{item.href}"{item.rel& rel="{item.rel}"}>{item.text}</a></li>}
+		</ul>
 
     <footer>{footer}</footer>
   </body>
