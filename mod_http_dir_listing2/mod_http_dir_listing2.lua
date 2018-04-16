@@ -46,6 +46,13 @@ local function generate_directory_index(path, full_path)
 			table.insert(filelist, { class = class, href = build_path(path), type = type, text = file });
 		end
 	end
+	table.sort(filelist, function (a, b)
+		if a.href == ".." then return true end
+		if b.href == ".." then return false end
+		if a.class:match"directory" and not b.class:match"directory" then return true end
+		if not a.class:match"directory" and b.class:match"directory" then return false end
+		return a.text < b.text;
+	end);
 	return render(dir_index_template, {
 		path = path,
 		style = style,
