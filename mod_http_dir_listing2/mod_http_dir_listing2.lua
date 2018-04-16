@@ -11,8 +11,8 @@ local lfs = require "lfs";
 local stat = lfs.attributes;
 local build_path = require"socket.url".build_path;
 local base64_encode = require"util.encodings".base64.encode;
-local tag = require"util.stanza".stanza;
-local template = require"util.template";
+local st = require"util.stanza";
+local render = require"util.interpolation".new("%b{}", st.xml_escape);
 
 local mime = module:shared("/*/http_files/mime");
 
@@ -23,17 +23,16 @@ local function get_resource(resource)
 	return data;
 end
 
-local dir_index_template = template(get_resource("resources/template.html"));
+local dir_index_template = get_resource("resources/template.html");
 local style = get_resource("resources/style.css"):gsub("url%((.-)%)", function(url)
 	--module:log("debug", "Inlineing %s", url);
 	return "url(data:image/png;base64,"..base64_encode(get_resource("resources/"..url))..")";
 end);
 
 local function generate_directory_index(path, full_path)
-	local filelist = tag("ul", { class = "filelist" } ):text"\n";
+	local filelist = {};
 	if path ~= "/" then
-		filelist:tag("li", { class = "parent directory" })
-			:tag("a", { href = "..", rel = "up" }):text("Parent Directory"):up():up():text"\n"
+		table.insert(filelist, { class = "parent directory", href = "..", rel = "up", text = "Parent Directory" });
 	end
 	local mime_map = mime.types;
 	for file in lfs.dir(full_path) do
@@ -44,12 +43,10 @@ local function generate_directory_index(path, full_path)
 			local type = attr.mode == "file" and file_ext and mime_map and mime_map[file_ext] or nil;
 			local class = table.concat({ attr.mode or "unknown", file_ext, type and type:match"^[^/]+" }, " ");
 			path.is_directory = attr.mode == "directory";
-			filelist:tag("li", { class = class })
-				:tag("a", { href = build_path(path), type = type }):text(file):up()
-			:up():text"\n";
+			table.insert(filelist, { class = class, href = build_path(path), type = type, text = file });
 		end
 	end
-	return "<!DOCTYPE html>\n"..tostring(dir_index_template.apply{
+	return render(dir_index_template, {
 		path = path,
 		style = style,
 		filelist = filelist,
