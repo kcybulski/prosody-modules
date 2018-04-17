@@ -48,12 +48,12 @@ max_history_messages = 20;
 Compatibility
 =============
 
-  ------- -----------------
+  ------- --------------------------------------------
   trunk   Works best
-  0.10    Works partially
+  0.10    Works partially, only XEP-0313 version 0.5
   0.9     Does not work
   0.8     Does not work
-  ------- -----------------
+  ------- --------------------------------------------
 
 Prosody trunk (after April 2014) has a major rewrite of the MUC module,
 allowing easier integration. Without this (0.10), some features do not
