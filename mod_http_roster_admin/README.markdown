@@ -21,19 +21,21 @@ This module relies on `mod_storage_memory` and `mod_block_subscriptions`.
 In `.parts/prosody/etc/prosody/prosody.cfg.lua`, where your particular
 `VirtualHost` is being configured, add the following:
 
-    modules_enabled = {
-        "http_roster_admin",
-        "block_subscriptions",
-        "storage_memory",
-        "http_files"
-    }
-    modules_disabled = {
-         -- Prosody will get the roster from the backend app,
-         -- so we disable the default roster module.
-        "roster"
-    }
-    storage = { roster = "memory" }
-    http_roster_url = "http://localhost/contacts/%s" -- %s will be replaced by an URL-encoded username
+``` lua
+modules_enabled = {
+    "http_roster_admin",
+    "block_subscriptions",
+    "storage_memory",
+    "http_files"
+}
+modules_disabled = {
+     -- Prosody will get the roster from the backend app,
+     -- so we disable the default roster module.
+    "roster"
+}
+storage = { roster = "memory" }
+http_roster_url = "http://localhost/contacts/%s" -- %s will be replaced by an URL-encoded username
+```
 
 The `http_roster_url` parameter needs to be configured to point to the
 URL in the backend application which returns users' contacts rosters.
@@ -64,15 +66,17 @@ value is data about that contact.
 If the user 'john' has friends 'marie' and 'michael', the web app would return a HTTP '200 OK' response
 with the following contents:
 
-    {
-        "marie@example.com": {
-            "name": "Marie"
-        },
-    
-        "michael@example.com": {
-            "name": "Michael"
-        }
+``` json
+{
+    "marie@example.com": {
+        "name": "Marie"
+    },
+
+    "michael@example.com": {
+        "name": "Michael"
     }
+}
+```
 
 ### Notifying Prosody of roster changes
 
@@ -95,7 +99,9 @@ rosters have changed.
 For example, if user ‘john’ became friends with ‘aaron’, both john’s
 contact list and aaron’s contact lists have changed:
 
-    ["john", "aaron"]
+``` json
+["john", "aaron"]
+```
 
 When the operation is complete Prosody will reply with a summary of the
 operation - a JSON object containing:
@@ -107,12 +113,14 @@ operation - a JSON object containing:
 
 Example:
 
-    {
-        "status":  "ok",
-        "message": "roster update complete",
-        "updated": 2,
-        "errors":  0
-    }
+``` json
+{
+    "status":  "ok",
+    "message": "roster update complete",
+    "updated": 2,
+    "errors":  0
+}
+```
 
 Prosody may also return status codes `400` or `500` in case of errors (such
 as a missing/malformed body).
