@@ -44,7 +44,37 @@ When the user *john* then connects to Prosody, and `http_roster_url` is
 set to “http://app.example.org/contacts/%s”, then Prosody will make a
 GET request to http://app.example.org/contacts/john
 
-## Notifying Prosody of roster changes
+## Protocol
+
+### Fetching rosters (Prosody to web app)
+
+Prosody considers the web application to always hold the most accurate and up-to-date
+version of the user's roster. When a user first connects, Prosody fetches the roster
+from the web application and caches it internally.
+
+Prosody will make a GET request to the URL specified in Prosody's configuration parameter
+'http_roster_url'. In this URL, the pattern '%s' is replaced by an URL-encoded username.
+
+For example, when the user 'john' connects to Prosody, and http_roster_url is set
+to "http://app.example.com/contacts/%s", Prosody will make a GET request to "http://app.example.com/contacts/john".
+
+The web app must return a JSON object, where each key is the JID of a contact, and the corresponding
+value is data about that contact.
+
+If the user 'john' has friends 'marie' and 'michael', the web app would return a HTTP '200 OK' response
+with the following contents:
+
+    {
+        "marie@example.com": {
+            "name": "Marie"
+        },
+    
+        "michael@example.com": {
+            "name": "Michael"
+        }
+    }
+
+### Notifying Prosody of roster changes
 
 The external service needs to notify Prosody whenever a user's roster
 changes. To do this, it must make an HTTP POST request to either:
