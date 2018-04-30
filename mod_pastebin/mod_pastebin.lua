@@ -6,7 +6,10 @@ local os_time = os.time;
 local t_insert, t_remove = table.insert, table.remove;
 local add_task = require "util.timer".add_task;
 local jid_bare = require "util.jid".bare;
-local muc_rooms = module:depends "muc".rooms;
+local muc_rooms;
+if module:get_host_type() == "component" then
+	muc_rooms = module:depends "muc".rooms;
+end
 
 local utf8_pattern = "[\194-\244][\128-\191]*$";
 local function drop_invalid_utf8(seq)
