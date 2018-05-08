@@ -214,7 +214,7 @@ function getList(privacy_lists, origin, stanza, name)
 		if list then
 			reply = reply:tag("list", {name=list.name});
 			for _,item in ipairs(list.items) do
-				reply:tag("item", {type=item.type, value=item.value, action=item.action, order=item.order});
+				reply:tag("item", {type=item.type, value=item.value, action=item.action, order=("%d"):format(item.order)});
 				if item["message"] then reply:tag("message"):up(); end
 				if item["iq"] then reply:tag("iq"):up(); end
 				if item["presence-in"] then reply:tag("presence-in"):up(); end
