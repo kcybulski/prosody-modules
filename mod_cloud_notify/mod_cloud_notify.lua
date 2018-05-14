@@ -159,7 +159,6 @@ local function push_enable(event)
 		jid = push_jid;
 		node = push_node;
 		include_payload = include_payload;
-		count = 0;
 		options = publish_options and st.preserialize(publish_options);
 	};
 	local ok = push_store:set_identifier(origin.username, push_identifier, push_service);
@@ -307,9 +306,6 @@ local function handle_notify_request(stanza, node, user_push_services)
 		end
 		
 		if send_push then
-			-- increment count and save it
-			push_info.count = push_info.count + 1;
-			push_store:set_identifier(node, push_identifier, push_info);
 			-- construct push stanza
 			local stanza_id = hashes.sha256(push_identifier, true);
 			local push_publish = st.iq({ to = push_info.jid, from = module.host, type = "set", id = stanza_id })
@@ -318,7 +314,8 @@ local function handle_notify_request(stanza, node, user_push_services)
 						:tag("item")
 							:tag("notification", { xmlns = xmlns_push });
 			local form_data = {
-				["message-count"] = tostring(push_info.count);
+				-- hardcode to 1 because other numbers are just meaningless (the XEP does not specify *what exactly* to count)
+				["message-count"] = "1";
 			};
 			if stanza and include_sender then
 				form_data["last-message-sender"] = stanza.attr.from;
@@ -407,11 +404,6 @@ local function restore_session(event)
 	local session = event.resumed;
 	if session then		-- older smacks module versions send only the "intermediate" session in event.session and no session.resumed one
 		filters.remove_filter(session, "stanzas/out", process_smacks_stanza);
-		-- this means the counter of outstanding push messages can be reset as well
-		if session.push_settings then
-			session.push_settings.count = 0;
-			push_store:set_identifier(session.username, session.push_identifier, session.push_settings);
-		end
 	end
 end
 
