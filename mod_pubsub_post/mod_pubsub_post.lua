@@ -26,6 +26,18 @@ local function publish_payload(node, item_id, payload)
 	return 202;
 end
 
+local function handle_json(node, data)
+	local parsed, err = json.decode(data);
+	if not parsed then
+		return { status_code = 400; body = tostring(err); }
+	end
+	if type(parsed) ~= "table" then
+		return { status_code = 400; body = "object or array expected"; };
+	end
+	local wrapper = st.stanza("json", { xmlns="urn:xmpp:json:0" }):text(data);
+	return publish_payload(node, data.id or "current", wrapper);
+end
+
 local function publish_atom(node, feed)
 	for entry in feed:childtags("entry") do
 		local item_id = entry:get_child_text("id");
@@ -63,6 +75,8 @@ function handle_POST(event, path)
 
 	if content_type == "application/xml" or content_type:sub(-4) == "+xml" then
 		return handle_xml(path, request.body);
+	elseif content_type == "application/json" or content_type:sub(-5) == "+json" then
+		return handle_json(path, request.body);
 	end
 
 	module:log("debug", "Unsupported content-type: %q", content_type);
