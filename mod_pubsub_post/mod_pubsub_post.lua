@@ -26,13 +26,33 @@ local function publish_payload(node, item_id, payload)
 	return 202;
 end
 
+local function publish_atom(node, feed)
+	for entry in feed:childtags("entry") do
+		local item_id = entry:get_child_text("id");
+		if not item_id then
+			item_id = uuid_generate();
+			entry:tag("id"):text(item_id):up();
+		end
+		if not entry:get_child_text("published") then
+			entry:tag("published"):text(timestamp_generate()):up();
+		end
+		local resp = publish_payload(node, item_id, entry);
+		if resp ~= 202 then return resp; end
+	end
+	return 202;
+end
+
 local function handle_xml(node, payload)
 	local xmlpayload, err = xml.parse(payload);
 	if not xmlpayload then
 		module:log("debug", "XML parse error: %s\n%q", err, payload);
 		return { status_code = 400, body = tostring(err) };
 	end
-	return publish_payload(node, "current", xmlpayload);
+	if xmlpayload.attr.xmlns == "http://www.w3.org/2005/Atom" and xmlpayload.name == "feed" then
+		return publish_atom(node, xmlpayload);
+	else
+		return publish_payload(node, "current", xmlpayload);
+	end
 end
 
 function handle_POST(event, path)
