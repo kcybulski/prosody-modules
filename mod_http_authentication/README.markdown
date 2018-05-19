@@ -19,10 +19,10 @@ unauthenticated_http_endpoints   { "/http-bind", "/http-bind/" }  A list of path
 
 This is a global module, so should be added to the global `modules_enabled` option in your config file. It applies to all HTTP virtual hosts.
 
-## Known issues
+## Compatibility
 
-The module use a new API in Prosody 0.10. This API currently has an open issue ([issue #554](https://prosody.im/issues/issue/554)) 
-that means this module cannot be unloaded dynamically at runtime. In practice this shouldn't be an issue, and we will resolve the problem inside Prosody in due course.
+The module use a new API in Prosody 0.10 and will not work with older
+versions.
 
 ## Details
 
