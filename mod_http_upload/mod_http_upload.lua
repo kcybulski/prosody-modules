@@ -1,6 +1,6 @@
 -- mod_http_upload
 --
--- Copyright (C) 2015-2017 Kim Alvefur
+-- Copyright (C) 2015-2018 Kim Alvefur
 --
 -- This file is MIT/X11 licensed.
 --
@@ -324,3 +324,13 @@ module:provides("http", {
 });
 
 module:log("info", "URL: <%s>; Storage path: %s", module:http_url(), storage_path);
+
+function module.command(args)
+	if args[1] == "expire" then
+		local split = require "util.jid".prepped_split;
+		for i = 2, #args do
+			assert(expire(split(args[i])));
+		end
+	end
+end
+
