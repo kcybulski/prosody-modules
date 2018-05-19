@@ -2,7 +2,6 @@ module:depends("http");
 
 local st = require "util.stanza";
 local json = require "util.json";
-local formdecode = require "net.http".formdecode;
 local uuid_generate = require "util.uuid".generate;
 local timestamp_generate = require "util.datetime".datetime;
 
