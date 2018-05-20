@@ -113,8 +113,8 @@ function check_message(data)
 		(trigger_string and body:find(trigger_string, 1, true) == 1) or
 		(select(2, body:gsub("\n", "%0")) >= line_threshold)
 	) then
-		if trigger_string then
-			body = body:gsub("^" .. trigger_string, "", 1);
+		if trigger_string and body:sub(1, #trigger_string) == trigger_string then
+			body = body:sub(#trigger_string+1);
 		end
 		local url = pastebin_text(body);
 		module:log("debug", "Pasted message as %s", url);
