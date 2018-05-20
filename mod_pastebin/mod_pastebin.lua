@@ -3,7 +3,7 @@ local st = require "util.stanza";
 module:depends("http");
 local uuid_new = require "util.uuid".generate;
 local os_time = os.time;
-local t_insert, t_remove = table.insert, table.remove;
+local t_remove = table.remove;
 local add_task = require "util.timer".add_task;
 local jid_bare = require "util.jid".bare;
 local muc_rooms;
@@ -92,7 +92,7 @@ end
 local line_count_pattern = string.rep("[^\n]\n", line_threshold):sub(1, -2);
 
 function check_message(data)
-	local origin, stanza = data.origin, data.stanza;
+	local stanza = data.stanza;
 
 	-- Only check for MUC presence when loaded on a component.
 	if is_component then
