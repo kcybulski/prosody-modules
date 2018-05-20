@@ -15,10 +15,10 @@ local error_mapping = {
 	["conflict"] = 409;
 };
 
-local function publish_payload(node, item_id, payload)
+local function publish_payload(node, actor, item_id, payload)
 	local post_item = st.stanza("item", { xmlns = "http://jabber.org/protocol/pubsub", id = item_id, })
 		:add_child(payload);
-	local ok, err = pubsub_service:publish(node, true, item_id, post_item);
+	local ok, err = pubsub_service:publish(node, actor, item_id, post_item);
 	module:log("debug", ":publish(%q, true, %q, %s) -> %q", node, item_id, payload:top_tag(), err or "");
 	if not ok then
 		return error_mapping[err] or 500;
@@ -26,7 +26,7 @@ local function publish_payload(node, item_id, payload)
 	return 202;
 end
 
-local function handle_json(node, data)
+local function handle_json(node, actor, data)
 	local parsed, err = json.decode(data);
 	if not parsed then
 		return { status_code = 400; body = tostring(err); }
@@ -35,10 +35,10 @@ local function handle_json(node, data)
 		return { status_code = 400; body = "object or array expected"; };
 	end
 	local wrapper = st.stanza("json", { xmlns="urn:xmpp:json:0" }):text(data);
-	return publish_payload(node, data.id or "current", wrapper);
+	return publish_payload(node, actor, data.id or "current", wrapper);
 end
 
-local function publish_atom(node, feed)
+local function publish_atom(node, actor, feed)
 	for entry in feed:childtags("entry") do
 		local item_id = entry:get_child_text("id");
 		if not item_id then
@@ -48,22 +48,22 @@ local function publish_atom(node, feed)
 		if not entry:get_child_text("published") then
 			entry:tag("published"):text(timestamp_generate()):up();
 		end
-		local resp = publish_payload(node, item_id, entry);
+		local resp = publish_payload(node, actor, item_id, entry);
 		if resp ~= 202 then return resp; end
 	end
 	return 202;
 end
 
-local function handle_xml(node, payload)
+local function handle_xml(node, actor, payload)
 	local xmlpayload, err = xml.parse(payload);
 	if not xmlpayload then
 		module:log("debug", "XML parse error: %s\n%q", err, payload);
 		return { status_code = 400, body = tostring(err) };
 	end
 	if xmlpayload.attr.xmlns == "http://www.w3.org/2005/Atom" and xmlpayload.name == "feed" then
-		return publish_atom(node, xmlpayload);
+		return publish_atom(node, actor, xmlpayload);
 	else
-		return publish_payload(node, "current", xmlpayload);
+		return publish_payload(node, actor, "current", xmlpayload);
 	end
 end
 
@@ -72,11 +72,12 @@ function handle_POST(event, path)
 	module:log("debug", "Handling POST: \n%s\n", tostring(request.body));
 
 	local content_type = request.headers.content_type or "application/octet-stream";
+	local actor = true;
 
 	if content_type == "application/xml" or content_type:sub(-4) == "+xml" then
-		return handle_xml(path, request.body);
+		return handle_xml(path, actor, request.body);
 	elseif content_type == "application/json" or content_type:sub(-5) == "+json" then
-		return handle_json(path, request.body);
+		return handle_json(path, actor, request.body);
 	end
 
 	module:log("debug", "Unsupported content-type: %q", content_type);
