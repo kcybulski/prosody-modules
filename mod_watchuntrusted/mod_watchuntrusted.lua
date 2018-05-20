@@ -49,7 +49,7 @@ module:hook_global("s2s-check-certificate", function (event)
 			errors = error_message
 		};
 
-		local message = st.message({ type = "chat", from = local_host },
+		local message = st.message({ type = msg_type, from = local_host },
 			untrusted_fail_notification:gsub("%$([%w_]+)", function (v)
 				return event[v] or session and session[v] or replacements and replacements[v] or nil;
 			end));
