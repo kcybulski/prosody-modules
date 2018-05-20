@@ -89,6 +89,8 @@ local function replace_tag(s, replacement)
 	end
 end
 
+local line_count_pattern = string.rep("[^\n]\n", line_threshold):sub(1, -2);
+
 function check_message(data)
 	local origin, stanza = data.origin, data.stanza;
 
@@ -109,8 +111,7 @@ function check_message(data)
 
 	if ( #body > length_threshold and utf8_length(body) > length_threshold ) or
 		(trigger_string and body:find(trigger_string, 1, true) == 1) or
-		(select(2, body:gsub("\n", "%0")) >= line_threshold)
-	then
+		body:find(line_count_pattern) then
 		if trigger_string and body:sub(1, #trigger_string) == trigger_string then
 			body = body:sub(#trigger_string+1);
 		end
