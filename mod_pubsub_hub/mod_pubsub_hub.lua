@@ -155,7 +155,7 @@ local function on_notify(subscription, content)
 	end
 	local body = tostring(content);
 	local headers = {
-		["Content-Type"] = "application/xml",
+		["Content-Type"] = "application/atom+xml",
 	};
 	if subscription.secret then
 		headers["X-Hub-Signature"] = "sha1="..hmac_sha1(subscription.secret, body, true);
