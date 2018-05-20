@@ -10,10 +10,10 @@ This module enforces HTTP Basic authentication across all HTTP endpoints served 
 
 ## Configuration
 
-Name                             Default                          Description
--------------------------------  -------------------------------  -----------------------------
-minddistrict_http_credentials    "minddistrict:secretpassword"    The credentials that HTTP clients must provide to access the HTTP interface. Should be a string with the syntax "username:password".
-unauthenticated_http_endpoints   { "/http-bind", "/http-bind/" }  A list of paths that should be excluded from authentication.
+  Name                               Default                           Description
+  ---------------------------------- --------------------------------- --------------------------------------------------------------------------------------------------------------------------------------
+  http\_credentials                  "minddistrict:secretpassword"     The credentials that HTTP clients must provide to access the HTTP interface. Should be a string with the syntax "username:password".
+  unauthenticated\_http\_endpoints   { "/http-bind", "/http-bind/" }   A list of paths that should be excluded from authentication.
 
 ## Usage
 
