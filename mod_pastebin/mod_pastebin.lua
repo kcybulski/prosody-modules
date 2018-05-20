@@ -123,6 +123,8 @@ function check_message(data)
 		local summary_prefixed = summary:match("[,:]$");
 		replace_tag(stanza, st.stanza("body"):text(summary));
 
+		stanza:add_child(st.stanza("query", { xmlns = "jabber:iq:oob" }):tag("url"):text(url));
+
 		if html_preview then
 			local line_count = select(2, body:gsub("\n", "%0")) + 1;
 			local link_text = ("[view %spaste (%d line%s)]"):format(summary_prefixed and "" or "rest of ", line_count, line_count == 1 and "" or "s");
