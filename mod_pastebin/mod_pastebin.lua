@@ -71,6 +71,24 @@ function handle_request(event, pasteid)
 	return pastes[pasteid];
 end
 
+local function replace_tag(s, replacement)
+	local once = false;
+	s:maptags(function (tag)
+		if tag.name == replacement.name and tag.attr.xmlns == replacement.attr.xmlns then
+			if not once then
+				once = true;
+				return replacement;
+			else
+				return nil;
+			end
+		end
+		return tag;
+	end);
+	if not once then
+		s:add_child(replacement);
+	end
+end
+
 function check_message(data)
 	local origin, stanza = data.origin, data.stanza;
 
@@ -83,17 +101,9 @@ function check_message(data)
 		if not nick then return; end
 	end
 
-	local body, bodyindex, htmlindex;
-	for k,v in ipairs(stanza) do
-		if v.name == "body" then
-			body, bodyindex = v, k;
-		elseif v.name == "html" and v.attr.xmlns == xmlns_xhtmlim then
-			htmlindex = k;
-		end
-	end
+	local body = stanza:get_child_text();
 
 	if not body then return; end
-	body = body:get_text();
 
 	--module:log("debug", "Body(%s) length: %d", type(body), #(body or ""));
 
@@ -112,7 +122,7 @@ function check_message(data)
 		local summary = (body:sub(1, max_summary_length):gsub(utf8_pattern, drop_invalid_utf8) or ""):match("[^\n]+") or "";
 		summary = summary:match("^%s*(.-)%s*$");
 		local summary_prefixed = summary:match("[,:]$");
-		stanza[bodyindex][1] = (summary_prefixed and (summary.." ") or "")..url;
+		replace_tag(stanza, st.stanza("body"):text(summary));
 
 		if html_preview then
 			local line_count = select(2, body:gsub("\n", "%0")) + 1;
@@ -120,7 +130,7 @@ function check_message(data)
 			local html = st.stanza("html", { xmlns = xmlns_xhtmlim }):tag("body", { xmlns = xmlns_xhtml });
 			html:tag("p"):text(summary.." "):up();
 			html:tag("a", { href = url }):text(link_text):up();
-			stanza[htmlindex or #stanza+1] = html;
+			replace_tag(stanza, html);
 		end
 	end
 end
