@@ -158,6 +158,7 @@ module:provides("http", {
 });
 
 local function set_pastes_metatable()
+	-- luacheck: ignore 212/pastes 431/pastes
 	if expire_after == 0 then
 		local dm = require "util.datamanager";
 		setmetatable(pastes, {
