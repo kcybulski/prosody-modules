@@ -67,12 +67,21 @@ local function handle_xml(node, actor, payload)
 	end
 end
 
+local actor_source = module:get_option_string("pubsub_post_actor", "superuser");
+
 function handle_POST(event, path)
 	local request = event.request;
 	module:log("debug", "Handling POST: \n%s\n", tostring(request.body));
 
 	local content_type = request.headers.content_type or "application/octet-stream";
 	local actor = true;
+
+	if actor_source == "request.ip" then
+		actor = request.ip or request.conn:ip();
+	elseif actor_source ~= "superuser" then
+		module:log("error", "pubsub_post_actor set to unsupported value %q", actor_source);
+		return 500;
+	end
 
 	if content_type == "application/xml" or content_type:sub(-4) == "+xml" then
 		return handle_xml(path, actor, request.body);
