@@ -7,7 +7,8 @@ local t_insert, t_remove = table.insert, table.remove;
 local add_task = require "util.timer".add_task;
 local jid_bare = require "util.jid".bare;
 local muc_rooms;
-if module:get_host_type() == "component" then
+local is_component = module:get_host_type() == "component";
+if is_component then
 	muc_rooms = module:depends "muc".rooms;
 end
 
@@ -29,7 +30,7 @@ local function utf8_length(str)
 	return count;
 end
 
-local pastebin_private_messages = module:get_option_boolean("pastebin_private_messages", hosts[module.host].type ~= "component");
+local pastebin_private_messages = module:get_option_boolean("pastebin_private_messages", not is_component);
 local length_threshold = module:get_option_number("pastebin_threshold", 500);
 local line_threshold = module:get_option_number("pastebin_line_threshold", 4);
 local max_summary_length = module:get_option_number("pastebin_summary_length", 150);
@@ -74,7 +75,7 @@ function check_message(data)
 	local origin, stanza = data.origin, data.stanza;
 
 	-- Only check for MUC presence when loaded on a component.
-	if module:get_host_type() == "component" then
+	if is_component then
 		local room = muc_rooms[jid_bare(stanza.attr.to)];
 		if not room then return; end
 
