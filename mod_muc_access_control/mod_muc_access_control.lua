@@ -13,13 +13,14 @@ for unprepped_room_name, unprepped_list in pairs(unprepped_access_lists) do
 	else
 		local prepped_list = {};
 		for _, unprepped_jid in ipairs(unprepped_list) do
-			local prepped_jid = jid.prep(jid);
+			local prepped_jid = jid.prep(unprepped_jid);
 			if not prepped_jid then
 				module:log("error", "Invalid JID: %s", unprepped_jid);
 			else
-				table.insert(prepped_list, jid.pep(jid));
+				prepped_list[prepped_jid] = true;
 			end
 		end
+		access_lists[prepped_room_name] = prepped_list;
 	end
 end
 
@@ -34,11 +35,11 @@ local function is_restricted(room, who)
 end
 
 module:hook("presence/full", function(event)
-        local stanza = event.stanza;
+	local stanza = event.stanza;
 
-        if stanza.name == "presence" and stanza.attr.type == "unavailable" then   -- Leaving events get discarded
-                return;
-        end
+	if stanza.name == "presence" and stanza.attr.type == "unavailable" then   -- Leaving events get discarded
+		return;
+	end
 
 	-- Get the room
 	local room = jid.split(stanza.attr.to);
@@ -49,9 +50,9 @@ module:hook("presence/full", function(event)
 
 	-- Checking whether room is restricted
 	local check_restricted = is_restricted(room, who)
-        if check_restricted ~= nil then
-                event.allowed = false;
-                event.stanza.attr.type = 'error';
-	        return event.origin.send(st.error_reply(event.stanza, "cancel", "forbidden", "You're not allowed to enter this room: " .. check_restricted));
-        end
+	if check_restricted ~= nil then
+		event.allowed = false;
+		event.stanza.attr.type = 'error';
+		return event.origin.send(st.error_reply(event.stanza, "cancel", "forbidden", "You're not allowed to enter this room: " .. check_restricted));
+	end
 end, 10);
