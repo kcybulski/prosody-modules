@@ -6,10 +6,16 @@ local os_time = os.time;
 local t_remove = table.remove;
 local add_task = require "util.timer".add_task;
 local jid_bare = require "util.jid".bare;
-local muc_rooms;
+
+local function get_room_from_jid() end;
 local is_component = module:get_host_type() == "component";
 if is_component then
-	muc_rooms = module:depends "muc".rooms;
+	local mod_muc = module:depends "muc";
+	local muc_rooms = rawget(mod_muc, "rooms");
+	get_room_from_jid = rawget(mod_muc, "get_room_from_jid") or
+		function (jid)
+			return muc_rooms[jid];
+		end
 end
 
 local utf8_pattern = "[\194-\244][\128-\191]*$";
@@ -96,7 +102,7 @@ function check_message(data)
 
 	-- Only check for MUC presence when loaded on a component.
 	if is_component then
-		local room = muc_rooms[jid_bare(stanza.attr.to)];
+		local room = get_room_from_jid(jid_bare(stanza.attr.to));
 		if not room then return; end
 
 		local nick = room._jid_nick[stanza.attr.from];
