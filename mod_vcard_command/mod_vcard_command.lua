@@ -8,7 +8,7 @@
 -- COPYING file in the source package for more information.
 -----------------------------------------------------------
 
-if not rawget(_G, "prosodyctl") then
+function module.load()
         module:log("error", "Do not load this module in Prosody");
         module.host = "*";
         return;
