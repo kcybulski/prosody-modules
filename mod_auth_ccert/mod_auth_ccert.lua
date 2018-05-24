@@ -1,6 +1,8 @@
 -- Copyright (C) 2013 Kim Alvefur
 --
 -- This file is MIT/X11 licensed.
+--
+-- luacheck: ignore 131/get_sasl_handler
 
 local jid_compare = require "util.jid".compare;
 local jid_split = require "util.jid".prepped_split;
