@@ -95,7 +95,7 @@ local function replace_tag(s, replacement)
 	end
 end
 
-local line_count_pattern = string.rep("[^\n]\n", line_threshold):sub(1, -2);
+local line_count_pattern = string.rep("[^\n]*\n", line_threshold):sub(1, -2);
 
 function check_message(data)
 	local stanza = data.stanza;
