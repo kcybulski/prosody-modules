@@ -87,5 +87,8 @@ module:hook("iq/host/vcard-temp:vCard", handle_vcard);
 
 module:hook("muc-disco#info", function(event)
 	event.reply:tag("feature", { var = "vcard-temp" }):up();
-	broadcast_presence(event.room.jid, event.reply.attr.to);
 end);
+
+module:hook("muc-occupant-session-new", function(event)
+	broadcast_presence(event.room.jid, event.jid);
+end)
