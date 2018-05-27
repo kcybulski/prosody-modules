@@ -25,6 +25,7 @@ Component "pubsub.example.com" "pubsub"
 modules_enabled = { "pubsub_feeds" }
 
 feeds = {
+  -- The part before = is used as PubSub node
   planet_jabber = "http://planet.jabber.org/atom.xml";
   prosody_blog = "http://blog.prosody.im/feed/atom.xml";
 }
