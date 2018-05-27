@@ -40,9 +40,9 @@ that clients can subscribe to using
 
   Option                 Description
   ---------------------- -------------------------------------------------------------------------
-  feeds                  A list of virtual nodes to create and their associated Atom or RSS URL.
-  feed\_pull\_interval   Number of minutes between polling for new results (default 15)
-  use\_pubsubhubub       If PubSubHubbub should be enabled, true by default.
+  `feeds`                A list of virtual nodes to create and their associated Atom or RSS URL.
+  `feed_pull_interval`   Number of minutes between polling for new results (default 15)
+  `use_pubsubhubub`      Set to `false` to disable PubSubHubbub
 
 # Compatibility
 
