@@ -15,7 +15,7 @@
 
 local pubsub = module:depends"pubsub";
 
-local date, time = os.date, os.time;
+local time = os.time;
 local dt_parse, dt_datetime = require "util.datetime".parse, require "util.datetime".datetime;
 local uuid = require "util.uuid".generate;
 local hmac_sha1 = require "util.hashes".hmac_sha1;
@@ -147,14 +147,17 @@ end
 
 function fetch(item, callback) -- HTTP Pull
 	local headers = { };
-	if item.data and item.last_update then
-		headers["If-Modified-Since"] = date("!%a, %d %b %Y %H:%M:%S %Z", item.last_update);
+	if item.data and item.etag then
+		headers["If-None-Match"] = item.etag;
 	end
-	http.request(item.url, { headers = headers }, function(data, code)
+	http.request(item.url, { headers = headers }, function(data, code, resp)
 		if code == 200 then
 			item.data = data;
 			if callback then callback(item) end
 			item.last_update = time();
+			if resp.headers then
+				item.etag = resp.headers.etag
+			end
 		elseif code == 304 then
 			item.last_update = time();
 		end
