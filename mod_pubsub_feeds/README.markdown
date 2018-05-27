@@ -7,11 +7,6 @@ summary: Subscribe to Atom and RSS feeds over pubsub
 This module allows Prosody to fetch Atom and RSS feeds for you, and push
 new results to subscribers over XMPP.
 
-This module also implements a
-[PubSubHubbub](http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html)
-subscriber, allowing updates be delivered without polling for supporting
-feed publishers.
-
 # Configuration
 
 This module needs to be be loaded together with
@@ -35,6 +30,17 @@ This example creates two nodes, 'planet\_jabber' and 'prosody\_blog'
 that clients can subscribe to using
 [XEP-0060](http://xmpp.org/extensions/xep-0060.html). Results are in
 [ATOM 1.0 format](http://atomenabled.org/) for easy consumption.
+
+# PubSubHubbub
+
+This module also implements a
+[PubSubHubbub](http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html)
+subscriber. This allows feeds that have an associated "hub" to push
+updates when they are published.
+
+Not all feeds support this.
+
+It needs to expose a HTTP callback endpoint to work.
 
 # Option summary
 
