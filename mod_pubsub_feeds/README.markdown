@@ -36,6 +36,8 @@ that clients can subscribe to using
 [XEP-0060](http://xmpp.org/extensions/xep-0060.html). Results are in
 [ATOM 1.0 format](http://atomenabled.org/) for easy consumption.
 
+# Option summary
+
   Option                 Description
   ---------------------- -------------------------------------------------------------------------
   feeds                  A list of virtual nodes to create and their associated Atom or RSS URL.
