@@ -1,9 +1,8 @@
 ---
 summary: Subscribe to Atom and RSS feeds over pubsub
-...
+---
 
-Introduction
-============
+# Introduction
 
 This module allows Prosody to fetch Atom and RSS feeds for you, and push
 new results to subscribers over XMPP.
@@ -13,8 +12,7 @@ This module also implements a
 subscriber, allowing updates be delivered without polling for supporting
 feed publishers.
 
-Configuration
-=============
+# Configuration
 
 This module needs to be be loaded together with
 [mod\_pubsub][doc:modules:mod\_pubsub].
@@ -43,8 +41,7 @@ that clients can subscribe to using
   feed\_pull\_interval   Number of minutes between polling for new results (default 15)
   use\_pubsubhubub       If PubSubHubbub should be enabled, true by default.
 
-Compatibility
-=============
+# Compatibility
 
   ----- -------
   0.9   Works
