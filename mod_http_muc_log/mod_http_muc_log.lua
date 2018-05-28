@@ -52,6 +52,7 @@ end
 local function open_room(room) -- : boolean
 	if type(room) == "string" then
 		room = get_room(room);
+		-- assumed to be a room object otherwise
 	end
 	if not room then
 		return nil;
