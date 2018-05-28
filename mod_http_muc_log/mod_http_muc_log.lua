@@ -31,8 +31,8 @@ module:depends"http";
 
 local template;
 do
-	local template_file = module:get_option_string(module.name .. "_template", module.name .. ".html");
-	template_file = assert(module:load_resource(template_file));
+	local template_filename = module:get_option_string(module.name .. "_template", module.name .. ".html");
+	local template_file = assert(module:load_resource(template_filename));
 	template = template_file:read("*a");
 	template_file:close();
 end
