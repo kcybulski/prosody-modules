@@ -48,7 +48,8 @@ local get_link do
 	end
 end
 
-local function public_room(room) -- : boolean
+-- Whether room can be joined by anyone
+local function open_room(room) -- : boolean
 	if type(room) == "string" then
 		room = get_room(room);
 	end
@@ -56,11 +57,11 @@ local function public_room(room) -- : boolean
 		return nil;
 	end
 
-	if (room.get_hidden or room.is_hidden)(room) then
-		return nil;
+	if (room.get_members_only or room.is_members_only)(room) then
+		return false;
 	end
 
-	if (room.get_members_only or room.is_members_only)(room) then
+	if room:get_password() then
 		return false;
 	end
 
@@ -97,7 +98,12 @@ local function years_page(event, path)
 	local response = event.response;
 
 	local room = nodeprep(path:match("^(.*)/$"));
-	if not room or not public_room(room) then return end
+	local is_open = open_room(room);
+	if is_open == nil then
+		return -- implicit 404
+	elseif is_open == false then
+		return 403;
+	end
 
 	-- Collect each date that has messages
 	-- convert it to a year / month / day tree
@@ -200,7 +206,12 @@ local function logs_page(event, path)
 	if not room then
 		return years_page(event, path);
 	end
-	if not public_room(room) then return end
+	local is_open = open_room(room);
+	if is_open == nil then
+		return -- implicit 404
+	elseif is_open == false then
+		return 403;
+	end
 	local day_start = datetime.parse(date.."T00:00:00Z");
 
 	local logs, i = {}, 1;
