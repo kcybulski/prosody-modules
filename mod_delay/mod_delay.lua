@@ -1,3 +1,9 @@
+-- Copyright (C) 2016-2017 Thilo Molitor
+--
+-- This project is MIT/X11 licensed. Please see the
+-- COPYING file in the source package for more information.
+--
+
 local add_filter = require "util.filters".add_filter;
 local remove_filter = require "util.filters".remove_filter;
 local datetime = require "util.datetime";
@@ -23,7 +29,12 @@ end
 module:hook("resource-bind", function(event)
 	add_filter(event.session, "stanzas/in", add_delay, 1);
 end);
-
+module:hook("smacks-hibernation-end", function(event)
+	-- older smacks module versions send only the "intermediate" session in event.session and no session.resumed one
+	if event.resumed then
+		add_filter(event.resumed, "stanzas/in", add_delay, 1);
+	end
+end);
 module:hook("pre-resource-unbind", function (event)
 	remove_filter(event.session, "stanzas/in", add_delay);
 end);
