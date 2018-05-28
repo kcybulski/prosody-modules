@@ -52,9 +52,19 @@ local function public_room(room) -- : boolean
 	if type(room) == "string" then
 		room = get_room(room);
 	end
-	return (room
-		and not (room.get_hidden or room.is_hidden)(room)
-		and not (room.get_members_only or room.is_members_only)(room))
+	if not room then
+		return nil;
+	end
+
+	if (room.get_hidden or room.is_hidden)(room) then
+		return nil;
+	end
+
+	if (room.get_members_only or room.is_members_only)(room) then
+		return false;
+	end
+
+	return true;
 end
 
 local function sort_Y(a,b) return a.year > b.year end
