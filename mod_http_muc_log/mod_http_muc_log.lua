@@ -234,6 +234,7 @@ local function logs_page(event, path)
 		elseif body and body:sub(1,4) == "/me " then
 			verb, body = body:sub(5), nil;
 		elseif item.name == "presence" then
+			-- TODO Distinguish between join and presence update
 			verb = item.attr.type == "unavailable" and "has left" or "has joined";
 		end
 		if body or verb then
