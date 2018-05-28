@@ -302,7 +302,7 @@ local function list_rooms(event)
 	local response = event.response;
 	local room_list, i = {}, 1;
 	for room in each_room() do
-		if (room.get_hidden or room.is_hidden)(room) then
+		if not (room.get_hidden or room.is_hidden)(room) then
 			room_list[i], i = {
 				href = get_link(jid_split(room.jid), nil);
 				name = room:get_name();
