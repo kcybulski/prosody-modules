@@ -1,12 +1,13 @@
 -- XEP-0357: Push (aka: My mobile OS vendor won't let me have persistent TCP connections)
 -- Copyright (C) 2015-2016 Kim Alvefur
--- Copyright (C) 2017 Thilo Molitor
+-- Copyright (C) 2017-2018 Thilo Molitor
 --
 -- This file is MIT/X11 licensed.
 
 local t_insert = table.insert;
 local s_match = string.match;
 local s_sub = string.sub;
+local os_time = os.time;
 local st = require"util.stanza";
 local jid = require"util.jid";
 local dataform = require"util.dataforms".new;
@@ -18,12 +19,78 @@ local xmlns_push = "urn:xmpp:push:0";
 -- configuration
 local include_body = module:get_option_boolean("push_notification_with_body", false);
 local include_sender = module:get_option_boolean("push_notification_with_sender", false);
-local max_push_errors = module:get_option_number("push_max_errors", 50);
-local dummy_body = module:get_option_string("push_notification_important_body", "");
+local max_push_errors = module:get_option_number("push_max_errors", 16);
+local max_push_devices = module:get_option_number("push_max_devices", 5);
+local dummy_body = module:get_option_string("push_notification_important_body", "New Message!");
 
 local host_sessions = prosody.hosts[module.host].sessions;
 local push_errors = {};
 local id2node = {};
+
+-- ordered table iterator, allow to iterate on the natural order of the keys of a table,
+-- see http://lua-users.org/wiki/SortedIteration
+local function __genOrderedIndex( t )
+	local orderedIndex = {}
+	for key in pairs(t) do
+		table.insert( orderedIndex, key )
+	end
+	-- sort in reverse order (newest one first)
+	table.sort( orderedIndex, function(a, b)
+		if a == nil or t[a] == nil or b == nil or t[b] == nil then return false end
+		-- only one timestamp given, this is the newer one
+		if t[a].timestamp ~= nil and t[b].timestamp == nil then return true end
+		if t[a].timestamp == nil and t[b].timestamp ~= nil then return false end
+		-- both timestamps given, sort normally
+		if t[a].timestamp ~= nil and t[b].timestamp ~= nil then return t[a].timestamp > t[b].timestamp end
+		return false	-- normally not reached
+	end)
+	return orderedIndex
+end
+local function orderedNext(t, state)
+	-- Equivalent of the next function, but returns the keys in timestamp
+	-- order. We use a temporary ordered key table that is stored in the
+	-- table being iterated.
+
+	local key = nil
+	--print("orderedNext: state = "..tostring(state) )
+	if state == nil then
+		-- the first time, generate the index
+		t.__orderedIndex = __genOrderedIndex( t )
+		key = t.__orderedIndex[1]
+	else
+		-- fetch the next value
+		for i = 1,table.getn(t.__orderedIndex) do
+			if t.__orderedIndex[i] == state then
+				key = t.__orderedIndex[i+1]
+			end
+		end
+	end
+
+	if key then
+		return key, t[key]
+	end
+
+	-- no more value to return, cleanup
+	t.__orderedIndex = nil
+	return
+end
+local function orderedPairs(t)
+	-- Equivalent of the pairs() function on tables. Allows to iterate
+	-- in order
+	return orderedNext, t, nil
+end
+
+-- small helper function to return new table with only "maximum" elements containing only the newest entries
+local function reduce_table(table, maximum)
+	local count = 0;
+	local result = {};
+	for key, value in orderedPairs(table) do
+		count = count + 1;
+		if count > maximum then break end
+		result[key] = value;
+	end
+	return result;
+end
 
 -- For keeping state across reloads while caching reads
 local push_store = (function()
@@ -44,7 +111,7 @@ local push_store = (function()
 		return push_services[user], true;
 	end
 	function api:set(user, data)
-		push_services[user] = data;
+		push_services[user] = reduce_table(data, max_push_devices);
 		local ok, err = store:set(user, push_services[user]);
 		if not ok then
 			module:log("error", "Error writing push notification storage for user '%s': %s", user, tostring(err));
@@ -160,6 +227,7 @@ local function push_enable(event)
 		node = push_node;
 		include_payload = include_payload;
 		options = publish_options and st.preserialize(publish_options);
+		timestamp = os_time();
 	};
 	local ok = push_store:set_identifier(origin.username, push_identifier, push_service);
 	if not ok then
@@ -418,7 +486,7 @@ end
 -- archive message added
 local function archive_message_added(event)
 	-- event is: { origin = origin, stanza = stanza, for_user = store_user, id = id }
-	-- only notify for new mam messages when at least one device is only
+	-- only notify for new mam messages when at least one device is online
 	if not event.for_user or not host_sessions[event.for_user] then return; end
 	local stanza = event.stanza;
 	local user_session = host_sessions[event.for_user].sessions;

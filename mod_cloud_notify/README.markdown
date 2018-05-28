@@ -46,12 +46,13 @@ This is used by Chatsecure on iOS to send out high priority pushes in those case
 Configuration
 =============
 
-  Option                               Default   Description
-  ------------------------------------ --------- ---------------------------------------------------------------------------------------------------------------
-  `push_notification_with_body`        `false`   Whether or not to send the message body to remote pubsub node.
-  `push_notification_with_sender`      `false`   Whether or not to send the message sender to remote pubsub node.
-  `push_max_errors`                    `50`      How much persistent push errors are tolerated before notifications for the identifier in question are disabled
-  `push_notification_important_body`   ``        The body text to use when the stanza is important (see above), no message body is sent if this is empty
+  Option                               Default           Description
+  ------------------------------------ ----------------- -------------------------------------------------------------------------------------------------------------------
+  `push_notification_with_body`        `false`           Whether or not to send the message body to remote pubsub node.
+  `push_notification_with_sender`      `false`           Whether or not to send the message sender to remote pubsub node.
+  `push_max_errors`                    `16`              How much persistent push errors are tolerated before notifications for the identifier in question are disabled
+  `push_notification_important_body`   `New Message!`    The body text to use when the stanza is important (see above), no message body is sent if this is empty
+  `push_max_devices`                   `5`               The number of allowed devices per user (the oldest devices are automatically removed if this threshold is reached)
 
 There are privacy implications for enabling these options because
 plaintext content and metadata will be shared with centralized servers
