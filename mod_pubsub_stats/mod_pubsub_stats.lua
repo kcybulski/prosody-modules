@@ -5,6 +5,8 @@ local pubsub = module:depends"pubsub";
 
 local actor = module.host .. "/modules/" .. module.name;
 
+local node = module:get_option_string(module.name .. "_node", "stats");
+
 local function publish_stats(stats, stats_extra)
 	local id = "current";
 	local xitem = st.stanza("item", { id = id })
@@ -16,15 +18,15 @@ local function publish_stats(stats, stats_extra)
 		xitem:tag("stat", { name = name, unit = unit, value = tostring(value) }):up();
 	end
 
-	local ok, err = pubsub.service:publish("stats", actor, id, xitem);
+	local ok, err = pubsub.service:publish(node, actor, id, xitem);
 	if not ok then
 		module:log("error", "Error publishing stats: %s", err);
 	end
 end
 
 function module.load()
-	pubsub.service:create("stats", true);
-	pubsub.service:set_affiliation("stats", true, actor, "publisher");
+	pubsub.service:create(node, true);
+	pubsub.service:set_affiliation(node, true, actor, "publisher");
 end
 
 module:hook_global("stats-updated", function (event)
@@ -32,5 +34,5 @@ module:hook_global("stats-updated", function (event)
 end);
 
 function module.unload()
-	pubsub.service:delete("stats", true);
+	pubsub.service:delete(node, true);
 end
