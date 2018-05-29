@@ -32,9 +32,16 @@ module:depends"http";
 local template;
 do
 	local template_filename = module:get_option_string(module.name .. "_template", module.name .. ".html");
-	local template_file = assert(module:load_resource(template_filename));
-	template = template_file:read("*a");
-	template_file:close();
+	local template_file, err = module:load_resource(template_filename);
+	if template_file then
+		template, err = template_file:read("*a");
+		template_file:close();
+	end
+	if not template then
+		module:log("error", "Error loading template: %s", err);
+		template = render("<h1>mod_{module} could not read the template</h1><p>Tried to open <b>{filename}</b><pre>{error}</pre>",
+			{ module = module.name, filename = template_filename, error = err });
+	end
 end
 
 -- local base_url = module:http_url() .. '/'; -- TODO: Generate links in a smart way
