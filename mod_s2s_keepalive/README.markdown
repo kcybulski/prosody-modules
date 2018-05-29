@@ -11,9 +11,11 @@ to keep your connection alive.
 Configuration
 =============
 
-Simply add the module to the `modules_enabled` list and specify your
-desired servers in `keepalive_servers`. Optionally you can configure
-the ping interval.
+Simply add the module to the `modules_enabled` list like any other
+module. By default, all current s2s connections will be pinged
+periodically. To ping only a subset of servers, list these in
+`keepalive_servers`. The ping interval can be set using
+`keepalive_interval`.
 
 ``` lua
 modules_enabled = {
