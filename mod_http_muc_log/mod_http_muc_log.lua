@@ -69,6 +69,14 @@ local function open_room(room) -- : boolean
 	return true;
 end
 
+module:hook("muc-disco#info", function (event)
+	local room = event.room;
+	if open_room(room) then
+		table.insert(event.form, { name = "muc#roominfo_logs", type="text-single" });
+		event.formdata["muc#roominfo_logs"] = module:http_url() .. "/" .. get_link(jid_split(event.room.jid), nil);
+	end
+end);
+
 local function sort_Y(a,b) return a.year > b.year end
 local function sort_m(a,b) return a.n > b.n end
 
