@@ -34,7 +34,7 @@ local function create_handler_for(room_jid, jid)
 	_rooms[room_jid] = _rooms[room_jid] or {};
 	_rooms[room_jid][jid] = new_sasl(module.host, { plain = function(sasl, username, realm)
 		local muc = hosts[module.host].modules.muc;
-		local room = muc and muc.get_room_by_jid(room_jid);
+		local room = muc and muc.get_room_from_jid(room_jid);
 		local password = room and muc_password.get(room);
 		local ret = password and true or nil;
 		return password or "", ret;
