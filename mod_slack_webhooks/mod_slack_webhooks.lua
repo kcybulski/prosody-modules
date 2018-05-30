@@ -16,9 +16,9 @@ local formdecode = require "net.http".formdecode;
 local xml = require "util.xml";
 local http = require "net.http";
 
-local function get_room_by_jid(mod_muc, jid)
-	if mod_muc.get_room_by_jid then
-		return mod_muc.get_room_by_jid(jid);
+local function get_room_from_jid(mod_muc, jid)
+	if mod_muc.get_room_from_jid then
+		return mod_muc.get_room_from_jid(jid);
 	elseif mod_muc.rooms then
 		return mod_muc.rooms[jid]; -- COMPAT 0.9, 0.10
 	end
@@ -37,7 +37,7 @@ function check_message(data)
 	local mod_muc = host_session.muc;
 	if not mod_muc then return; end
 
-	local this_room = get_room_by_jid(mod_muc, stanza.attr.to);
+	local this_room = get_room_from_jid(mod_muc, stanza.attr.to);
 	if not this_room then return; end -- no such room
 
 	local from_room_jid = this_room._jid_nick[stanza.attr.from];
@@ -76,7 +76,7 @@ local function route_post(f)
 		local headers = request.headers;
 		local bare_room = jid.join(path, module.host);
 		local mod_muc = host_session.muc;
-		if not get_room_by_jid(mod_muc, bare_room) then
+		if not get_room_from_jid(mod_muc, bare_room) then
 			module:log("warn", "mod_slack_webhook: invalid JID: %s", bare_room);
 			return 404;
 		end
@@ -104,7 +104,7 @@ local function handle_post(event, path)
 		return 422;
 	end
 	local bare_room = jid.join(path, module.host);
-	local dest_room = get_room_by_jid(mod_muc, bare_room);
+	local dest_room = get_room_from_jid(mod_muc, bare_room);
 	local from_nick = default_from_nick;
 	if post_body["username"] then
 		from_nick = post_body["username"];
