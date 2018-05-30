@@ -27,8 +27,6 @@ module:hook("muc-disco#info", function (event)
 
 	table.insert(form, {
 		name = "muc#roominfo_lang",
-		type = "text-single",
-		label = "Natural Language for Room Discussions",
 		value = room._data.language,
 	});
 	formdata["muc#roominfo_lang"] = room._data.language;
