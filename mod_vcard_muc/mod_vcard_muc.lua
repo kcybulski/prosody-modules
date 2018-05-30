@@ -13,11 +13,16 @@ local base64 = require"util.encodings".base64;
 local sha1 = require"util.hashes".sha1;
 
 local mod_muc = module:depends"muc";
-local get_room_from_jid = mod_muc.get_room_from_jid;
 
 local vcards = module:open_store();
 
 module:add_feature("vcard-temp");
+
+local get_room_from_jid = rawget(mod_muc, "get_room_from_jid") or
+	function (jid)
+		local rooms = rawget(mod_muc, "rooms");
+		return rooms[jid];
+	end
 
 local function broadcast_presence(room_jid, to)
 	local room = get_room_from_jid(room_jid);
