@@ -13,7 +13,7 @@ module:hook("muc-config-submitted", function(event)
 	local room, fields, changed = event.room, event.fields, event.changed;
 	local new = fields["muc#roomconfig_lang"];
 	if new ~= room._data.language then
-		room._data.archiving = new;
+		room._data.language = new;
 		if type(changed) == "table" then
 			changed["muc#roomconfig_lang"] = true;
 		else
