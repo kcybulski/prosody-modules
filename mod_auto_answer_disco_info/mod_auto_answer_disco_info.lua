@@ -3,7 +3,7 @@ module:depends("cache_c2s_caps");
 local st = require "util.stanza";
 
 local function iq_stanza_handler(event)
-	local stanza = event.stanza;
+	local stanza, origin = event.stanza, event.origin;
 	local type = stanza.attr.type;
 
 	local query = stanza:get_child("query", "http://jabber.org/protocol/disco#info");
@@ -23,7 +23,7 @@ local function iq_stanza_handler(event)
 	if disco_info ~= nil and (node == nil or node == disco_info.attr.node) then
 		local iq = st.reply(stanza);
 		iq:add_child(st.clone(disco_info));
-		module:log("debug", "Answering disco#info on the behalf of %s", to);
+		origin.log("debug", "Answering disco#info on the behalf of %s", to);
 		module:send(iq);
 		return true;
 	end
