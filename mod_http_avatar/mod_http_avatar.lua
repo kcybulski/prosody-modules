@@ -16,7 +16,7 @@ local default_avatar = [[<svg xmlns='http://www.w3.org/2000/svg' version='1.1' v
 </svg>]];
 
 local function get_avatar(event, path)
-	local request, response = event.request, event.response;
+	local response = event.response;
 	local photo_type, binval;
 	local vcard, err = vcard_storage:get(path);
 	if vcard then
