@@ -8,6 +8,7 @@ local t_insert = table.insert;
 local s_match = string.match;
 local s_sub = string.sub;
 local os_time = os.time;
+local next = next;
 local st = require"util.stanza";
 local jid = require"util.jid";
 local dataform = require"util.dataforms".new;
@@ -360,7 +361,7 @@ local push_form = dataform {
 -- http://xmpp.org/extensions/xep-0357.html#publishing
 local function handle_notify_request(stanza, node, user_push_services)
 	local pushes = 0;
-	if not user_push_services or not #user_push_services then return pushes end
+	if not user_push_services or next(user_push_services) == nil then return pushes end
 	
 	for push_identifier, push_info in pairs(user_push_services) do
 		local send_push = true;		-- only send push to this node when not already done for this stanza or if no stanza is given at all
@@ -496,7 +497,7 @@ local function archive_message_added(event)
 	-- only notify if the stanza destination is the mam user we store it for
 	if event.for_user == to then
 		local user_push_services = push_store:get(to);
-		if not #user_push_services then return end
+		if next(user_push_services) == nil then return end
 		
 		-- only notify nodes with no active sessions (smacks is counted as active and handled separate)
 		local notify_push_sevices = {};

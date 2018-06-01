@@ -18,6 +18,8 @@ Details
 
 App servers are notified about offline messages, messages stored by [mod_mam]
 or messages waiting in the smacks queue.
+**Please note:** Multi client setups don't work properly if MAM is disabled and using
+this module won't change this at all!
 The business rules outlined [here] are all honored[^2].
 
 To cooperate with [mod_smacks] this module consumes some events:
