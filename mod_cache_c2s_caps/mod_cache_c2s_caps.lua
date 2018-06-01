@@ -25,18 +25,18 @@ local function iq_result_handler(event)
 	in_flight_iqs[from..node_string] = nil;
 
 	if node_string ~= node_query then
-		module:log("debug", "Wrong node for our disco#info query, expected %s, received %s", node_string, node_query);
+		origin.log("debug", "Wrong node for our disco#info query, expected %s, received %s", node_string, node_query);
 		return;
 	end
 
 	local node, ver = node_query:match("([^#]+)#([^#]+)");
 	local hash = calculate_hash(query)
 	if ver ~= hash then
-		module:log("debug", "Wrong hash for disco#info: %s ~= %s", ver, hash);
+		origin.log("debug", "Wrong hash for disco#info: %s ~= %s", ver, hash);
 	end
 
 	origin.caps_cache = query;
-	module:log("info", "Stored caps %s", ver);
+	origin.log("info", "Stored caps %s", ver);
 	module:fire_event("c2s-capabilities-changed", { origin = origin });
 	return true;
 end
@@ -57,7 +57,7 @@ local function presence_stanza_handler(event)
 
 	local caps = stanza:get_child("c", "http://jabber.org/protocol/caps");
 	if caps == nil then
-		module:log("debug", "Presence without caps received, skipping");
+		origin.log("debug", "Presence without caps received, skipping");
 		return;
 	end
 
@@ -68,17 +68,17 @@ local function presence_stanza_handler(event)
 		return;
 	end
 	if hash ~= "sha-1" then
-		module:log("warn", "Non-SHA-1 caps received: %s", hash);
+		origin.log("warn", "Non-SHA-1 caps received: %s", hash);
 		return;
 	end
 
 	local node_query = node.."#"..ver;
 	if (origin.caps_cache and origin.caps_cache.attr.node == node_query) or in_flight_iqs[from..node_query] ~= nil then
-		module:log("debug", "Already requested these caps, skipping");
+		origin.log("debug", "Already requested these caps, skipping");
 		return;
 	end
 
-	module:log("debug", "Received presence with SHA-1 caps %s, querying disco#info", node_query);
+	origin.log("debug", "Received presence with SHA-1 caps %s, querying disco#info", node_query);
 
 	local id = uuid_gen();
 	iq_node_map[from..id] = node_query
