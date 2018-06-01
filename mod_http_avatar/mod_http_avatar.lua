@@ -5,6 +5,7 @@
 -- COPYING file in the source package for more information.
 
 local base64 = require"util.encodings".base64;
+local sha1 = require"util.hashes".sha1;
 local st = require"util.stanza";
 module:depends"http";
 
@@ -16,7 +17,7 @@ local default_avatar = [[<svg xmlns='http://www.w3.org/2000/svg' version='1.1' v
 </svg>]];
 
 local function get_avatar(event, path)
-	local response = event.response;
+	local request, response = event.request, event.response;
 	local photo_type, binval;
 	local vcard, err = vcard_storage:get(path);
 	if vcard then
@@ -32,8 +33,14 @@ local function get_avatar(event, path)
 		response.headers.content_type = "image/svg+xml";
 		return default_avatar;
 	end
+	local avatar = base64.decode(binval);
+	local hash = sha1(avatar, true);
+	if request.headers.if_none_match == hash then
+		return 304;
+	end
 	response.headers.content_type = photo_type;
-	return base64.decode(binval);
+	response.headers.etag = hash;
+	return avatar;
 end
 
 module:provides("http", {
