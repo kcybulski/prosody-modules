@@ -14,11 +14,11 @@ local json = require "util.json"
 local formdecode = require "net.http".formdecode;
 local http = require "net.http";
 
-local function get_room_from_jid(mod_muc, jid)
+local function get_room_from_jid(mod_muc, room_jid)
 	if mod_muc.get_room_from_jid then
-		return mod_muc.get_room_from_jid(jid);
+		return mod_muc.get_room_from_jid(room_jid);
 	elseif mod_muc.rooms then
-		return mod_muc.rooms[jid]; -- COMPAT 0.9, 0.10
+		return mod_muc.rooms[room_jid]; -- COMPAT 0.9, 0.10
 	end
 end
 
