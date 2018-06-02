@@ -138,6 +138,7 @@ function handle_push_error(event)
 	if node == nil then return false; end		-- unknown stanza? Ignore for now!
 	local from = stanza.attr.from;
 	local user_push_services = push_store:get(node);
+	local changed = false;
 	
 	for push_identifier, _ in pairs(user_push_services) do
 		local stanza_id = hashes.sha256(push_identifier, true);
@@ -159,7 +160,8 @@ function handle_push_error(event)
 						end
 					end
 					-- save changed global config
-					push_store:set_identifier(node, push_identifier, nil);
+					changed = true;
+					user_push_services[push_identifier] = nil
 					push_errors[push_identifier] = nil;
 					-- unhook iq handlers for this identifier (if possible)
 					if module.unhook then
@@ -173,6 +175,9 @@ function handle_push_error(event)
 					.."NOT increasing error count for this identifier", error_type, condition, push_identifier);
 			end
 		end
+	end
+	if changed then
+		push_store:set(node, user_push_services);
 	end
 	return true;
 end
