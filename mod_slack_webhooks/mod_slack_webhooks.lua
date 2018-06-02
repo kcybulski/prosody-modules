@@ -51,7 +51,13 @@ function check_message(data)
 		return;
 	end
 
-	local json_out = {channel_name = from_room, timestamp = now(), text = body, team_domain = from_host, user_name = from_nick};
+	local json_out = {
+		channel_name = from_room,
+		timestamp = now(),
+		text = body,
+		team_domain = from_host,
+		user_name = from_nick,
+	};
 	local stanzaid = stanza:get_child("id");
 	if stanzaid and string.sub(stanzaid,1,string.len("webhookbot"))=="webhookbot" then
 		json_out["bot_id"] = "webhookbot";
