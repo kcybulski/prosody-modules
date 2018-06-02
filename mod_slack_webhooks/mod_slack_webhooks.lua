@@ -95,7 +95,7 @@ local function handle_post(event, path)
 	local body_type = headers.content_type;
 	local post_body;
 	if body_type == "application/x-www-form-urlencoded" then
-		post_body = formdecode(request.body)["payload"];
+		post_body = formdecode(request.body);
 	elseif body_type == "application/json" then
 		if not pcall(function() post_body = json.decode(request.body) end) then
 			return 420;
