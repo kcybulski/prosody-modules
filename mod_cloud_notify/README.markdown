@@ -76,4 +76,4 @@ Compatibility
 Should work with 0.9+.
 
 [^1]: The service which is expected to forward notifications to something like Google Cloud Messaging or Apple Notification Service
-[^2]: //hg.prosody.im/prosody-modules/file/tip/mod_cloud_notify/business_rules.markdown
+[^2]: [business_rules.markdown](//hg.prosody.im/prosody-modules/file/tip/mod_cloud_notify/business_rules.markdown)
