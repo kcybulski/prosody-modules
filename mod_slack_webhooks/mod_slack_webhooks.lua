@@ -93,7 +93,6 @@ local function handle_post(event, path)
 	local headers = request.headers;
 
 	local body_type = headers.content_type;
-	local message;
 	local post_body;
 	if body_type == "application/x-www-form-urlencoded" then
 		post_body = formdecode(request.body)["payload"];
@@ -113,7 +112,7 @@ local function handle_post(event, path)
 	local sender = jid.join(path, module.host, from_nick);
 	module:log("debug", "message to %s from %s", bare_room, sender);
 	module:log("debug", "body: %s", post_body["text"]);
-	message = msg({ to = bare_room, from = sender, type = "groupchat", id="webhookbot" .. now()},post_body["text"]);
+	local message = msg({ to = bare_room, from = sender, type = "groupchat", id="webhookbot" .. now()},post_body["text"]);
 	dest_room:broadcast_message(message, true);
 	return 201;
 end
