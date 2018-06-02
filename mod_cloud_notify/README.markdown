@@ -18,8 +18,7 @@ Details
 
 App servers are notified about offline messages, messages stored by [mod_mam]
 or messages waiting in the smacks queue.
-**Please note:** Multi client setups don't work properly if MAM is disabled and using
-this module won't change this at all!
+**Please note: Multi client setups don't work properly if MAM is disabled and using this module won't change this at all!**
 The business rules outlined [here] are all honored[^2].
 
 To cooperate with [mod_smacks] this module consumes some events:
@@ -75,7 +74,6 @@ Compatibility
 
 Should work with 0.9+.
 
-[^1]: The service which is expected to forward notifications to
-    something like Google Cloud Messaging or Apple Notification Service
-[here]: https://mail.jabber.org/pipermail/standards/2016-February/030925.html
+[^1]: The service which is expected to forward notifications to something like Google Cloud Messaging or Apple Notification Service
 [^2]: //hg.prosody.im/prosody-modules/file/tip/mod_cloud_notify/business_rules.markdown
+[here]: //mail.jabber.org/pipermail/standards/2016-February/030925.html
