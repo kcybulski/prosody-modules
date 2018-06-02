@@ -29,7 +29,10 @@ function keyval_store:get(username)
 end
 
 function keyval_store:set(username, data)
-	self.store[username or NULL] = envload("return "..serialize(data), "@data", {});
+	if data ~= nil then
+		data = envload("return "..serialize(data), "@data", {});
+	end
+	self.store[username or NULL] = data;
 	return true;
 end
 
