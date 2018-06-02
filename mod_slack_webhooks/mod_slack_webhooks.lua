@@ -10,10 +10,8 @@ local host_session = prosody.hosts[module.host];
 local msg = require "util.stanza".message;
 local jid = require "util.jid";
 local now = require "util.datetime".datetime;
-local b64_decode = require "util.encodings".base64.decode;
 local json = require "util.json"
 local formdecode = require "net.http".formdecode;
-local xml = require "util.xml";
 local http = require "net.http";
 
 local function get_room_from_jid(mod_muc, jid)
@@ -28,12 +26,12 @@ local routing = module:get_option("outgoing_webhook_routing") or {};
 local listen_path = module:get_option("incoming_webhook_path") or "/webhook";
 local default_from_nick = module:get_option("incoming_webhook_default_nick") or "Bot";
 
-function postcallback(content, code)
+function postcallback(_, code)
 	module:log("debug", "HTTP result %d", code)
 end
 
 function check_message(data)
-	local origin, stanza = data.origin, data.stanza;
+	local stanza = data.stanza;
 	local mod_muc = host_session.muc;
 	if not mod_muc then return; end
 
@@ -72,8 +70,6 @@ module:hook("message/bare", check_message, 10);
 
 local function route_post(f)
 	return function(event, path)
-		local request = event.request;
-		local headers = request.headers;
 		local bare_room = jid.join(path, module.host);
 		local mod_muc = host_session.muc;
 		if not get_room_from_jid(mod_muc, bare_room) then
@@ -88,7 +84,6 @@ end
 local function handle_post(event, path)
 	local mod_muc = host_session.muc;
 	local request = event.request;
-	local response = event.response;
 	local headers = request.headers;
 
 	local body_type = headers.content_type;
