@@ -23,6 +23,7 @@ local function get_room_from_jid(mod_muc, room_jid)
 	end
 end
 
+local button_ns = "xmpp:prosody.im/community/mod_slack_webhooks#buttons";
 local routing = module:get_option("outgoing_webhook_routing") or {};
 local listen_path = module:get_option("incoming_webhook_path") or "/webhook";
 local default_from_nick = module:get_option("incoming_webhook_default_nick") or "Bot";
@@ -59,6 +60,28 @@ function check_message(data)
 		team_domain = from_host,
 		user_name = from_nick,
 	};
+
+	local form = stanza:get_child("x", "jabber:x:form");
+	if form and form.attr.type == "submit" then
+		local callback_id, button_name, button_value;
+		for field in form:childtags("field") do
+			if field.attr.var == "callback_id" then
+				button_name = field:get_child_text("text");
+			elseif field.attr.var == "button_name" then
+				button_name = field:get_child_text("text");
+			elseif field.attr.var ~= "FORM_TYPE" or field:get_child_text("text") ~= button_ns then
+				callback_id, button_name, button_value = nil, nil, nil;
+				break;
+			end
+		end
+		if callback_id and button_name and button_value then
+			json_out.callback_id = callback_id;
+			json_out.actions = {
+				{ type = "button", name = button_name, value = button_value }
+			};
+		end
+	end
+
 	local stanzaid = stanza:get_child("id");
 	if stanzaid and string.sub(stanzaid,1,string.len("webhookbot"))=="webhookbot" then
 		json_out["bot_id"] = "webhookbot";
@@ -147,7 +170,7 @@ local function handle_post(event, path)
 					message:add_direct_child(dataform.new({
 						{
 							type = "hidden", name = "FORM_TYPE",
-							value = "xmpp:prosody.im/community/mod_slack_webhooks#buttons",
+							value = button_ns,
 						},
 						{
 							type = "hidden", name = "callback_id",
