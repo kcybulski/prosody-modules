@@ -13,6 +13,7 @@ local now = require "util.datetime".datetime;
 local json = require "util.json"
 local formdecode = require "net.http".formdecode;
 local http = require "net.http";
+local dataform = require "util.dataforms";
 
 local function get_room_from_jid(mod_muc, room_jid)
 	if mod_muc.get_room_from_jid then
@@ -114,6 +115,59 @@ local function handle_post(event, path)
 	module:log("debug", "message to %s from %s", bare_room, sender);
 	module:log("debug", "body: %s", post_body["text"]);
 	local message = msg({ to = bare_room, from = sender, type = "groupchat", id="webhookbot" .. now()},post_body["text"]);
+
+	if type(post_body["attachments"]) == "table" then -- Buttons?
+		-- luacheck: ignore 631
+		-- defensive against JSON having whatever data in it, enjoy
+
+		for _, attachment in ipairs(post_body["attachments"]) do
+			if type(attachment) == "table" and type(attachment.actions) == "table" and type(attachment.callback_id) == "string" then
+				local buttons = {};
+				local button_name;
+				for _, action in ipairs(attachment.actions) do
+					if type(attachment.text) == "string" then
+						buttons.label = attachment.text;
+					end
+					if type(action) == "table" and action.type == "button" and type(action.name) == "string" and type(action.value) == "string" then
+						if not button_name then
+							button_name = action.name;
+						end
+						if button_name == action.name then
+							local button = {
+								value = action.value;
+							};
+							if type(action.text) == "string" then
+								button.label = action.text;
+							end
+							table.insert(buttons, button);
+						end
+					end
+				end
+				if button_name then
+					message:add_direct_child(dataform.new({
+						{
+							type = "hidden", name = "FORM_TYPE",
+							value = "xmpp:prosody.im/community/mod_slack_webhooks#buttons",
+						},
+						{
+							type = "hidden", name = "callback_id",
+							value = attachment.callback_id,
+						},
+						{
+							type = "hidden", name = "button_name",
+							value = button_name,
+						},
+						{
+							type = "list-single", name = "buttons",
+							value = "", -- FIXME util.dataforms can't do options without a value
+							options = buttons;
+						}
+					}):form());
+					break;
+				end
+			end
+		end
+	end
 	dest_room:broadcast_message(message, true);
 	return 201;
 end
