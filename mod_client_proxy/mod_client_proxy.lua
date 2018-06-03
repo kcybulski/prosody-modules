@@ -2,9 +2,6 @@ if module:get_host_type() ~= "component" then
 	error("proxy_component should be loaded as component", 0);
 end
 
-local comp_host = module:get_host();
-local comp_name = module:get_option_string("name", "Proxy Component");
-
 local jid_split = require "util.jid".split;
 local jid_bare = require "util.jid".bare;
 local jid_prep = require "util.jid".prep;
@@ -13,12 +10,10 @@ local array = require "util.array";
 
 local target_address = module:get_option_string("target_address");
 
-local hosts = prosody.hosts;
-
 sessions = array{};
 local sessions = sessions;
 
-local function handle_target_presence(origin, stanza)
+local function handle_target_presence(stanza)
 	local type = stanza.attr.type;
 	module:log("debug", "received presence from destination: %s", type)
 	local _, _, resource = jid_split(stanza.attr.from);
@@ -64,7 +59,7 @@ local function handle_target_presence(origin, stanza)
 	end
 end
 
-local function handle_from_target(origin, stanza)
+local function handle_from_target(stanza)
 	local type = stanza.attr.type
 	module:log(
 		"debug",
@@ -111,7 +106,7 @@ local function handle_from_target(origin, stanza)
 	end
 end
 
-local function handle_to_target(origin, stanza)
+local function handle_to_target(stanza)
 	local type = stanza.attr.type;
 	module:log(
 		"debug",
@@ -152,9 +147,8 @@ local function handle_to_target(origin, stanza)
 			stanza.attr.to = target
 
 			module:send(stanza)
-		else
-			-- FIXME: handle and forward result/error correctly
 		end
+		-- FIXME: handle and forward result/error correctly
 	elseif stanza.name == "message" then
 		-- not implemented yet, we need a way to ensure that routing doesn’t
 		-- break
@@ -173,17 +167,17 @@ local function stanza_handler(event)
 		if not to then
 			-- directly to component
 			if stanza.name == "presence" then
-				handle_target_presence(origin, stanza)
+				handle_target_presence(stanza)
 			else
 				module:send(st.error_reply(stanza, "cancel", "bad-request"))
 				return true
 			end
 		else
 			-- to someone else
-			handle_from_target(origin, stanza)
+			handle_from_target(stanza)
 		end
 	else
-		handle_to_target(origin, stanza)
+		handle_to_target(stanza)
 	end
 	return true
 end
