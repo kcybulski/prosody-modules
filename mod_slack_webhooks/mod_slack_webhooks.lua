@@ -90,6 +90,10 @@ function check_message(data)
 	json_out = json.encode(json_out)
 	local url = routing[from_room];
 	module:log("debug", "message from %s in %s to %s", from_nick, from_room, url);
+	if url == "DEBUG" then
+		module:log("debug", "json_out = %s", json_out);
+		return;
+	end
 	local headers = {
 		["Content-Type"] = "application/json",
 	};
