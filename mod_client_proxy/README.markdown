@@ -45,6 +45,7 @@ Use cases
 
 * Implementation of services within clients instead of components, thus making
   use of the more advanced authentication features.
+* Load-balancing requests to different client resources.
 * General evilness
 
 
