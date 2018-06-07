@@ -62,7 +62,7 @@ local function init_session_cache(max_entries, evict_callback)
 			end;
 		};
 	end
-	
+
 	-- use per user limited cache for prosody >= 0.10
 	local stores = {};
 	return {
@@ -172,7 +172,7 @@ local function request_ack_if_needed(session, force)
 			end);
 		end
 	end
-	
+
 	-- Trigger "smacks-ack-delayed"-event if we added new (ackable) stanzas to the outgoing queue
 	-- and there isn't already a timer for this event running.
 	-- If we wouldn't do this, stanzas added to the queue after the first "smacks-ack-delayed"-event
@@ -181,7 +181,7 @@ local function request_ack_if_needed(session, force)
 		session.log("debug", "Calling delayed_ack_function directly (still waiting for ack)");
 		delayed_ack_function(session);
 	end
-	
+
 	session.last_queue_count = #queue;
 end
 
@@ -278,7 +278,7 @@ function handle_enable(session, stanza, xmlns_sm)
 		session_registry.set(session.username, resume_token, session);
 		session.resumption_token = resume_token;
 	end
-	(session.sends2s or session.send)(st.stanza("enabled", { xmlns = xmlns_sm, id = resume_token, resume = resume }));
+	(session.sends2s or session.send)(st.stanza("enabled", { xmlns = xmlns_sm, id = resume_token, resume = resume, max = resume_timeout }));
 	return true;
 end
 module:hook_stanza(xmlns_sm2, "enable", function (session, stanza) return handle_enable(session, stanza, xmlns_sm2); end, 100);
