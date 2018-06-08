@@ -10,11 +10,15 @@ local iq_node_map = {}
 
 local function iq_result_handler(event)
 	local origin, stanza = event.origin, event.stanza;
-	local from = stanza.attr.from;
-	local id = stanza.attr.id;
 
 	local query = stanza:get_child("query", "http://jabber.org/protocol/disco#info");
+	if not query then
+		origin.log("debug", "Wrong iq payload in disco#info result: %s", stanza);
+		return;
+	end
 
+	local from = stanza.attr.from;
+	local id = stanza.attr.id;
 	local node_string = query.attr.node;
 	local node_query = iq_node_map[from..id];
 	if node_string == nil then
