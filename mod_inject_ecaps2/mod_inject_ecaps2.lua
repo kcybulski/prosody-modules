@@ -89,7 +89,7 @@ local function caps_handler(event)
 	end
 
 	module:log("debug", "Injected ecaps2 element in presence");
-	origin.presence:add_child(hashes);
+	origin.presence:add_child(ecaps2);
 end
 
 module:hook("c2s-capabilities-changed", caps_handler);
