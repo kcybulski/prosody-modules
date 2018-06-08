@@ -23,7 +23,8 @@ local function iq_stanza_handler(event)
 	if disco_info ~= nil and (node == nil or node == disco_info.attr.node) then
 		local iq = st.reply(stanza);
 		iq:add_child(st.clone(disco_info));
-		origin.log("debug", "Answering disco#info on the behalf of %s", to);
+		local log = origin.log or module._log;
+		log("debug", "Answering disco#info on the behalf of %s", to);
 		module:send(iq);
 		return true;
 	end
