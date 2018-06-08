@@ -19,6 +19,7 @@ local jid = require "util.jid";
 
 local t_insert, t_remove = table.insert, table.remove;
 local math_min = math.min;
+local math_max = math.max;
 local os_time = os.time;
 local tonumber, tostring = tonumber, tostring;
 local add_filter = require "util.filters".add_filter;
@@ -415,6 +416,19 @@ module:hook("pre-resource-unbind", function (event)
 				-- Check the hibernate time still matches what we think it is,
 				-- otherwise the session resumed and re-hibernated.
 				and session.hibernating == hibernate_time then
+					-- wait longer if the timeout isn't reached because push was enabled for this session
+					-- session.first_hibernated_push is the starting point for hibernation timeouts of those push enabled clients
+					-- wait for an additional resume_timeout seconds if no push occured since hibernation at all
+					local current_time = os_time();
+					local timeout_start = math_max(session.hibernating, session.first_hibernated_push or session.hibernating);
+					if session.push_identifier ~= nil and not session.first_hibernated_push then
+						session.log("debug", "No push happened since hibernation started, hibernating session for up to %d extra seconds", resume_timeout);
+						return resume_timeout;
+					end
+					if current_time-timeout_start < resume_timeout and session.push_identifier ~= nil then
+						session.log("debug", "A push happened since hibernation started, hibernating session for up to %d extra seconds", current_time-timeout_start);
+						return current_time-timeout_start;		-- time left to wait
+					end
 					session.log("debug", "Destroying session for hibernating too long");
 					session_registry.set(session.username, session.resumption_token, nil);
 					-- save only actual h value and username/host (for security)
