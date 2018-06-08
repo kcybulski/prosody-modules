@@ -128,6 +128,7 @@ local push_store = (function()
 	return api;
 end)();
 
+
 -- Forward declarations, as both functions need to reference each other
 local handle_push_success, handle_push_error;
 
@@ -156,6 +157,7 @@ function handle_push_error(event)
 							if session.push_identifier == push_identifier then
 								session.push_identifier = nil;
 								session.push_settings = nil;
+								session.first_hibernated_push = nil;
 							end
 						end
 					end
@@ -241,6 +243,7 @@ local function push_enable(event)
 	else
 		origin.push_identifier = push_identifier;
 		origin.push_settings = push_service;
+		origin.first_hibernated_push = nil;
 		origin.log("info", "Push notifications enabled for %s (%s)", tostring(stanza.attr.from), tostring(origin.push_identifier));
 		origin.send(st.reply(stanza));
 	end
@@ -264,6 +267,7 @@ local function push_disable(event)
 			if origin.push_identifier == key then
 				origin.push_identifier = nil;
 				origin.push_settings = nil;
+				origin.first_hibernated_push = nil;
 			end
 			user_push_services[key] = nil;
 			push_errors[key] = nil;
@@ -364,7 +368,7 @@ local push_form = dataform {
 };
 
 -- http://xmpp.org/extensions/xep-0357.html#publishing
-local function handle_notify_request(stanza, node, user_push_services)
+local function handle_notify_request(stanza, node, user_push_services, log_push_decline)
 	local pushes = 0;
 	if not user_push_services or next(user_push_services) == nil then return pushes end
 	
@@ -373,7 +377,9 @@ local function handle_notify_request(stanza, node, user_push_services)
 		if stanza then
 			if not stanza._push_notify then stanza._push_notify = {}; end
 			if stanza._push_notify[push_identifier] then
-				module:log("debug", "Already sent push notification for %s@%s to %s (%s)", node, module.host, push_info.jid, tostring(push_info.node));
+				if log_push_decline then
+					module:log("debug", "Already sent push notification for %s@%s to %s (%s)", node, module.host, push_info.jid, tostring(push_info.node));
+				end
 				send_push = false;
 			end
 			stanza._push_notify[push_identifier] = true;
@@ -396,8 +402,8 @@ local function handle_notify_request(stanza, node, user_push_services)
 			end
 			if stanza and include_body then
 				form_data["last-message-body"] = stanza:get_child_text("body");
-			elseif stanza and dummy_body ~= "" and is_important(stanza) then
-				form_data["last-message-body"] = dummy_body;
+			elseif stanza and dummy_body and is_important(stanza) then
+				form_data["last-message-body"] = tostring(dummy_body);
 			end
 			push_publish:add_child(push_form:form(form_data));
 			push_publish:up(); -- / notification
@@ -407,7 +413,7 @@ local function handle_notify_request(stanza, node, user_push_services)
 				push_publish:tag("publish-options"):add_child(st.deserialize(push_info.options));
 			end
 			-- send out push
-			module:log("debug", "Sending push notification for %s@%s to %s (%s)", node, module.host, push_info.jid, tostring(push_info.node));
+			module:log("debug", "Sending%s push notification for %s@%s to %s (%s)", form_data["last-message-body"] and " important" or "", node, module.host, push_info.jid, tostring(push_info.node));
 			-- module:log("debug", "PUSH STANZA: %s", tostring(push_publish));
 			-- handle push errors for this node
 			if push_errors[push_identifier] == nil then
@@ -435,7 +441,7 @@ end
 module:hook("message/offline/handle", function(event)
 	local node, user_push_services = get_push_settings(event.stanza, event.origin);
 	module:log("debug", "Invoking cloud handle_notify_request() for offline stanza");
-	handle_notify_request(event.stanza, node, user_push_services);
+	handle_notify_request(event.stanza, node, user_push_services, true);
 end, 1);
 
 -- publish on unacked smacks message
@@ -444,7 +450,17 @@ local function process_smacks_stanza(stanza, session)
 		session.log("debug", "Invoking cloud handle_notify_request() for smacks queued stanza");
 		local user_push_services = {[session.push_identifier] = session.push_settings};
 		local node = get_push_settings(stanza, session);
-		handle_notify_request(stanza, node, user_push_services);
+		if handle_notify_request(stanza, node, user_push_services, true) ~= 0 then
+			if session.hibernating and not session.first_hibernated_push then
+				-- if important stanzas are treated differently (pushed with last-message-body field set to dummy string)
+				-- and the message was important (e.g. had a last-message-body field) OR if we treat all pushes equally,
+				-- then record the time of first push in the session for the smack module which will extend its hibernation
+				-- timeout based on the value of session.first_hibernated_push
+				if not dummy_body or (dummy_body and is_important(stanza)) then
+					session.first_hibernated_push = os_time();
+				end
+			end
+		end
 	end
 	return stanza;
 end
@@ -452,13 +468,27 @@ end
 local function process_smacks_queue(queue, session)
 	if not session.push_identifier then return; end
 	local user_push_services = {[session.push_identifier] = session.push_settings};
+	local notified = { unimportant = false; important = false }
 	for i=1, #queue do
 		local stanza = queue[i];
 		local node = get_push_settings(stanza, session);
-		session.log("debug", "Invoking cloud handle_notify_request() for smacks queued stanza: %d", i);
-		if handle_notify_request(stanza, node, user_push_services) ~= 0 then
-			session.log("debug", "Cloud handle_notify_request() > 0, not notifying for other queued stanzas");
-			return;		-- only notify for one stanza in the queue, not for all in a row
+		stanza_type = "unimportant"
+		if dummy_body and is_important(stanza) then stanza_type = "important"; end
+		if not notified[stanza_type] then		-- only notify if we didn't try to push for this stanza type already
+			-- session.log("debug", "Invoking cloud handle_notify_request() for smacks queued stanza: %d", i);
+			if handle_notify_request(stanza, node, user_push_services, false) ~= 0 then
+				if session.hibernating and not session.first_hibernated_push then
+					-- if important stanzas are treated differently (pushed with last-message-body field set to dummy string)
+					-- and the message was important (e.g. had a last-message-body field) OR if we treat all pushes equally,
+					-- then record the time of first push in the session for the smack module which will extend its hibernation
+					-- timeout based on the value of session.first_hibernated_push
+					if not dummy_body or (dummy_body and is_important(stanza)) then
+						session.first_hibernated_push = os_time();
+					end
+				end
+				session.log("debug", "Cloud handle_notify_request() > 0, not notifying for other queued stanzas of type %s", stanza_type);
+				notified[stanza_type] = true
+			end
 		end
 	end
 end
@@ -467,6 +497,7 @@ end
 local function hibernate_session(event)
 	local session = event.origin;
 	local queue = event.queue;
+	session.first_hibernated_push = nil;
 	-- process unacked stanzas
 	process_smacks_queue(queue, session);
 	-- process future unacked (hibernated) stanzas
@@ -478,6 +509,7 @@ local function restore_session(event)
 	local session = event.resumed;
 	if session then		-- older smacks module versions send only the "intermediate" session in event.session and no session.resumed one
 		filters.remove_filter(session, "stanzas/out", process_smacks_stanza);
+		session.first_hibernated_push = nil;
 	end
 end
 
@@ -505,7 +537,7 @@ local function archive_message_added(event)
 		if next(user_push_services) == nil then return end
 		
 		-- only notify nodes with no active sessions (smacks is counted as active and handled separate)
-		local notify_push_sevices = {};
+		local notify_push_services = {};
 		for identifier, push_info in pairs(user_push_services) do
 			local identifier_found = nil;
 			for _, session in pairs(user_session) do
@@ -518,11 +550,11 @@ local function archive_message_added(event)
 			if identifier_found then
 				identifier_found.log("debug", "Not cloud notifying '%s' of new MAM stanza (session still alive)", identifier);
 			else
-				notify_push_sevices[identifier] = push_info;
+				notify_push_services[identifier] = push_info;
 			end
 		end
 
-		handle_notify_request(event.stanza, to, notify_push_sevices);
+		handle_notify_request(event.stanza, to, notify_push_services, true);
 	end
 end
 
@@ -535,7 +567,7 @@ local function send_ping(event)
 	local user = event.user;
 	local user_push_services = push_store:get(user);
 	local push_services = event.push_services or user_push_services;
-	handle_notify_request(nil, user, push_services);
+	handle_notify_request(nil, user, push_services, true);
 end
 -- can be used by other modules to ping one or more (or all) push endpoints
 module:hook("cloud-notify-ping", send_ping);
