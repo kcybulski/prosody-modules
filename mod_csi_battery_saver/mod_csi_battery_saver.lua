@@ -196,31 +196,19 @@ module:hook("csi-client-active", function (event)
 	end
 end);
 
--- clean up this session on hibernation start
-module:hook("smacks-hibernation-start", function (event)
-	local session = event.origin;
-	if session.pump then
-		session.log("debug", "mod_csi_battery_saver(%s): Hibernation started, flushing buffer and afterwards disabling for this session", id);
-		session.pump:flush();
-		session.send = session._pump_orig_send;
-		session.pump = nil;
-		session._pump_orig_send = nil;
-	end
-end);
-
--- clean up this session on hibernation end as well
+-- clean up this session on hibernation end
 -- but don't change resumed.send(), it is already overwritten with session.send() by the smacks module
 module:hook("smacks-hibernation-end", function (event)
 	local session = event.resumed;
 	if session.pump then
-		session.log("debug", "mod_csi_battery_saver(%s): Hibernation ended without being started, flushing buffer and afterwards disabling for this session", id);
+		session.log("debug", "mod_csi_battery_saver(%s): Hibernation ended, flushing buffer and afterwards disabling for this session", id);
 		session.pump:flush(session.send);		-- use the fresh session.send() introduced by the smacks resume
 		-- don't reset session.send() because this is not the send previously overwritten by this module, but a fresh one
 		-- session.send = session._pump_orig_send;
 		session.pump = nil;
 		session._pump_orig_send = nil;
 	end
-end);
+end, 1000);		-- high priority to prevent message reordering on resumption (we want to flush our buffers *first*)
 
 function module.unload()
 	module:log("info", "%s: Unloading module, flushing all buffers", id);
