@@ -279,7 +279,7 @@ function handle_enable(session, stanza, xmlns_sm)
 		session_registry.set(session.username, resume_token, session);
 		session.resumption_token = resume_token;
 	end
-	(session.sends2s or session.send)(st.stanza("enabled", { xmlns = xmlns_sm, id = resume_token, resume = resume, max = resume_timeout }));
+	(session.sends2s or session.send)(st.stanza("enabled", { xmlns = xmlns_sm, id = resume_token, resume = resume, max = tostring(resume_timeout) }));
 	return true;
 end
 module:hook_stanza(xmlns_sm2, "enable", function (session, stanza) return handle_enable(session, stanza, xmlns_sm2); end, 100);
