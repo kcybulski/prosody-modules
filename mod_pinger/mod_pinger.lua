@@ -6,8 +6,10 @@ local idle_timeout = module:get_option_number("c2s_idle_timeout", 300);
 local ping_timeout = module:get_option_number("c2s_ping_timeout",  30);
 
 function update_watchdog(data, session)
-	session.idle_watchdog:reset();
-	session.idle_pinged = nil;
+	if session.idle_watchdog then
+		session.idle_watchdog:reset();
+		session.idle_pinged = nil;
+	end
 	return data;
 end
 
