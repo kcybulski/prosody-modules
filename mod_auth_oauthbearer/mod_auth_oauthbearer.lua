@@ -29,10 +29,8 @@ local function interp(s, tab)
 	return (s:gsub('(%b{})', function(w) return tab[w:sub(3, -3)] or w end))
 end
 
-function provider.test_password(sasl, username, password, realm)
+function provider.test_password(username, password, realm)
 	log("debug", "Testing signed OAuth2 for user %s at realm %s", username, realm);
-	-- TODO: determine, based on the "realm" which OAuth provider to verify with.
-	module:log("debug", "sync_http_auth()");
 	local https = require "ssl.https";
 	local url = interp(oauth_url, {oauth_client_id = oauth_client_id, password = password});
 	
@@ -45,12 +43,12 @@ function provider.test_password(sasl, username, password, realm)
 	};
 	if type(code) == "number" and code >= 200 and code <= 299 then
 		module:log("debug", "OAuth provider confirmed valid password");
-		return 'johnny', true;
+		return true;
 	else
-		module:log("warn", "OAuth provider returned status code: "..code);
+		module:log("debug", "OAuth provider returned status code: "..code);
 	end
-	module:log("warn", "OAuth failed. Invalid username or password.");
-	return nil, false;
+	module:log("warn", "Auth failed. Invalid username/password or misconfiguration.");
+	return nil;
 end
 
 function provider.users()
@@ -78,10 +76,9 @@ end
 function provider.get_sasl_handler()
 	local supported_mechanisms = {};
 	supported_mechanisms["OAUTHBEARER"] = true;
-
 	return new_sasl(host, {
 		oauthbearer = function(sasl, username, password, realm)
-			return provider.test_password(sasl, username, password, realm);
+			return provider.test_password(username, password, realm), true;
 		end,
         mechanisms = supported_mechanisms
 	});
