@@ -9,6 +9,11 @@ Introduction
 
 This is an authentication module for the SASL OAUTHBEARER mechanism, as provided by `mod_sasl_oauthbearer`.
 
+You can use this to log in via OAuth, for example if you want your user's to log in with Github, Twitter, Reddit etc.
+
+The XMPP client needs get an OAuth token from the provider (e.g. Github) and send that to Prosody.
+This module will then verify that token by calling the `oauth_url` you've configured.
+
 Configuration
 =============
 
