@@ -27,10 +27,10 @@ Configuration
 
 There are some options you can add to your config file:
 
-  Name                      Values       Description
-  ------------------------- ------------ ------------------------------------
-  lastlog\_ip\_address      true/false   Log the IP address of the user?
-  lastlog\_stamp\_offline   true/false   Add timestamp to offline presence?
+  Name                      Type    Default Description
+  ------------------------- ------- ------- ------------------------------------
+  lastlog\_ip\_address      boolean false   Log the IP address of the user?
+  lastlog\_stamp\_offline   boolean false   Add timestamp to offline presence?
 
 Usage
 =====
