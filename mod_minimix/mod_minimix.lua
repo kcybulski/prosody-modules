@@ -29,7 +29,7 @@ module:hook("pre-presence/full", function (event)
 			origin.joined_rooms = { [room_jid] = nickname };
 		end
 
-		if data:get(username, room_jid) then
+		if data:get(username, room_jid, "subject") then
 			module:log("debug", "Already joined to %s as %s", room_jid, nickname);
 			local presences = data:get(username, room_jid, "presence");
 			for _, pres in pairs(presences) do
