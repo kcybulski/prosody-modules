@@ -36,7 +36,10 @@ module:hook("pre-presence/full", function (event)
 				origin.send(st.clone(pres));
 			end
 			-- FIXME should send ones own presence last
-			origin.send(st.clone(data:get(username, room_jid, "subject")));
+			local subject = data:get(username, room_jid, "subject");
+			if subject then
+				origin.send(st.clone(subject));
+			end
 			-- Send on-join stanzas from local state, somehow
 			-- Maybe tell them their nickname was changed if it doesn't match the account one
 			return true;
