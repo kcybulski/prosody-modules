@@ -32,8 +32,11 @@ module:hook("pre-presence/full", function (event)
 		if data:get(username, room_jid, "subject") then
 			module:log("debug", "Already joined to %s as %s", room_jid, nickname);
 			local presences = data:get(username, room_jid, "presence");
-			for _, pres in pairs(presences) do
-				origin.send(st.clone(pres));
+			if presences then
+				-- Joined but no presence? Weird
+				for _, pres in pairs(presences) do
+					origin.send(st.clone(pres));
+				end
 			end
 			-- FIXME should send ones own presence last
 			local subject = data:get(username, room_jid, "subject");
