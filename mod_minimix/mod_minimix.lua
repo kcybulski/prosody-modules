@@ -35,7 +35,9 @@ module:hook("pre-presence/full", function (event)
 			if presences then
 				-- Joined but no presence? Weird
 				for _, pres in pairs(presences) do
-					origin.send(st.clone(pres));
+					pres = st.clone(pres);
+					pres.attr.to = origin.full_jid;
+					origin.send(pres);
 				end
 			end
 			-- FIXME should send ones own presence last
