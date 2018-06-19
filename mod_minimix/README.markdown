@@ -34,6 +34,7 @@ Known issues
 
 -   You can never leave.
 -   You will never see anyone leave.
+-   Being kicked is not handled.
 
 Unknown issues
 --------------
