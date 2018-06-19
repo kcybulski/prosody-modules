@@ -58,6 +58,8 @@ module:hook("pre-presence/full", function (event)
 		end
 		origin.send(st.reply(stanza));
 		return true;
+	elseif stanza.attr.type == nil and origin.joined_rooms and origin.joined_rooms[room_jid] then
+		return true; -- Supress these
 	end
 end);
 
