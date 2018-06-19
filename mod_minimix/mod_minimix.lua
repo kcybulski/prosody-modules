@@ -4,12 +4,11 @@
 --
 local jid_split, jid_join, jid_node, jid_bare = import("util.jid", "split", "join", "node", "bare");
 local st = require "util.stanza";
+local mt = require "util.multitable";
 
 local users = prosody.hosts[module.host].sessions;
 
-local joined_rooms = module:open_store("joined_rooms", "map"); -- TODO cache?
-local room_state = module:open_store("joined_rooms_state", "map");
-local all_room_state = module:open_store("joined_rooms_state");
+local data = mt.new();
 
 -- FIXME You can join but you can never leave.
 
@@ -30,29 +29,30 @@ module:hook("pre-presence/full", function (event)
 			origin.joined_rooms = { [room_jid] = nickname };
 		end
 
-		if joined_rooms:get(username, room_jid) then
+		if data:get(username, room_jid) then
 			module:log("debug", "Already joined to %s as %s", room_jid, nickname);
-			local state = assert(all_room_state:get(username));
-			for jid, stanza in pairs(state) do
-				if jid ~= room_jid and jid ~= stanza.attr.to then
-					origin.send(st.clone(st.deserialize(stanza)));
-				end
+			local presences = data:get(username, room_jid, "presence");
+			for _, pres in pairs(presences) do
+				origin.send(st.clone(pres));
 			end
-			origin.send(st.deserialize(state[stanza.attr.to]));
-			origin.send(st.message({type="groupchat",to=origin.full_jid,from=room_jid}):tag("subject"):text(state[room_jid]));
+			-- FIXME should send ones own presence last
+			origin.send(st.clone(data:get(username, room_jid, "subject")));
 			-- Send on-join stanzas from local state, somehow
 			-- Maybe tell them their nickname was changed if it doesn't match the account one
 			return true;
 		end
 
-		joined_rooms:set(username, room_jid, nickname);
-
 		local account_join = st.clone(stanza);
 		account_join.attr.from = jid_join(origin.username, origin.host);
 		module:send(account_join);
 
+		data:set(username, room_jid, "joined", nickname);
+
 		return true;
-	elseif stanza.attr.type == "unavailable" and joined_rooms:get(username, room_jid) then
+	elseif stanza.attr.type == "unavailable" then
+		if origin.joined_rooms and origin.joined_rooms[room_jid] then
+			origin.joined_rooms[room_jid] = nil;
+		end
 		origin.send(st.reply(stanza));
 		return true;
 	end
@@ -64,9 +64,9 @@ module:hook("pre-message/bare", function (event)
 	local room_jid = jid_bare(stanza.attr.to);
 
 	module:log("info", "%s", stanza)
-	if joined_rooms:get(username, room_jid) then
+	if origin.joined_rooms and origin.joined_rooms[room_jid] then
 		local from_account = st.clone(stanza);
-		from_account.attr.from = jid_join(origin.username, origin.host);
+		from_account.attr.from = jid_join(username, origin.host);
 		module:log("debug", "Sending:\n%s\nInstead of:\n%s", from_account, stanza);
 		module:send(from_account, origin);
 		return true;
@@ -74,22 +74,22 @@ module:hook("pre-message/bare", function (event)
 end);
 
 local function handle_to_bare_jid(event)
-	local origin, stanza = event.origin, event.stanza;
+	local stanza = event.stanza;
 	local username = jid_node(stanza.attr.to);
 	local room_jid = jid_bare(stanza.attr.from);
 
-	if joined_rooms:get(username, room_jid) then
+	if data:get(username, room_jid) then
 		module:log("debug", "handle_to_bare_jid %q, %s", room_jid, stanza);
 		-- Broadcast to clients
 
 		if stanza.name == "message" and stanza.attr.type == "groupchat"
 			and not stanza:get_child("body") and stanza:get_child("subject") then
-			room_state:set(username, room_jid, stanza:get_child_text("subject"));
+			data:set(username, room_jid, "subject", st.clone(stanza));
 		elseif stanza.name == "presence" then
 			if stanza.attr.type == nil then
-				room_state:set(username, stanza.attr.from, st.preserialize(stanza));
+				data:set(username, room_jid, "presence", stanza.attr.from, st.clone(stanza));
 			elseif stanza.attr.type == "unavailable" then
-				room_state:set(username, stanza.attr.from, nil);
+				data:set(username, room_jid, "presence", stanza.attr.from, nil);
 			end
 		end
 
