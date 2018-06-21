@@ -1,6 +1,7 @@
--- Log common stats to statsd
+-- Log statistics to Prometheus
 --
 -- Copyright (C) 2014 Daurnimator
+-- Copyright (C) 2018 Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
 --
 -- This module is MIT/X11 licensed.
 
