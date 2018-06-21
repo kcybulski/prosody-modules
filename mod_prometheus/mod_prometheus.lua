@@ -7,8 +7,10 @@
 module:set_global();
 module:depends "http";
 
+local tostring = tostring;
 local s_format = string.format;
 local t_insert = table.insert;
+local t_concat = table.concat;
 local socket = require "socket";
 local mt = require "util.multitable";
 
@@ -54,7 +56,7 @@ local function repr_labels(labels)
 	if #values == 0 then
 		return "";
 	end
-	return "{"..table.concat(values, ", ").."}";
+	return "{"..t_concat(values, ", ").."}";
 end
 
 local function repr_sample(metric, labels, value, timestamp)
@@ -112,7 +114,7 @@ local function get_metrics(event)
 			t_insert(answer, repr_sample(name, {}, value, timestamp));
 		end
 	end
-	return table.concat(answer, "");
+	return t_concat(answer, "");
 end
 
 function module.add_host(module)
