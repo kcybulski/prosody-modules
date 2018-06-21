@@ -106,7 +106,7 @@ local function get_metrics(event)
 	local timestamp = tostring(get_timestamp());
 	for section, data in pairs(data.data) do
 		for key, value in pairs(data) do
-			local name = section.."_"..key;
+			local name = "prosody_"..section.."_"..key;
 			t_insert(response, repr_help(name, "TODO: add a description here."));
 			t_insert(response, repr_type(name, "gauge"));
 			t_insert(response, repr_sample(name, {}, value, timestamp));
