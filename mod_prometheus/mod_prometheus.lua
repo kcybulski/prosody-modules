@@ -80,10 +80,10 @@ module:hook("stats-updated", function (event)
 			sect = sect:sub(16);
 		end
 
-		local key = escape_name("prosody_"..sect.."_"..name);
+		local key = escape_name("prosody_"..sect);
 		local field = {
 			value = value,
-			labels = {},
+			labels = { ["type"] = name},
 			-- TODO: Use the other types where it makes sense.
 			typ = (typ == "rate" and "counter" or "gauge"),
 		};
