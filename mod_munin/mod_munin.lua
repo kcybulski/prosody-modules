@@ -104,7 +104,7 @@ module:hook("stats-updated", function (event)
 				if host then
 					meta:set(key, "", "graph_title", s_format("%s %s on %s", sect, typ, host));
 				else
-					meta:set(key, "", "graph_title", s_format("Global %s %s", sect, typ, host));
+					meta:set(key, "", "graph_title", s_format("Global %s %s", sect, typ));
 				end
 				meta:set(key, "", "graph_vlabel", this and this.units or typ);
 				meta:set(key, "", "graph_category", sect);
