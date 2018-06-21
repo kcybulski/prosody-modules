@@ -102,17 +102,17 @@ local function get_metrics(event)
 	local response = event.response;
 	response.headers.content_type = "text/plain; version=0.4.4";
 
-	local response = {};
+	local answer = {};
 	local timestamp = tostring(get_timestamp());
-	for section, data in pairs(data.data) do
-		for key, value in pairs(data) do
+	for section, content in pairs(data.data) do
+		for key, value in pairs(content) do
 			local name = "prosody_"..section.."_"..key;
-			t_insert(response, repr_help(name, "TODO: add a description here."));
-			t_insert(response, repr_type(name, "gauge"));
-			t_insert(response, repr_sample(name, {}, value, timestamp));
+			t_insert(answer, repr_help(name, "TODO: add a description here."));
+			t_insert(answer, repr_type(name, "gauge"));
+			t_insert(answer, repr_sample(name, {}, value, timestamp));
 		end
 	end
-	return table.concat(response, "");
+	return table.concat(answer, "");
 end
 
 function module.add_host(module)
