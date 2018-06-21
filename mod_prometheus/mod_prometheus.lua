@@ -63,6 +63,7 @@ end
 
 module:hook("stats-updated", function (event)
 	local all_stats, this = event.stats_extra;
+	local timestamp = tostring(get_timestamp());
 	local host, sect, name, typ;
 	data = {};
 	for stat, value in pairs(event.stats) do
@@ -86,6 +87,7 @@ module:hook("stats-updated", function (event)
 			labels = { ["type"] = name},
 			-- TODO: Use the other types where it makes sense.
 			typ = (typ == "rate" and "counter" or "gauge"),
+			timestamp = timestamp,
 		};
 		if host then
 			field.labels.host = host;
@@ -102,12 +104,11 @@ local function get_metrics(event)
 	response.headers.content_type = "text/plain; version=0.4.4";
 
 	local answer = {};
-	local timestamp = tostring(get_timestamp());
 	for key, fields in pairs(data) do
 		t_insert(answer, repr_help(key, "TODO: add a description here."));
 		t_insert(answer, repr_type(key, fields[1].typ));
 		for _, field in pairs(fields) do
-			t_insert(answer, repr_sample(key, field.labels, field.value, timestamp));
+			t_insert(answer, repr_sample(key, field.labels, field.value, field.timestamp));
 		end
 	end
 	return t_concat(answer, "");
