@@ -8,14 +8,11 @@ module:set_global();
 module:depends "http";
 
 local tostring = tostring;
-local s_format = string.format;
 local t_insert = table.insert;
 local t_concat = table.concat;
 local socket = require "socket";
-local mt = require "util.multitable";
 
-local meta = mt.new(); meta.data = module:shared"meta";
-local data = mt.new(); data.data = module:shared"data";
+local data = {};
 
 local function escape(text)
 	return text:gsub("\\", "\\\\"):gsub("\"", "\\\""):gsub("\n", "\\n");
@@ -65,13 +62,14 @@ end
 
 module:hook("stats-updated", function (event)
 	local all_stats, this = event.stats_extra;
-	local host, sect, name, typ, key;
-	for stat, value in pairs(event.changed_stats) do
+	local host, sect, name, typ;
+	data = {};
+	for stat, value in pairs(event.stats) do
 		this = all_stats[stat];
 		-- module:log("debug", "changed_stats[%q] = %s", stat, tostring(value));
 		host, sect, name, typ = stat:match("^/([^/]+)/([^/]+)/(.+):(%a+)$");
 		if host == nil then
-			sect, name, typ, host = stat:match("^([^.]+)%.([^:]+):(%a+)$");
+			sect, name, typ = stat:match("^([^.]+)%.(.+):(%a+)$");
 		elseif host == "*" then
 			host = nil;
 		end
@@ -80,23 +78,21 @@ module:hook("stats-updated", function (event)
 		elseif sect:find("^mod_statistics_.") then
 			sect = sect:sub(16);
 		end
-		key = escape_name(s_format("%s_%s_%s", host or "global", sect, typ));
 
-		if not meta:get(key) then
-			if host then
-				meta:set(key, "", "graph_title", s_format("%s %s on %s", sect, typ, host));
-			else
-				meta:set(key, "", "graph_title", s_format("Global %s %s", sect, typ, host));
-			end
-			meta:set(key, "", "graph_vlabel", this and this.units or typ);
-			meta:set(key, "", "graph_category", sect);
-
-			meta:set(key, name, "label", name);
-		elseif not meta:get(key, name, "label") then
-			meta:set(key, name, "label", name);
+		local key = escape_name("prosody_"..sect.."_"..name);
+		local field = {
+			value = value,
+			labels = {},
+			-- TODO: Use the other types where it makes sense.
+			typ = (typ == "rate" and "counter" or "gauge"),
+		};
+		if host then
+			field.labels.host = host;
 		end
-
-		data:set(key, name, value);
+		if data[key] == nil then
+			data[key] = {};
+		end
+		t_insert(data[key], field);
 	end
 end);
 
@@ -106,12 +102,11 @@ local function get_metrics(event)
 
 	local answer = {};
 	local timestamp = tostring(get_timestamp());
-	for section, content in pairs(data.data) do
-		for key, value in pairs(content) do
-			local name = "prosody_"..section.."_"..key;
-			t_insert(answer, repr_help(name, "TODO: add a description here."));
-			t_insert(answer, repr_type(name, "gauge"));
-			t_insert(answer, repr_sample(name, {}, value, timestamp));
+	for key, fields in pairs(data) do
+		t_insert(answer, repr_help(key, "TODO: add a description here."));
+		t_insert(answer, repr_type(key, fields[1].typ));
+		for _, field in pairs(fields) do
+			t_insert(answer, repr_sample(key, field.labels, field.value, timestamp));
 		end
 	end
 	return t_concat(answer, "");
