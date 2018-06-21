@@ -89,7 +89,7 @@ module:hook("stats-updated", function (event)
 			-- module:log("debug", "changed_stats[%q] = %s", stat, tostring(value));
 			host, sect, name, typ = stat:match("^/([^/]+)/([^/]+)/(.+):(%a+)$");
 			if host == nil then
-				sect, name, typ, host = stat:match("^([^.]+)%.([^:]+):(%a+)$");
+				sect, name, typ = stat:match("^([^.]+)%.(.+):(%a+)$");
 			elseif host == "*" then
 				host = nil;
 			end
