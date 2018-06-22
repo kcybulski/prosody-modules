@@ -22,10 +22,17 @@ module:hook("stats-update", function ()
 			buckets.unknown = buckets.unknown + 1;
 		end
 	end
+	local visited = {};
 	for bucket, count in pairs(buckets) do
 		if counters[bucket] == nil then
 			counters[bucket] = measure("amount", "client_identities."..bucket);
 		end
 		counters[bucket](count);
+		visited[bucket] = true;
+	end
+	for bucket, counter in pairs(counters) do
+		if not visited[bucket] then
+			counter(0);
+		end
 	end
 end)
