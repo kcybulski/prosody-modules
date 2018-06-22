@@ -12,8 +12,7 @@ local tostring = tostring;
 local t_insert = table.insert;
 local t_concat = table.concat;
 local socket = require "socket";
-
-local data = {};
+local get_stats = require "core.statsmanager".get_stats;
 
 local function escape(text)
 	return text:gsub("\\", "\\\\"):gsub("\"", "\\\""):gsub("\n", "\\n");
@@ -61,15 +60,12 @@ local function repr_sample(metric, labels, value, timestamp)
 	return escape_name(metric)..repr_labels(labels).." "..value.." "..timestamp.."\n";
 end
 
-module:hook("stats-updated", function (event)
-	local all_stats, this = event.stats_extra;
+local function parse_stats()
 	local timestamp = tostring(get_timestamp());
-	local host, sect, name, typ;
-	data = {};
-	for stat, value in pairs(event.stats) do
-		this = all_stats[stat];
+	local data = {};
+	for stat, value in pairs(get_stats()) do
 		-- module:log("debug", "changed_stats[%q] = %s", stat, tostring(value));
-		host, sect, name, typ = stat:match("^/([^/]+)/([^/]+)/(.+):(%a+)$");
+		local host, sect, name, typ = stat:match("^/([^/]+)/([^/]+)/(.+):(%a+)$");
 		if host == nil then
 			sect, name, typ = stat:match("^([^.]+)%.(.+):(%a+)$");
 		elseif host == "*" then
@@ -97,14 +93,15 @@ module:hook("stats-updated", function (event)
 		end
 		t_insert(data[key], field);
 	end
-end);
+	return data;
+end
 
 local function get_metrics(event)
 	local response = event.response;
-	response.headers.content_type = "text/plain; version=0.4.4";
+	response.headers.content_type = "text/plain; version=0.0.4";
 
 	local answer = {};
-	for key, fields in pairs(data) do
+	for key, fields in pairs(parse_stats()) do
 		t_insert(answer, repr_help(key, "TODO: add a description here."));
 		t_insert(answer, repr_type(key, fields[1].typ));
 		for _, field in pairs(fields) do
