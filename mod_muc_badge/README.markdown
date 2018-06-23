@@ -30,3 +30,8 @@ replaced by `badge_label`, similarly, `{count}` is substituted by
 
 Details of the HTTP URL is determined by [standard Prosody HTTP server
 configuration][doc:http].
+
+# TODO
+
+-   Maybe use the room name instead of a fixed label. Would need dynamic
+    resizing.
