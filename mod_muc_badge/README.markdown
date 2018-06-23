@@ -10,7 +10,7 @@ title: 'mod\_muc\_badge'
 # Introduction
 
 This module generates a badge for MUC rooms at a HTTP URL like
-`https://example.com:5281/muc_badge/roo@conference.example.org`
+`https://example.com:5281/muc_badge/room@conference.example.org`
 containing the number of occupants.
 
 Inspiration
