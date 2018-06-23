@@ -57,7 +57,7 @@ local xmlns_xhtml = "http://www.w3.org/1999/xhtml";
 
 function pastebin_text(text)
 	local uuid = uuid_new();
-	pastes[uuid] = { body = text, time = os_time(), headers = default_headers };
+	pastes[uuid] = { body = text, time = os_time(), };
 	pastes[#pastes+1] = uuid;
 	if not pastes[2] then -- No other pastes, give the timer a kick
 		add_task(expire_after, expire_pastes);
