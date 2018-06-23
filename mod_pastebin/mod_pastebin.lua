@@ -51,7 +51,6 @@ local trigger_string = module:get_option_string("pastebin_trigger");
 trigger_string = (trigger_string and trigger_string .. " ");
 
 local pastes = {};
-local default_headers = { ["Content-Type"] = "text/plain; charset=utf-8" };
 
 local xmlns_xhtmlim = "http://jabber.org/protocol/xhtml-im";
 local xmlns_xhtml = "http://www.w3.org/1999/xhtml";
@@ -67,14 +66,20 @@ function pastebin_text(text)
 end
 
 function handle_request(event, pasteid)
-	if not pasteid or not pastes[pasteid] then
-		event.response.headers = default_headers;
-		return event.response:send("Invalid paste id, perhaps it expired?");
+	event.response.headers.content_type = "text/plain; charset=utf-8";
+
+	if not pasteid then
+		return "Invalid paste id, perhaps it expired?";
 	end
 
 	--module:log("debug", "Received request, replying: %s", pastes[pasteid].text);
+	local paste = pastes[pasteid];
 
-	return pastes[pasteid];
+	if not paste then
+		return "Invalid paste id, perhaps it expired?";
+	end
+
+	return paste.body;
 end
 
 local function replace_tag(s, replacement)
