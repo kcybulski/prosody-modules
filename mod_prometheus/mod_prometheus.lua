@@ -60,11 +60,37 @@ local function repr_sample(metric, labels, value, timestamp)
 	return escape_name(metric)..repr_labels(labels).." "..value.." "..timestamp.."\n";
 end
 
+local allowed_extras = { min = true, max = true, average = true };
+local function insert_extras(data, key, name, timestamp, extra)
+	if not extra then
+		return false;
+	end
+	local has_extra = false;
+	for extra_name in pairs(allowed_extras) do
+		if extra[extra_name] then
+			local field = {
+				value = extra[extra_name],
+				labels = {
+					["type"] = name,
+					field = extra_name,
+				},
+				typ = "gauge";
+				timestamp = timestamp,
+			};
+			t_insert(data[key], field);
+			has_extra = true;
+		end
+	end
+	return has_extra;
+end
+
 local function parse_stats()
 	local timestamp = tostring(get_timestamp());
 	local data = {};
-	for stat, value in pairs(get_stats()) do
+	local stats, changed_only, extras = get_stats();
+	for stat, value in pairs(stats) do
 		-- module:log("debug", "changed_stats[%q] = %s", stat, tostring(value));
+		local extra = extras[stat];
 		local host, sect, name, typ = stat:match("^/([^/]+)/([^/]+)/(.+):(%a+)$");
 		if host == nil then
 			sect, name, typ = stat:match("^([^.]+)%.(.+):(%a+)$");
@@ -91,7 +117,9 @@ local function parse_stats()
 		if data[key] == nil then
 			data[key] = {};
 		end
-		t_insert(data[key], field);
+		if not insert_extras(data, key, name, timestamp, extra) then
+			t_insert(data[key], field);
+		end
 	end
 	return data;
 end
