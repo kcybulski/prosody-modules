@@ -10,6 +10,11 @@ curl http://localhost:5280/pubsub_post/princely_musings \
     --data-binary '{"musing":"To be, or not to be: that is the question"}'
 ```
 
+-   JSON data is wrapped in a [XEP-0335] container.
+-   An Atom feed may have many `<entry>` and each one is published as
+    its own PubSub item.
+-   Other XML is simply published to a randomly named item as-is.
+
 # Configuration
 
 ## Authentication
