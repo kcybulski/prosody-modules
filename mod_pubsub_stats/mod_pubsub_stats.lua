@@ -1,5 +1,4 @@
 local st = require "util.stanza";
-local dt = require "util.datetime";
 
 local pubsub = module:depends"pubsub";
 
