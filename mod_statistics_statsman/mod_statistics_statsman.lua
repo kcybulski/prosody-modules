@@ -87,7 +87,8 @@ function listener.onconnect(conn)
 	conn:write("\n"); -- Signal end of first batch (for non-streaming clients)
 end
 
-function listener.onincoming(conn, data)
+function listener.onincoming(conn, data) -- luacheck: ignore 212
+	-- Discarded
 end
 
 function listener.ondisconnect(conn)
