@@ -18,6 +18,12 @@ This module therefore monkeypatches mod_smacks to silently drop those
 unacked message stanzas instead of sending error replies.
 Unacked iq stanzas are still answered with an error reply though.
 
+If you disable mod_offline, this module will also silence "message not delivered"
+error messages that will otherwise be generated when prosody would normally
+store offline message but can't do this because of disabled mod_offline.  
+If mod_offline is *not* disabled this module will not change offline storage
+behaviour at all.
+
 Warning
 =======
 
