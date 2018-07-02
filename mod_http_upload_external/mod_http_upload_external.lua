@@ -83,7 +83,7 @@ local function handle_request(origin, stanza, xmlns, filename, filesize, filetyp
 	local get_url, verify = magic_crypto_dust(random, filename, filesize, filetype);
 	local put_url = get_url .. verify;
 
-	module:log("info", "Handing out upload slot %s to %s@%s", get_url, origin.username, origin.host);
+	module:log("info", "Handing out upload slot %s to %s@%s [%d %s]", get_url, origin.username, origin.host, filesize, filetype);
 
 	return get_url, put_url;
 end
