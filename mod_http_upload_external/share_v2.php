@@ -128,8 +128,8 @@ if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
 		$mime_type = file_get_contents($store_file_name.'-type');
 		if($mime_type === FALSE) {
 			$mime_type = 'application/octet-stream';
+			header('Content-Disposition: attachment');
 		}
-		header('Content-Disposition: attachment');
 		header('Content-Type: '.$mime_type);
 		header('Content-Length: '.filesize($store_file_name));
 		header("Content-Security-Policy: \"default-src 'none'\"");
