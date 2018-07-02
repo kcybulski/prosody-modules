@@ -94,7 +94,7 @@ module:hook("iq/host/"..legacy_namespace..":request", function (event)
 	local request = stanza.tags[1];
 	local filename = request:get_child_text("filename");
 	local filesize = tonumber(request:get_child_text("size"));
-	local filetype = request.attr["content-type"] or "application/octet-stream";
+	local filetype = request:get_child_text("content-type") or "application/octet-stream";
 
 	local get_url, put_url = handle_request(
 		origin, stanza, legacy_namespace, filename, filesize, filetype);
