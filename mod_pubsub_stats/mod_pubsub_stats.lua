@@ -4,11 +4,13 @@ local pubsub = module:depends"pubsub";
 
 local actor = module.host .. "/modules/" .. module.name;
 
+local pubsub_xmlns = "http://jabber.org/protocol/pubsub"
+
 local node = module:get_option_string(module.name .. "_node", "stats");
 
 local function publish_stats(stats, stats_extra)
 	local id = "current";
-	local xitem = st.stanza("item", { id = id })
+	local xitem = st.stanza("item", { xmlns = pubsub_xmlns, id = id })
 		:tag("query", { xmlns = "http://jabber.org/protocol/stats" });
 
 	for name, value in pairs(stats) do
