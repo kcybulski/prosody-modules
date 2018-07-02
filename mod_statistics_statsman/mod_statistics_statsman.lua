@@ -116,7 +116,6 @@ if prosody and prosody.arg then -- ensures we aren't in prosodyctl
 			return v;
 		end
 	});
-	local filters = require "util.filters";
 	local function handle_stanza_in(stanza, session)
 		local s = active_sessions[session].stanzas_in;
 		local n = s[stanza.name];
