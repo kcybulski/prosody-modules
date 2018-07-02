@@ -71,11 +71,11 @@ $store_file_name = $CONFIG_STORE_DIR . '/store-' . hash('sha256', $upload_file_n
 $request_method = $_SERVER['REQUEST_METHOD'];
 
 if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
-	$upload_file_size = $_SERVER['HTTP_CONTENT_LENGTH'];
-	$upload_token = $_SERVER['HTTP_UPLOAD_SIGNATURE'];
+	$upload_file_size = $_SERVER['CONTENT_LENGTH'];
+	$upload_token = $_GET['v2'];
 
-	if(array_key_exists('HTTP_CONTENT_TYPE', $_SERVER) === TRUE) {
-		$upload_file_type = $_SERVER['HTTP_CONTENT_TYPE'];
+	if(array_key_exists('CONTENT_TYPE', $_SERVER) === TRUE) {
+		$upload_file_type = $_SERVER['CONTENT_TYPE'];
 	} else {
 		$upload_file_type = 'application/octet-stream';
 	}
