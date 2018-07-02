@@ -2,6 +2,13 @@ local t_insert = table.insert;
 
 local mod_smacks = module:depends"smacks"
 
+-- ignore offline messages and don't return any error (the message will be already in MAM at this point)
+-- this is *only* triggered if mod_offline is *not* loaded and completely ignored otherwise
+module:hook("message/offline/handle", function(event)
+	event.origin.log("debug", "Ignoring offline message (mod_offline seems to be *not* loaded)...");
+	return true;
+end, -100);
+
 local function discard_unacked_messages(session)
 	local queue = session.outgoing_stanza_queue;
 	local replacement_queue = {};
