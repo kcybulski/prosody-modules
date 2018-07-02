@@ -71,6 +71,7 @@ $store_file_name = $CONFIG_STORE_DIR . '/store-' . hash('sha256', $upload_file_n
 $request_method = $_SERVER['REQUEST_METHOD'];
 
 if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
+	error_log(var_export($_SERVER, TRUE));
 	$upload_file_size = $_SERVER['CONTENT_LENGTH'];
 	$upload_token = $_GET['v2'];
 
@@ -89,12 +90,14 @@ if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
 	$calculated_token = hash_hmac('sha256', "$upload_file_name\0$upload_file_size\0$upload_file_type", $CONFIG_SECRET);
 	if(function_exists('hash_equals')) {
 		if(hash_equals($calculated_token, $upload_token) !== TRUE) {
+			error_log("Token mismatch: calculated $calculated_token got $upload_token");
 			header('HTTP/1.0 403 Forbidden');
 			exit;
 		}
 	}
 	else {
 		if($upload_token !== $calculated_token) {
+			error_log("Token mismatch: calculated $calculated_token got $upload_token");
 			header('HTTP/1.0 403 Forbidden');
 			exit;
 		}
