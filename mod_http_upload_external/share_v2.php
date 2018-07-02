@@ -87,7 +87,7 @@ if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
 	}
 
 	$calculated_token = hash_hmac('sha256', "$upload_file_name\0$upload_file_size\0$upload_file_type", $CONFIG_SECRET);
-	if(function_exists('hash_equals') {
+	if(function_exists('hash_equals')) {
 		if(hash_equals($calculated_token, $upload_token) !== TRUE) {
 			header('HTTP/1.0 403 Forbidden');
 			exit;
@@ -129,9 +129,9 @@ if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
 		header('Content-Disposition: attachment');
 		header('Content-Type: '.$mime_type);
 		header('Content-Length: '.filesize($store_file_name));
-		header('Content-Security-Policy: "default-src \'none\'"');
-		header('X-Content-Security-Policy: "default-src \'none\'"');
-		header('X-WebKit-CSP: "default-src 'none'"');
+		header("Content-Security-Policy: \"default-src 'none'\"");
+		header("X-Content-Security-Policy: \"default-src 'none'\"");
+		header("X-WebKit-CSP: \"default-src 'none'\"");
 		if($request_method !== 'HEAD') {
 			readfile($store_file_name);
 		}
