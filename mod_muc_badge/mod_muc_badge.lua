@@ -35,25 +35,26 @@ local get_room_from_jid = rawget(mod_muc, "get_room_from_jid") or
 -- I believe the origins of this template to be in the public domain as per
 -- https://github.com/badges/shields/blob/master/LICENSE.md
 local template = module:get_option_string("badge_template", [[
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="144" height="20">
-<linearGradient id="b" x2="0" y2="100%">
-	<stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-	<stop offset="1" stop-opacity=".1"/>
-</linearGradient>
-<clipPath id="a">
-	<rect width="144" height="20" rx="3" fill="#fff"/>
-</clipPath>
-<g clip-path="url(#a)">
-	<path fill="#555" d="M0 0h69v20H0z"/>
-	<path fill="#fe7d37" d="M69 0h75v20H69z"/>
-	<path fill="url(#b)" d="M0 0h144v20H0z"/>
-</g>
-<g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="110">
-	<text x="355" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="590">{label}</text>
-	<text x="355" y="140" transform="scale(.1)" textLength="590">{label}</text>
-	<text x="1055" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="650">{number}</text>
-	<text x="1055" y="140" transform="scale(.1)" textLength="650">{number}</text>
-</g>
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="144" height="20">
+  <linearGradient id="b" x2="0" y2="100%">
+    <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+    <stop offset="1" stop-opacity=".1"/>
+  </linearGradient>
+  <clipPath id="a">
+    <rect width="144" height="20" rx="3" fill="#fff"/>
+  </clipPath>
+  <g clip-path="url(#a)">
+    <path fill="#555" d="M0 0h69v20H0z"/>
+    <path fill="#fe7d37" d="M69 0h75v20H69z"/>
+    <path fill="url(#b)" d="M0 0h144v20H0z"/>
+  </g>
+  <g fill="#fff" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+    <text fill="#010101" y="14" x="0" textLength="59">{label}</text>
+    <text y="13" x="0" textLength="59">{label}</text>
+    <text fill="#010101" y="14" x="59" textLength="65">{number}</text>
+    <text y="13" x="59" textLength="65">{number}</text>
+  </g>
 </svg>
 ]]);
 template = assert(require "util.template"(template));
