@@ -36,31 +36,31 @@ local get_room_from_jid = rawget(mod_muc, "get_room_from_jid") or
 -- https://github.com/badges/shields/blob/master/LICENSE.md
 local template = module:get_option_string("badge_template", [[
 <?xml version="1.0"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="144" height="20">
+<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="20">
   <linearGradient id="b" x2="0" y2="100%">
     <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
     <stop offset="1" stop-opacity=".1"/>
   </linearGradient>
   <clipPath id="a">
-    <rect width="144" height="20" rx="3" fill="#fff"/>
+    <rect width="{width}" height="20" rx="3" fill="#fff"/>
   </clipPath>
   <g clip-path="url(#a)">
-    <path fill="#555" d="M0 0h69v20H0z"/>
-    <path fill="#fe7d37" d="M69 0h75v20H69z"/>
-    <path fill="url(#b)" d="M0 0h144v20H0z"/>
+    <path fill="#555" d="M0 0h{labelwidth}v20H0z"/>
+    <path fill="#fe7d37" d="M{labelwidth} 0h{countwidth}v20H{labelwidth}z"/>
+    <path fill="url(#b)" d="M0 0h{width}v20H0z"/>
   </g>
   <g fill="#fff" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-    <text fill="#010101" y="14" x="0" textLength="59">{label}</text>
-    <text y="13" x="0" textLength="59">{label}</text>
-    <text fill="#010101" y="14" x="59" textLength="65">{number}</text>
-    <text y="13" x="59" textLength="65">{number}</text>
+    <text fill="#010101" y="14" x="0" textLength="{labelwidth}">{label}</text>
+    <text y="13" x="0" textLength="{labelwidth}">{label}</text>
+    <text fill="#010101" y="14" x="{labelwidth}" textLength="{countwidth}">{number}</text>
+    <text y="13" x="{labelwidth}" textLength="{countwidth}">{number}</text>
   </g>
 </svg>
 ]]);
 template = assert(require "util.template"(template));
 
-local label = module:get_option_string("badge_label", "Chatroom");
 local number = module:get_option_string("badge_count", "%d online");
+local charwidth = 7;
 
 module:provides("http", {
 	route = {
@@ -76,13 +76,18 @@ module:provides("http", {
 			for _ in pairs(room._occupants) do
 				count = count + 1;
 			end
+			local badge_label = room:get_name();
+			local badge_count = string.format(number, count);
 
 			local response = event.response;
 			response.headers.content_type = "image/svg+xml";
 			local svg = [[<?xml version="1.0"?>]] ..
 				tostring(template.apply({
-					label = label;
-					number = string.format(number, count);
+					label = badge_label;
+					number = badge_count;
+					width = ("%d"):format( (#badge_label + #badge_count) * charwidth );
+					labelwidth = ("%d"):format( #badge_label * charwidth );
+					countwidth = ("%d"):format( #badge_count * charwidth );
 				}));
 			return svg;
 		end;
