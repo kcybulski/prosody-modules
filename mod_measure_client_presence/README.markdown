@@ -1,4 +1,6 @@
 ---
+labels:
+- Statistics
 summary: Collect statistics on user presences
 ---
 

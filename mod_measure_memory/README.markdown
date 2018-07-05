@@ -1,7 +1,8 @@
 ---
 labels:
+- Statistics
 summary: Measure memory usage
-...
+---
 
 Description
 ===========

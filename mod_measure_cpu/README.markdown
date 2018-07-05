@@ -1,5 +1,6 @@
 ---
 labels:
+- Statistics
 summary: Measure CPU usage
 ...
 
