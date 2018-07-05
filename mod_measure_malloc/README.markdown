@@ -1,7 +1,8 @@
 ---
 labels:
-summary: Report malloc() stats
-...
+- Statistics
+summary: 'Report malloc() stats'
+---
 
 Description
 ===========

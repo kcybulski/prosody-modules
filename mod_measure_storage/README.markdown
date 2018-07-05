@@ -1,6 +1,7 @@
 ---
 labels:
 - 'Stage-Alpha'
+- Statistics
 summary: Measure storage API operations
 ---
 
