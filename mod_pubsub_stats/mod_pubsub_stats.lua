@@ -26,7 +26,10 @@ local function publish_stats(stats, stats_extra)
 end
 
 function module.load()
-	pubsub.service:create(node, true);
+	pubsub.service:create(node, true, {
+		persistent_items = false;
+		max_items = 1;
+	});
 	pubsub.service:set_affiliation(node, true, actor, "publisher");
 end
 
