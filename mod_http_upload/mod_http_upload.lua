@@ -140,14 +140,14 @@ local function handle_request(origin, stanza, xmlns, filename, filesize)
 
 	if not created then
 		module:log("error", "Could not create directory for slot: %s", err);
-		return nil, st.error_reply(stanza, "wait", "internal-server-failure");
+		return nil, st.error_reply(stanza, "wait", "internal-server-error");
 	end
 
 	local ok = datamanager.list_append(username, host, module.name, {
 		filename = filename, dir = random_dir, size = filesize, time = os.time() });
 
 	if not ok then
-		return nil, st.error_reply(stanza, "wait", "internal-server-failure");
+		return nil, st.error_reply(stanza, "wait", "internal-server-error");
 	end
 
 	local slot = random_dir.."/"..filename;
