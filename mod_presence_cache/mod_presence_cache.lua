@@ -6,6 +6,7 @@
 local is_contact_subscribed = require"core.rostermanager".is_contact_subscribed;
 local jid_split = require"util.jid".split;
 local jid_bare = require"util.jid".bare;
+local jid_host = require"util.jid".host;
 local st = require"util.stanza";
 local datetime = require"util.datetime";
 local cache = require "util.cache";
@@ -98,3 +99,27 @@ local function answer_probe_from_cache(event)
 end
 
 module:hook("pre-presence/bare", answer_probe_from_cache, 10);
+
+local function clear_cache_from_s2s(remote, reason)
+	if not remote then return end
+	if reason and reason:find("timeout") then return end -- Ignore connections closed for being idle
+
+	module:log("debug", "Dropping cached presence from host %s", remote);
+
+	for bare, cached in pairs(bare_cache) do
+		if jid_host(bare) == remote then
+			for jid in pairs(cached) do
+				presence_cache:set(jid, nil);
+			end
+			bare_cache[bare] = nil;
+		end
+	end
+end
+
+module:hook("s2sin-destroyed", function (event)
+	return clear_cache_from_s2s(event.session.from_host, event.reason);
+end);
+
+module:hook("s2sout-destroyed", function (event)
+	return clear_cache_from_s2s(event.session.to_host, event.reason);
+end);
