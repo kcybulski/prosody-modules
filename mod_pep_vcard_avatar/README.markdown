@@ -14,6 +14,8 @@ Avatars](http://xmpp.org/extensions/xep-0153.html) to see the avatars of
 clients that use [XEP-0084: User
 Avatar](http://xmpp.org/extensions/xep-0084.html) and vice versa.
 
+Also see [XEP-0398: User Avatar to vCard-Based Avatars Conversion].
+
 Configuration
 -------------
 
