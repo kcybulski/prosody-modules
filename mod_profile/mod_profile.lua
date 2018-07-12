@@ -20,6 +20,10 @@ end
 local storage = module:open_store();
 local legacy_storage = module:open_store("vcard");
 
+module:hook("account-disco-info", function (event)
+	event.reply:tag("feature", { var = "urn:xmpp:pep-vcard-conversion:0" }):up();
+end);
+
 local function get_item(vcard, name) -- luacheck: ignore 431
 	local item;
 	for i=1, #vcard do
@@ -233,3 +237,22 @@ if vcard.to_vcard4 then
 	end
 end
 
+local function inject_xep153(event)
+	local origin, stanza = event.origin, event.stanza;
+	local username = origin.username;
+	local pep = pep_plus.get_pep_service(username);
+
+	stanza:remove_children("x", "vcard-temp:x:update");
+	local x_update = st.stanza("x", { xmlns = "vcard-temp:x:update" });
+	local avatar_hash = pep:get_items("urn:xmpp:avatar:metadata");
+	if avatar_hash then
+		x_update:text_tag("photo", avatar_hash);
+	end
+	stanza:add_direct_child(x_update);
+end
+
+if pep_plus then
+	module:hook("pre-presence/full", inject_xep153)
+	module:hook("pre-presence/bare", inject_xep153)
+	module:hook("pre-presence/host", inject_xep153)
+end
