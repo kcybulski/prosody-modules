@@ -17,7 +17,7 @@ end
 local storage = module:open_store();
 local legacy_storage = module:open_store("vcard");
 
-local function get_item(vcard, name)
+local function get_item(vcard, name) -- luacheck: ignore 431
 	local item;
 	for i=1, #vcard do
 		item=vcard[i];
