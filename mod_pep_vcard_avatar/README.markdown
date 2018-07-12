@@ -2,29 +2,23 @@
 labels:
 - 'Stage-Alpha'
 summary: Sync avatars between vCards and PEP
-...
+---
 
-Introduction
-------------
+## Introduction
 
 This module pushes the users nickname and avatar from vCards into PEP,
 or into vCards from PEP. This allows interop between older clients that
-use [XEP-0153: vCard-Based
-Avatars](http://xmpp.org/extensions/xep-0153.html) to see the avatars of
-clients that use [XEP-0084: User
-Avatar](http://xmpp.org/extensions/xep-0084.html) and vice versa.
+use [XEP-0153: vCard-Based Avatars] to see the avatars of clients that
+use [XEP-0084: User Avatar] and vice versa.
 
 Also see [XEP-0398: User Avatar to vCard-Based Avatars Conversion].
 
-Configuration
--------------
+## Configuration
 
-Simply [enable it like most other
-modules](https://prosody.im/doc/installing_modules#prosody-modules), no
-further configuration needed.
+Simply [enable it like most other modules][doc:installing_modules#prosody-modules],
+no further configuration needed.
 
-Compatibility
--------------
+## Compatibility
 
   ------- ---------------
   trunk   Works
