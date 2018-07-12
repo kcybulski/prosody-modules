@@ -4,21 +4,17 @@ labels:
 summary: 'Replacement for mod\_vcard with vcard4 support and PEP integration'
 ---
 
-Introduction
-============
+# Introduction
 
-This module provides a replacement for mod\_vcard. In addition to the
-ageing protocol defined by
-[XEP-0054](http://xmpp.org/extensions/xep-0054.html), it also supports
-the [new vCard 4 based
-protocol](http://xmpp.org/extensions/xep-0292.html) and integrates with
-[Personal Eventing Protocol](http://xmpp.org/extensions/xep-0163.html).
-The vCard 4, [User Avatar](http://xmpp.org/extensions/xep-0084.html) and
-[User Nickname](http://xmpp.org/extensions/xep-0172.html) PEP nodes are
-updated when the vCard is changed..
+This module provides a replacement for [mod\_vcard]. In addition to
+the ageing protocol defined by [XEP-0054], it also supports the [new
+vCard 4 based protocol][xep0292] and integrates with [Personal
+Eventing Protocol][xep0163].
 
-Configuration
-=============
+The vCard 4, [User Avatar][xep0084] and [User Nickname][xep0172]
+PEP nodes are updated when the vCard is changed..
+
+# Configuration
 
     modules_enabled = {
         -- "pep";   -- These two modules must be removed
@@ -27,9 +23,8 @@ Configuration
         "profile";
     }
 
-Compatibility
-=============
+# Compatibility
 
-Requires Prosody **trunk** as of 2014-05-29. Won't work in 0.10.
+Requires Prosody **trunk** as of 2014-05-29. Won't work in 0.10.x.
 
-It depends on the new mod\_pep\_plus for PEP support.
+It depends on the new [mod\_pep\_plus][doc:modules:mod_pep_plus] for PEP support.
