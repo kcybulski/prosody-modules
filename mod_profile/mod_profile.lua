@@ -147,7 +147,7 @@ local function on_publish(event)
 	if host ~= module.host then
 		module:log("warn", "on_publish() called for non-local actor");
 		for k,v in pairs(event) do
-			module:log("debug", "event[%q] = %q", tosting(k), tostring(v));
+			module:log("debug", "event[%q] = %q", k, v);
 		end
 		return;
 	end
