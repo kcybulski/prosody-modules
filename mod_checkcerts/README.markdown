@@ -27,3 +27,6 @@ Compatibility
 =============
 
 Needs LuaSec 0.5+
+
+Originally written for Prosody 0.9.x, apparently incompatible with
+0.10.x.
