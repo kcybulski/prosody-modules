@@ -1,4 +1,7 @@
 -- mod_profile
+-- Copyright (C) 2014-2018 Kim Alvefur
+--
+-- This file is MIT licensed.
 
 local st = require"util.stanza";
 local jid_split = require"util.jid".split;
