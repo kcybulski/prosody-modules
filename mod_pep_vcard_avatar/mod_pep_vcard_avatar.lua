@@ -16,7 +16,10 @@ local sha1 = require"util.hashes".sha1;
 local mod_pep = module:depends"pep";
 local pep_data = mod_pep.module.save().data;
 
-module:add_feature("http://prosody.im/protocol/vcard-pep-integration");
+module:hook("account-disco-info", function (event)
+	event.reply:tag("feature", { var = "urn:xmpp:pep-vcard-conversion:0" }):up();
+end);
+
 module:depends"vcard";
 local vcard_storage = module:open_store("vcard");
 
