@@ -11,6 +11,8 @@ the ageing protocol defined by [XEP-0054], it also supports the [new
 vCard 4 based protocol][xep0292] and integrates with [Personal
 Eventing Protocol][xep0163].
 
+Also supports [XEP-0398: User Avatar to vCard-Based Avatars Conversion].
+
 The vCard 4, [User Avatar][xep0084] and [User Nickname][xep0172]
 PEP nodes are updated when the vCard is changed..
 
