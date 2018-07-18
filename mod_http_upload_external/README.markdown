@@ -18,6 +18,7 @@ Implementations
 * [PHP implementation](https://hg.prosody.im/prosody-modules/raw-file/tip/mod_http_upload_external/share.php)
 * [Python3+Flask implementation](https://github.com/horazont/xmpp-http-upload)
 * [Go implementation, Prosody Filer](https://github.com/ThomasLeister/prosody-filer)
+* [Perl implementation for nginx](https://github.com/weiss/ngx_http_upload)
 
 To implement your own service compatible with this module, check out the implementation notes below 
 (and if you publish your implementation - let us know!).
