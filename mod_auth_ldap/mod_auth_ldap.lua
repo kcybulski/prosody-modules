@@ -35,17 +35,8 @@ function ldap_do_once(method, ...)
 	local success, iterator, invariant, initial = pcall(ld[method], ld, ...);
 	if not success then ld = nil; return nil, iterator, "search"; end
 
-	module:log("debug", "success = %s, invariant = %s",
-		tostring(success),
-		tostring(invariant));
-
 	local success, dn, attr = pcall(iterator, invariant, initial);
-	module:log("debug", "success = %s, dn = %s, attr = %s",
-		tostring(success),
-		tostring(dn),
-		tostring(attr));
 	if not success then ld = nil; return success, dn, "iter"; end
-
 
 	return dn, attr, "return";
 end

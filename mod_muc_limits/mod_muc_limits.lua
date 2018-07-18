@@ -25,18 +25,6 @@ local function log_dropped()
 	dropped_jids = nil;
 end
 
-local function get_non_outcast_affiliations(room)
-	local nmembers = 0;
-	-- this is an evil hack, we probably should not access _affiliations
-	-- directly ...
-	for _, aff in pairs(room._affiliations) do
-		if aff ~= "outcast" then
-			nmembers = nmembers + 1;
-		end
-	end
-	return nmembers;
-end
-
 local function handle_stanza(event)
 	local origin, stanza = event.origin, event.stanza;
 	if stanza.name == "presence" and stanza.attr.type == "unavailable" then -- Don't limit room leaving
@@ -61,15 +49,7 @@ local function handle_stanza(event)
 		throttle = new_throttle(period*burst, burst);
 		room.throttle = throttle;
 	end
-
-	local cost = 1;
-	-- we scale the cost by the inverse of the square root of the number of
-	-- members; this should effectively raise the limit by a factor of
-	-- sqrt(nmembers)
-	local nmembers = math.max(get_non_outcast_affiliations(room), 1);
-	cost = cost / math.sqrt(nmembers);
-
-	if not throttle:poll(cost) then
+	if not throttle:poll(1) then
 		module:log("debug", "Dropping stanza for %s@%s from %s, over rate limit", dest_room, dest_host, from_jid);
 		if not dropped_jids then
 			dropped_jids = { [from_jid] = true, from_jid };
