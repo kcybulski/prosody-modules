@@ -257,7 +257,7 @@ local function inject_xep153(event)
 end
 
 if pep_plus then
-	module:hook("pre-presence/full", inject_xep153)
-	module:hook("pre-presence/bare", inject_xep153)
-	module:hook("pre-presence/host", inject_xep153)
+	module:hook("pre-presence/full", inject_xep153, 1)
+	module:hook("pre-presence/bare", inject_xep153, 1)
+	module:hook("pre-presence/host", inject_xep153, 1)
 end
