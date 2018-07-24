@@ -60,14 +60,12 @@ local function update_pep(username, data, pep)
 	local photo, p = get_item(data, "PHOTO");
 	if vcard.to_vcard4 then
 		if p then t_remove(data, p); end
-		pep:purge("urn:xmpp:vcard4", true)
 		pep:publish("urn:xmpp:vcard4", true, item_container("current", vcard.to_vcard4(data)));
 		if p then t_insert(data, p, photo); end
 	end
 
 	local nickname = get_item(data, "NICKNAME");
 	if nickname and nickname[1] then
-		pep:purge("http://jabber.org/protocol/nick", true);
 		pep:publish("http://jabber.org/protocol/nick", true, item_container("current",
 			st.stanza("nick", { xmlns="http://jabber.org/protocol/nick" }):text(nickname[1])));
 	end
@@ -76,8 +74,6 @@ local function update_pep(username, data, pep)
 		local photo_raw = base64.decode(photo[1]);
 		local photo_hash = sha1(photo_raw, true);
 
-		pep:purge("urn:xmpp:avatar:metadata", true);
-		pep:purge("urn:xmpp:avatar:data", true);
 		pep:publish("urn:xmpp:avatar:metadata", true, item_container(photo_hash,
 			st.stanza("metadata", { xmlns="urn:xmpp:avatar:metadata" })
 				:tag("info", {
