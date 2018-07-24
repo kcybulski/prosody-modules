@@ -51,7 +51,7 @@ local function identify(data)
 end
 
 local function item_container(id, payload)
-	return id, st.stanza("item", { id = "current" })
+	return id, st.stanza("item", { id = "current", xmlns = "http://jabber.org/protocol/pubsub"; })
 		:add_child(payload);
 end
 
