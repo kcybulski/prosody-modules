@@ -50,22 +50,26 @@ local function identify(data)
 	return "application/octet-stream";
 end
 
+local function item_container(id, payload)
+	return id, st.stanza("item", { id = "current" })
+		:add_child(payload);
+end
+
 local function update_pep(username, data, pep)
 	pep = pep or pep_plus.get_pep_service(username);
 	local photo, p = get_item(data, "PHOTO");
 	if vcard.to_vcard4 then
 		if p then t_remove(data, p); end
-		pep:purge("urn:xmpp:vcard4", true);
-		pep:publish("urn:xmpp:vcard4", true, "current", st.stanza("item", {id="current"})
-			:add_child(vcard.to_vcard4(data)));
+		pep:purge("urn:xmpp:vcard4", true)
+		pep:publish("urn:xmpp:vcard4", true, item_container("current", vcard.to_vcard4(data)));
 		if p then t_insert(data, p, photo); end
 	end
 
 	local nickname = get_item(data, "NICKNAME");
 	if nickname and nickname[1] then
 		pep:purge("http://jabber.org/protocol/nick", true);
-		pep:publish("http://jabber.org/protocol/nick", true, "current", st.stanza("item", {id="current"})
-			:tag("nick", { xmlns="http://jabber.org/protocol/nick" }):text(nickname[1]));
+		pep:publish("http://jabber.org/protocol/nick", true, item_container("current",
+			st.stanza("nick", { xmlns="http://jabber.org/protocol/nick" }):text(nickname[1])));
 	end
 
 	if photo and photo[1] then
@@ -74,15 +78,15 @@ local function update_pep(username, data, pep)
 
 		pep:purge("urn:xmpp:avatar:metadata", true);
 		pep:purge("urn:xmpp:avatar:data", true);
-		pep:publish("urn:xmpp:avatar:metadata", true, photo_hash, st.stanza("item", {id=photo_hash})
-			:tag("metadata", { xmlns="urn:xmpp:avatar:metadata" })
+		pep:publish("urn:xmpp:avatar:metadata", true, item_container(photo_hash,
+			st.stanza("metadata", { xmlns="urn:xmpp:avatar:metadata" })
 				:tag("info", {
 					bytes = tostring(#photo_raw),
 					id = photo_hash,
 					type = identify(photo_raw),
-				}));
-		pep:publish("urn:xmpp:avatar:data", true, photo_hash, st.stanza("item", {id=photo_hash})
-			:tag("data", { xmlns="urn:xmpp:avatar:data" }):text(photo[1]));
+				})));
+		pep:publish("urn:xmpp:avatar:data", true, item_container(photo_hash,
+			st.stanza("data", { xmlns="urn:xmpp:avatar:data" }):text(photo[1])));
 	end
 end
 
