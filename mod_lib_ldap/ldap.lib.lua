@@ -168,7 +168,7 @@ end
 
 -- this is abstracted so we can maintain persistent connections at a later time
 function _M.getconnection()
-    return connect();
+    return assert(connect());
 end
 
 function _M.getparams()
