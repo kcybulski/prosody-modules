@@ -132,7 +132,7 @@ function check_message(data)
 		local summary = (body:sub(1, max_summary_length):gsub(utf8_pattern, drop_invalid_utf8) or ""):match("[^\n]+") or "";
 		summary = summary:match("^%s*(.-)%s*$");
 		local summary_prefixed = summary:match("[,:]$");
-		replace_tag(stanza, st.stanza("body"):text(summary .. " " .. url));
+		replace_tag(stanza, st.stanza("body"):text(summary .. "\n" .. url));
 
 		stanza:add_child(st.stanza("query", { xmlns = "jabber:iq:oob" }):tag("url"):text(url));
 
