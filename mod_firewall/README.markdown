@@ -274,7 +274,7 @@ returned. If the path ends with '@name' then the value of the attribute
 
 You can use INSPECT to test for the existence of an element or attribute,
 or you can see if it is equal to a string by appending `=STRING` (as in the
-example above). Finally,you can also test whether it matches a given Lua
+example above). Finally, you can also test whether it matches a given Lua
 pattern by using `~=PATTERN`.
 
 INSPECT is somewhat slower than the other stanza matching conditions. To
