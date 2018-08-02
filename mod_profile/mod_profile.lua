@@ -14,7 +14,7 @@ local t_insert, t_remove = table.insert, table.remove;
 
 local pep_plus;
 if module:get_host_type() == "local" and module:get_option_boolean("vcard_to_pep", true) then
-	pep_plus = module:depends"pep_plus";
+	pep_plus = module:depends"pep";
 end
 
 local storage = module:open_store();
