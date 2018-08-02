@@ -15,6 +15,7 @@ local t_insert, t_remove = table.insert, table.remove;
 local pep_plus;
 if module:get_host_type() == "local" and module:get_option_boolean("vcard_to_pep", true) then
 	pep_plus = module:depends"pep";
+	assert(pep_plus.get_pep_service, "Wrong version of mod_pep loaded, you need to update Prosody");
 end
 
 local storage = module:open_store();
