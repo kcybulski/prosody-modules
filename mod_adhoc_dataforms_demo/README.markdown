@@ -14,7 +14,7 @@ other module.
 ``` {.lua}
 modules_enabled = {
     -- All your other modules etc
-    "adhoc_test";
+    "adhoc_dataforms_demo";
 }
 ```
 
