@@ -1,3 +1,7 @@
+---
+summary: Module for testing dataforms rendering
+---
+
 # Introduction
 
 This module adds an [Ad-Hoc command][xep0050] with a demo [data
