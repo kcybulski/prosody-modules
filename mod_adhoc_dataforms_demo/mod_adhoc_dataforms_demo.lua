@@ -107,7 +107,7 @@ local form = dataforms.new({
 	},
 })
 
-local function handler(fields, err, data)
+local function handler(fields, err, data) -- luacheck: ignore 212/data
 		return {
 			status = "completed",
 			info = "Data was:\n"
