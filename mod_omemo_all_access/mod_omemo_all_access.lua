@@ -12,6 +12,11 @@ local disco_feature_namespace = white_listed_namespace .. "whitelisted"
 local mod_pep = module:depends"pep";
 local pep_data = mod_pep.module.save().data;
 
+if not pep_data then
+	module:log("error", "This module is not compatible with your version of mod_pep");
+	return false;
+end
+
 local function on_account_disco_info(event)
 	(event.reply or event.stanza):tag("feature", {var=disco_feature_namespace}):up();
 end
