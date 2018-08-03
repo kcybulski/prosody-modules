@@ -9,11 +9,25 @@ local st = require "util.stanza"
 local white_listed_namespace = "eu.siacs.conversations.axolotl."
 local disco_feature_namespace = white_listed_namespace .. "whitelisted"
 
-local mod_pep = module:depends"pep";
+local mm = require "core.modulemanager";
+
+
+-- COMPAT w/trunk
+local pep_module_name = "pep";
+if mm.get_modules_for_host then
+	if mm.get_modules_for_host(module.host):contains("pep_simple") then
+		pep_module_name = "pep_simple";
+	end
+end
+
+local mod_pep = module:depends(pep_module_name);
 local pep_data = mod_pep.module.save().data;
 
 if not pep_data then
 	module:log("error", "This module is not compatible with your version of mod_pep");
+	if mm.get_modules_for_host then
+		module:log("error", "Please use mod_pep_simple instead of mod_pep to continue using this module");
+	end
 	return false;
 end
 
