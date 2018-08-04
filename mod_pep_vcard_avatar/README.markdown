@@ -21,7 +21,7 @@ no further configuration needed.
 ## Compatibility
 
   ------- ---------------
-  trunk   Works
+  trunk   Does not work
   0.10    Works
   0.9     Does not work
   0.8     Does not work
