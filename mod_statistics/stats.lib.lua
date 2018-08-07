@@ -29,7 +29,8 @@ local get_time = require "socket".gettime;
 local active_sessions, active_jids = {}, {};
 local c2s_sessions, s2s_sessions;
 if prosody and prosody.arg then
-	c2s_sessions, s2s_sessions = module:shared("/*/c2s/sessions", "/*/s2s/sessions");
+	c2s_sessions = module:shared("/*/c2s/sessions");
+	s2s_sessions = module:shared("/*/s2s/sessions");
 end
 
 local stats = {
