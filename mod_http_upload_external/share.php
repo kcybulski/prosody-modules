@@ -74,11 +74,20 @@ if(array_key_exists('v', $_GET) === TRUE && $request_method === 'PUT') {
 	$upload_token = $_GET['v'];
 
 	$calculated_token = hash_hmac('sha256', "$upload_file_name $upload_file_size", $CONFIG_SECRET);
-	if($upload_token !== $calculated_token) {
-		header('HTTP/1.0 403 Forbidden');
-		exit;
+	if(function_exists('hash_equals')) {
+		if(hash_equals($calculated_token, $upload_token) !== TRUE) {
+			error_log("Token mismatch: calculated $calculated_token got $upload_token");
+			header('HTTP/1.0 403 Forbidden');
+			exit;
+		}
 	}
-
+	else {
+		if($upload_token !== $calculated_token) {
+			error_log("Token mismatch: calculated $calculated_token got $upload_token");
+			header('HTTP/1.0 403 Forbidden');
+			exit;
+		}
+	}
 	/* Open a file for writing */
 	$store_file = fopen($store_file_name, 'x');
 
