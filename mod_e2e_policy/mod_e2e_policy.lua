@@ -37,13 +37,13 @@ function warn_on_plaintext_messages(event)
     end
     -- no valid encryption found
     if e2e_policy_chat == "optional" and event.stanza.attr.type ~= "groupchat" then
-        event.origin.send(st.message({ from = host, type = "headline" }, e2e_policy_message_optional_chat));
+        event.origin.send(st.message({ from = host, to = event.stanza.attr.from, type = "headline" }, e2e_policy_message_optional_chat));
     end
     if e2e_policy_chat == "required" and event.stanza.attr.type ~= "groupchat" then
         return event.origin.send(st.error_reply(event.stanza, "modify", "policy-violation", e2e_policy_message_required_chat));
     end
     if e2e_policy_muc == "optional" and event.stanza.attr.type == "groupchat" then
-        event.origin.send(st.message({ from = host, type = "headline" }, e2e_policy_message_optional_muc));
+        event.origin.send(st.message({ from = host, to = event.stanza.attr.from, type = "headline" }, e2e_policy_message_optional_muc));
     end
     if e2e_policy_muc == "required" and event.stanza.attr.type == "groupchat" then
         return event.origin.send(st.error_reply(event.stanza, "modify", "policy-violation", e2e_policy_message_required_muc));
