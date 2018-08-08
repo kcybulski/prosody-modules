@@ -32,6 +32,7 @@ Configuration
   untrusted\_fail\_watchers       All admins                                                                                                      The users to send the message to
   untrusted\_fail\_notification   "Establishing a secure connection from \$from\_host to \$to\_host failed. Certificate hash: \$sha1. \$errors"   The message to send, \$from\_host, \$to\_host, \$sha1 and \$errors are replaced
   untrusted\_message\_type        `"chat"`                                                                                                        Which kind of message to send. `"normal"` or `"headline"` are other sensible options
+  untrusted\_ignore\_domains      Empty                                                                                                           The domains that this module should not warn about
 
 Compatibility
 =============
