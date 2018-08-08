@@ -467,6 +467,10 @@ end
 module:hook("s2sout-destroyed", handle_s2s_destroyed);
 module:hook("s2sin-destroyed", handle_s2s_destroyed);
 
+local function get_session_id(session)
+	return session.id or (tostring(session):match("[a-f0-9]+$"));
+end
+
 function handle_resume(session, stanza, xmlns_sm)
 	if session.full_jid then
 		session.log("warn", "Tried to resume after resource binding");
@@ -494,10 +498,10 @@ function handle_resume(session, stanza, xmlns_sm)
 		end;
 	elseif session.username == original_session.username
 	and session.host == original_session.host then
-		session.log("debug", "mod_smacks resuming existing session...");
+		session.log("debug", "mod_smacks resuming existing session %s...", get_session_id(original_session));
 		-- TODO: All this should move to sessionmanager (e.g. session:replace(new_session))
 		if original_session.conn then
-			session.log("debug", "mod_smacks closing an old connection for this session");
+			original_session.log("debug", "mod_smacks closing an old connection for this session");
 			local conn = original_session.conn;
 			c2s_sessions[conn] = nil;
 			conn:close();
