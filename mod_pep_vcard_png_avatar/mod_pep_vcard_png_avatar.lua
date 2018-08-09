@@ -12,8 +12,26 @@ local jid = require "util.jid";
 local base64 = require"util.encodings".base64;
 local sha1 = require"util.hashes".sha1;
 
-local mod_pep = module:depends"pep";
+local mm = require "core.modulemanager";
+
+-- COMPAT w/trunk
+local pep_module_name = "pep";
+if mm.get_modules_for_host then
+	if mm.get_modules_for_host(module.host):contains("pep_simple") then
+		pep_module_name = "pep_simple";
+	end
+end
+
+local mod_pep = module:depends(pep_module_name);
 local pep_data = mod_pep.module.save().data;
+
+if not pep_data then
+	module:log("error", "This module is not compatible with your version of mod_pep");
+	if mm.get_modules_for_host then
+		module:log("error", "Please use mod_pep_simple instead of mod_pep to continue using this module");
+	end
+	return false;
+end
 
 module:add_feature("http://prosody.im/protocol/vcard-pep-integration");
 module:depends"vcard";
