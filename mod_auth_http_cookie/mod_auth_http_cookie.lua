@@ -142,8 +142,12 @@ function provider.delete_user(username)
 end
 
 local function get_session_cookies(session)
-	local response = session.conn._http_open_response;
-	local request = response and response.request;
+	local request = session.requests[1];
+	end
+	if not request and session.conn._http_open_response then -- Fallback BOSH
+		local response = session.conn._http_open_response;
+		request = response and response.request;
+	end
 	if request then
 		return request.headers.cookie;
 	end
