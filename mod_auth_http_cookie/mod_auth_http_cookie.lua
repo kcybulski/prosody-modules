@@ -142,7 +142,9 @@ function provider.delete_user(username)
 end
 
 local function get_session_cookies(session)
-	local request = session.requests[1];
+	local request = session.websocket_request; -- WebSockets
+	if not request and session.requests then -- BOSH
+		request = session.requests[1];
 	end
 	if not request and session.conn._http_open_response then -- Fallback BOSH
 		local response = session.conn._http_open_response;
