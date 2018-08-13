@@ -114,3 +114,33 @@ module:hook("s2s-check-certificate", function (event)
 
 	log("debug", "POSH authentication failed!");
 end);
+
+function module.command(arg)
+	if not arg[1] then
+		print("Usage: mod_s2s_auth_posh /path/to/cert.pem")
+		return 1;
+	end
+	local jwkset = { fingerprints = { }; expires = 86400; }
+
+	for i, cert_file in ipairs(arg) do
+		local cert, err = io.open(cert_file);
+		if not cert then
+			io.stderr:write(err, "\n");
+			return 1;
+		end
+		local cert_pem = cert:read("*a");
+		local cert_der, typ = pem2der(cert_pem);
+		if typ == "CERTIFICATE" then
+			table.insert(jwkset.fingerprints, { ["sha-256"] = base64.encode(hashes.sha256(cert_der)); });
+		elseif typ then
+			io.stderr:write(cert_file, " contained a ", typ:lower(), ", was expecting a certificate\n");
+			return 1;
+		else
+			io.stderr:write(cert_file, " did not contain a certificate in PEM format\n");
+			return 1;
+		end
+	end
+	print(json.encode(jwkset));
+	return 0;
+end
+
