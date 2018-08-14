@@ -119,9 +119,9 @@ if(array_key_exists('v', $_GET) === TRUE && $request_method === 'PUT') {
 		header('Content-Disposition: attachment');
 		header('Content-Type: application/octet-stream');
 		header('Content-Length: '.filesize($store_file_name));
-                header("Content-Security-Policy: \"default-src 'none'\"");
-                header("X-Content-Security-Policy: \"default-src 'none'\"");
-                header("X-WebKit-CSP: \"default-src 'none'\"");
+		header("Content-Security-Policy: \"default-src 'none'\"");
+		header("X-Content-Security-Policy: \"default-src 'none'\"");
+		header("X-WebKit-CSP: \"default-src 'none'\"");
 		if($request_method !== 'HEAD') {
 			readfile($store_file_name);
 		}
