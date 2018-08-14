@@ -70,6 +70,12 @@ $store_file_name = $CONFIG_STORE_DIR . '/store-' . hash('sha256', $upload_file_n
 
 $request_method = $_SERVER['REQUEST_METHOD'];
 
+/* Set CORS headers */
+header('Access-Control-Allow-Methods: GET, PUT, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Max-Age: 7200');
+header('Access-Control-Allow-Origin: *');
+
 if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
 	error_log(var_export($_SERVER, TRUE));
 	$upload_file_size = $_SERVER['CONTENT_LENGTH'];
@@ -141,6 +147,7 @@ if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
 	} else {
 		header('HTTP/1.0 404 Not Found');
 	}
+} else if($request_method === 'OPTIONS') {
 } else {
 	header('HTTP/1.0 400 Bad Request');
 }
