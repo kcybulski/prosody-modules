@@ -77,7 +77,7 @@ header('Access-Control-Max-Age: 7200');
 header('Access-Control-Allow-Origin: *');
 
 if(array_key_exists('v2', $_GET) === TRUE && $request_method === 'PUT') {
-	error_log(var_export($_SERVER, TRUE));
+//	error_log(var_export($_SERVER, TRUE));
 	$upload_file_size = $_SERVER['CONTENT_LENGTH'];
 	$upload_token = $_GET['v2'];
 
