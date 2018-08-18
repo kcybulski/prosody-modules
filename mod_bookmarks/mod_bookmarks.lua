@@ -23,13 +23,18 @@ local function on_retrieve_private_xml(event)
 
 	local username = session.username;
 	local service = mod_pep.get_pep_service(username);
-	module:log("debug", "%s", session.full_jid);
 	local ok, id, item = service:get_last_item("storage:bookmarks", session.full_jid);
 	if not ok then
 		module:log("error", "Failed to retrieve PEP bookmarks of %s: %s", username, id);
 		session.send(st.error_reply(stanza, "cancel", "internal-server-error", "Failed to retrive bookmarks from PEP"));
 		return;
 	end
+	if not id or not item then
+		module:log("debug", "Got no PEP bookmarks item for %s, returning empty private bookmarks", username);
+		session.send(st.reply(stanza):add_child(query));
+		return
+	end
+	module:log("debug", "Got item %s: %s", id, item);
 
 	local content = item.tags[1];
 	module:log("debug", "Sending back private for %s: %s", username, content);
