@@ -42,8 +42,8 @@ local function on_retrieve_private_xml(event)
 	return true;
 end
 
-local function publish_to_pep(username, jid, bookmarks)
-	local service = mod_pep.get_pep_service(username);
+function publish_to_pep(jid, bookmarks)
+	local service = mod_pep.get_pep_service(jid_split(jid));
 	local item = st.stanza("item", { xmlns = "http://jabber.org/protocol/pubsub", id = "current" })
 		:add_child(bookmarks);
 	local options = {
@@ -67,7 +67,7 @@ local function on_publish_private_xml(event)
 	end
 
 	module:log("debug", "Private bookmarks set by client, publishing to pep");
-	local ok, err = publish_to_pep(session.username, session.full_jid, bookmarks);
+	local ok, err = publish_to_pep(session.full_jid, bookmarks);
 	if not ok then
 		module:log("error", "Failed to publish to PEP bookmarks for %s: %s", session.username, err);
 		session.send(st.error_reply(stanza, "cancel", "internal-server-error", "Failed to store bookmarks to PEP"));
@@ -97,7 +97,7 @@ local function on_resource_bind(event)
 	module:log("debug", "Got private bookmarks of %s: %s", username, bookmarks);
 
 	module:log("debug", "Going to store PEP item for %s", username);
-	local ok, err = publish_to_pep(username, session.host, bookmarks);
+	local ok, err = publish_to_pep(session.full_jid, bookmarks);
 	if not ok then
 		module:log("error", "Failed to store bookmarks to PEP for %s, aborting migration: %s", username, err);
 		return;
