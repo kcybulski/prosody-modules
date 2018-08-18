@@ -85,6 +85,12 @@ local function on_resource_bind(event)
 	local data, err = private_storage:get(username, "storage:storage:bookmarks");
 	if not data then
 		module:log("debug", "No existing Private XML bookmarks for %s, migration already done: %s", username, err);
+		local service = mod_pep.get_pep_service(username);
+		local ok, id = service:get_last_item("storage:bookmarks", session.full_jid);
+		if not ok or not id then
+			module:log("debug", "Additionally, no PEP bookmarks were existing for %s", username);
+			module:fire_event("bookmarks/empty", { session = session });
+		end
 		return;
 	end
 	local bookmarks = st.deserialize(data);
@@ -106,6 +112,13 @@ local function on_resource_bind(event)
 	module:log("debug", "Removed private bookmarks of %s, migration done!", username);
 end
 
-module:hook("iq-get/bare/jabber:iq:private:query", on_retrieve_private_xml)
-module:hook("iq-set/bare/jabber:iq:private:query", on_publish_private_xml)
-module:hook("resource-bind", on_resource_bind)
+local function on_item_published(event)
+	if event.node == "storage:bookmarks" then
+		module:fire_event("bookmarks/updated", event);
+	end
+end
+
+module:hook("iq-get/bare/jabber:iq:private:query", on_retrieve_private_xml);
+module:hook("iq-set/bare/jabber:iq:private:query", on_publish_private_xml);
+module:hook("resource-bind", on_resource_bind);
+module:hook("item-published", on_item_published);
