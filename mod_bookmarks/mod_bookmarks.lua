@@ -31,7 +31,6 @@ local function on_retrieve_private_xml(event)
 		return;
 	end
 
-	local item = data[id];
 	local content = item.tags[1];
 	module:log("debug", "Sending back private for %s: %s", username, content);
 	session.send(st.reply(stanza):query("jabber:iq:private"):add_child(content));
