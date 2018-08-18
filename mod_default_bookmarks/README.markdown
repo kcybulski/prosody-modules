@@ -33,7 +33,8 @@ Then add a list of the default rooms you want:
 
     default_bookmarks = {
         { jid = "room@conference.example.com", name = "The Room" };
-        { jid = "another-room@conference.example.com", name = "The Other Room" };
+        -- Specifying a password is supported:
+        { jid = "secret-room@conference.example.com", name = "A Secret Room", password = "secret" };
         -- You can also use this compact syntax:
         "yetanother@conference.example.com"; -- this will get "yetanother" as name
     };
