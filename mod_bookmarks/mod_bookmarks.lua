@@ -1,4 +1,5 @@
-local st = require "util.stanza"
+local st = require "util.stanza";
+local jid_split = require "util.jid".split;
 
 local mod_pep = module:depends "pep";
 local private_storage = module:open_store("private", "map");
