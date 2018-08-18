@@ -42,7 +42,11 @@ local function publish_to_pep(username, jid, bookmarks)
 	local service = mod_pep.get_pep_service(username);
 	local item = st.stanza("item", { xmlns = "http://jabber.org/protocol/pubsub", id = "current" })
 		:add_child(bookmarks);
-	return service:publish("storage:bookmarks", jid, "current", item);
+	local options = {
+		["persist_items"] = true;
+		["access_model"] = "whitelist";
+	};
+	return service:publish("storage:bookmarks", jid, "current", item, options);
 end
 
 -- Synchronise Private XML to PEP.
