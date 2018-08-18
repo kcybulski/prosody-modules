@@ -40,6 +40,9 @@ local function get_default_bookmarks(nickname)
 		if nick then
 			reply:add_child(nick):up();
 		end
+		if bookmark.password then
+			reply:tag("password"):text(bookmark.password):up();
+		end
 		reply:up();
 	end
 	return reply;
