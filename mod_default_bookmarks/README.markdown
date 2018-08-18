@@ -37,3 +37,12 @@ Then add a list of the default rooms you want:
         -- You can also use this compact syntax:
         "yetanother@conference.example.com"; -- this will get "yetanother" as name
     };
+
+Compatibility
+-------------
+
+  ------- ---------------
+  trunk   Works
+  0.10    Should work
+  0.9     Should work
+  ------- ---------------
