@@ -147,18 +147,19 @@ local list_backends = {
 	-- %LIST: file:/path/to/file
 	file = {
 		init = function (self, file_spec, opts)
+			local items = {};
+			local n = 0;
 			local filename = file_spec:gsub("^file:", "");
 			local file, err = io.open(filename);
 			if not file then
 				module:log("warn", "Failed to open list from %s: %s", filename, err);
 				return;
-			end
-			local items = {};
-			local n = 0;
-			for line in file:lines() do
-				if not items[line] then
-					n = n + 1;
-					items[line] = true;
+			else
+				for line in file:lines() do
+					if not items[line] then
+						n = n + 1;
+						items[line] = true;
+					end
 				end
 			end
 			self.items = items;
