@@ -74,13 +74,14 @@ local function update_pep(username, data, pep)
 	if photo and photo[1] then
 		local photo_raw = base64.decode(photo[1]);
 		local photo_hash = sha1(photo_raw, true);
+		local photo_type = photo.TYPE and photo.TYPE[1];
 
 		pep:publish("urn:xmpp:avatar:metadata", true, item_container(photo_hash,
 			st.stanza("metadata", { xmlns="urn:xmpp:avatar:metadata" })
 				:tag("info", {
 					bytes = tostring(#photo_raw),
 					id = photo_hash,
-					type = identify(photo_raw),
+					type = photo_type or identify(photo_raw),
 				})));
 		pep:publish("urn:xmpp:avatar:data", true, item_container(photo_hash,
 			st.stanza("data", { xmlns="urn:xmpp:avatar:data" }):text(photo[1])));
