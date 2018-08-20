@@ -1,5 +1,6 @@
 local st = require "util.stanza";
 local jid = require "util.jid";
+local id = require "util.id";
 
 local pubsub = module:depends "pubsub".service;
 
@@ -23,6 +24,7 @@ module:hook("message/host", function (event)
 	local from = stanza.attr.from;
 
 	local reply = st.reply(stanza);
+	reply.attr.id = id.medium();
 
 	if body == "help" then
 		reply:body(help);
