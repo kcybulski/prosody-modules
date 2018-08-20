@@ -19,7 +19,6 @@ module:hook("message/host", function (event)
 	local origin, stanza = event.origin, event.stanza;
 	local body = stanza:get_child_text("body");
 	if not body then return end -- bail out
-	body = body:lower();
 
 	local from = stanza.attr.from;
 
@@ -27,10 +26,11 @@ module:hook("message/host", function (event)
 	reply.attr.id = id.medium();
 
 	local command, node_arg = body:match("^(%a+)%s+(.*)");
+	command = (command or body):lower();
 
-	if body == "help" then
+	if command == "help" then
 		reply:body(help);
-	elseif body == "list" then
+	elseif command == "list" then
 		local ok, nodes = pubsub:get_nodes(from);
 		if ok then
 			local list = {};
