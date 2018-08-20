@@ -26,7 +26,7 @@ module:hook("message/host", function (event)
 	local reply = st.reply(stanza);
 	reply.attr.id = id.medium();
 
-	local command, node = body:match("^(%a+)%s+(.*)");
+	local command, node_arg = body:match("^(%a+)%s+(.*)");
 
 	if body == "help" then
 		reply:body(help);
@@ -42,10 +42,10 @@ module:hook("message/host", function (event)
 			reply:body(nodes);
 		end
 	elseif command == "subscribe" then
-		local ok, err = pubsub:add_subscription(node, from, jid.bare(from), { ["pubsub#include_body"] = true });
+		local ok, err = pubsub:add_subscription(node_arg, from, jid.bare(from), { ["pubsub#include_body"] = true });
 		reply:body(ok and "OK" or err);
 	elseif command == "unsubscribe" then
-		local ok, err = pubsub:remove_subscription(node, from, jid.bare(from));
+		local ok, err = pubsub:remove_subscription(node_arg, from, jid.bare(from));
 		reply:body(ok and "OK" or err);
 	else
 		reply:body("Unknown command. `help` to list commands.");
