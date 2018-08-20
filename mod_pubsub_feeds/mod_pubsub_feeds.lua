@@ -118,7 +118,7 @@ function update_entry(item)
 				-- FIXME Entries updated after publishing ...
 				break;
 			end
-			local xitem = st.stanza("item", { id = id }):add_child(entry);
+			local xitem = st.stanza("item", { id = id, xmlns = "http://jabber.org/protocol/pubsub" }):add_child(entry);
 			-- TODO Put data from /feed into item/source
 
 			--module:log("debug", "publishing to %s, id %s", node, id);
