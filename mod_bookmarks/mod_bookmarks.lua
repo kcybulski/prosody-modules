@@ -114,12 +114,10 @@ local function on_resource_bind(event)
 end
 
 local function on_item_published(event)
-	if event.node == "storage:bookmarks" then
-		module:fire_event("bookmarks/updated", event);
-	end
+	module:fire_event("bookmarks/updated", event);
 end
 
 module:hook("iq-get/bare/jabber:iq:private:query", on_retrieve_private_xml);
 module:hook("iq-set/bare/jabber:iq:private:query", on_publish_private_xml);
 module:hook("resource-bind", on_resource_bind);
-module:hook("item-published", on_item_published);
+module:hook("item-published/storage:bookmarks", on_item_published);
