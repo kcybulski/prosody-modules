@@ -247,9 +247,9 @@ local function inject_xep153(event)
 
 	stanza:remove_children("x", "vcard-temp:x:update");
 	local x_update = st.stanza("x", { xmlns = "vcard-temp:x:update" });
-	local ok, avatar_hash = pep:get_items("urn:xmpp:avatar:metadata", true);
-	if ok and avatar_hash[1] then
-		x_update:text_tag("photo", avatar_hash[1]);
+	local ok, avatar_hash = pep:get_last_item("urn:xmpp:avatar:metadata", true);
+	if ok and avatar_hash then
+		x_update:text_tag("photo", avatar_hash);
 	end
 	stanza:add_direct_child(x_update);
 end
