@@ -245,13 +245,13 @@ local function inject_xep153(event)
 	if not username then return end
 	local pep = pep_plus.get_pep_service(username);
 
-	stanza:remove_children("x", "vcard-temp:x:update");
-	local x_update = st.stanza("x", { xmlns = "vcard-temp:x:update" });
 	local ok, avatar_hash = pep:get_last_item("urn:xmpp:avatar:metadata", true);
 	if ok and avatar_hash then
+		stanza:remove_children("x", "vcard-temp:x:update");
+		local x_update = st.stanza("x", { xmlns = "vcard-temp:x:update" });
 		x_update:text_tag("photo", avatar_hash);
+		stanza:add_direct_child(x_update);
 	end
-	stanza:add_direct_child(x_update);
 end
 
 if pep_plus then
