@@ -2,7 +2,6 @@ module:depends("http");
 
 local st = require "util.stanza";
 local json = require "util.json";
-local formdecode = require "net.http".formdecode;
 local hmac_sha1 = require "util.hashes".hmac_sha1;
 
 local pubsub_service = module:depends("pubsub").service;
