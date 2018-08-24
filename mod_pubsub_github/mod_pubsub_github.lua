@@ -8,7 +8,8 @@ local pubsub_service = module:depends("pubsub").service;
 local node = module:get_option("github_node", "github");
 
 function handle_POST(event)
-	local data = json.decode(event.request.body);
+	local request = event.request;
+	local data = json.decode(request.body);
 	if not data then
 		return "Invalid JSON. From you of all people...";
 	end
@@ -28,7 +29,7 @@ function handle_POST(event)
 		);
 	end
 
-	module:log("debug", "Handled POST: \n%s\n", tostring(event.request.body));
+	module:log("debug", "Handled POST: \n%s\n", tostring(request.body));
 	return "Thank you Github!";
 end
 
