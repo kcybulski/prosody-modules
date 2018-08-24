@@ -36,6 +36,7 @@ module:provides("http", {
 				for i = #items, 1, -1 do
 					feed:add_direct_child(items[items[i]].tags[1]);
 				end
+				event.response.headers.content_type = "application/atom+xml";
 				return tostring(feed);
 			elseif items == "forbidden" then
 				return 403;
