@@ -48,25 +48,22 @@ module:hook("iq-get/self/jabber:iq:private:query", function(event)
 	if #query.tags == 1 then
 		local tag = query.tags[1];
 		local key = tag.name..":"..tag.attr.xmlns;
+		if key ~= "storage:storage:bookmarks" then
+			return;
+		end
 		local data, err = dm_load(origin.username, origin.host, "private");
 		if err then
 			origin.send(st.error_reply(stanza, "wait", "internal-server-error"));
 			return true;
 		end
 		local data = data and data[key];
-		if (not data) and key == "storage:storage:bookmarks" then
+		if not data then
 			data = st.stanza("storage", { xmlns = "storage:bookmarks" });
 		end
-		if data then
-			data = st.deserialize(data);
-			if key == "storage:storage:bookmarks" then
-				data = inject_bookmarks(origin.username, origin.host, data);
-			end
-			origin.send(st.reply(stanza):tag("query", {xmlns = "jabber:iq:private"})
-				:add_child(data));
-		else
-			origin.send(st.reply(stanza):add_child(stanza.tags[1]));
-		end
+		data = st.deserialize(data);
+		data = inject_bookmarks(origin.username, origin.host, data);
+		origin.send(st.reply(stanza):tag("query", {xmlns = "jabber:iq:private"})
+			:add_child(data));
 		return true;
 	end
 end, 1);
