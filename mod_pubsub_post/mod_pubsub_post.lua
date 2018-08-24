@@ -74,11 +74,13 @@ function handle_POST(event, path)
 	module:log("debug", "Handling POST: \n%s\n", tostring(request.body));
 
 	local content_type = request.headers.content_type or "application/octet-stream";
-	local actor = true;
+	local actor;
 
 	if actor_source == "request.ip" then
 		actor = request.ip or request.conn:ip();
-	elseif actor_source ~= "superuser" then
+	elseif actor_source == "superuser" then
+		actor = true;
+	else
 		module:log("error", "pubsub_post_actor set to unsupported value %q", actor_source);
 		return 500;
 	end
