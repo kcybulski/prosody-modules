@@ -21,6 +21,8 @@ module:provides("http", {
 				event.response.headers.content_type = "application/atom+xml";
 				local feed = st.stanza("feed", { xmlns = "http://www.w3.org/2005/Atom" })
 					:text_tag("generator", "Prosody", { uri = "xmpp:prosody.im", version = prosody.version })
+					:text_tag("title", pubsub_service.nodes["urn:xmpp:microblog:0"].config.title or "Microblog feed")
+					:text_tag("subtitle", pubsub_service.nodes["urn:xmpp:microblog:0"].config.description)
 					:tag("author")
 						:text_tag("name", user)
 						:text_tag("preferredUsername", user, { xmlns = "http://portablecontacts.net/spec/1.0" });
