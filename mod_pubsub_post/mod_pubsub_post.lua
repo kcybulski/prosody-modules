@@ -5,6 +5,14 @@ local json = require "util.json";
 local xml = require "util.xml";
 local uuid_generate = require "util.uuid".generate;
 local timestamp_generate = require "util.datetime".datetime;
+local hashes = require "util.hashes";
+local from_hex = require "util.hex".from;
+local hmacs = {
+	sha1 = hashes.hmac_sha1;
+	sha256 = hashes.hmac_sha256;
+	sha384 = hashes.hmac_sha384;
+	sha512 = hashes.hmac_sha512;
+};
 
 local pubsub_service = module:depends("pubsub").service;
 
@@ -68,6 +76,17 @@ local function handle_xml(node, actor, payload)
 end
 
 local actor_source = module:get_option_string("pubsub_post_actor", "superuser");
+local actor_secret = module:get_option_string("pubsub_post_secret");
+local actor_secrets = module:get_option("pubsub_post_secrets");
+
+local function verify_signature(secret, body, signature)
+	if not signature then return false; end
+	local algo, digest = signature:match("^([^=]+)=(%x+)");
+	if not algo then return false; end
+	local hmac = hmacs[algo];
+	if not algo then return false; end
+	return hmac(secret, body) == from_hex(digest);
+end
 
 function handle_POST(event, path)
 	local request = event.request;
@@ -75,6 +94,11 @@ function handle_POST(event, path)
 
 	local content_type = request.headers.content_type or "application/octet-stream";
 	local actor;
+
+	local secret = actor_secrets and actor_secrets[path] or actor_secret;
+	if secret and not verify_signature(secret, request.body, request.headers.x_hub_signature) then
+		return 401;
+	end
 
 	if actor_source == "request.ip" then
 		actor = request.ip or request.conn:ip();
