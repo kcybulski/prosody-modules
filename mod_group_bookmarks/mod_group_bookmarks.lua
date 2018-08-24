@@ -42,9 +42,8 @@ function inject_bookmarks(username, host, data)
 	return data;
 end
 
-module:hook("iq/self/jabber:iq:private:query", function(event)
+module:hook("iq-get/self/jabber:iq:private:query", function(event)
 	local origin, stanza = event.origin, event.stanza;
-	local type = stanza.attr.type;
 	local query = stanza.tags[1];
 	if #query.tags == 1 then
 		local tag = query.tags[1];
@@ -54,23 +53,21 @@ module:hook("iq/self/jabber:iq:private:query", function(event)
 			origin.send(st.error_reply(stanza, "wait", "internal-server-error"));
 			return true;
 		end
-		if stanza.attr.type == "get" then
-			local data = data and data[key];
-			if (not data) and key == "storage:storage:bookmarks" then
-				data = st.stanza("storage", { xmlns = "storage:bookmarks" });
-			end
-			if data then
-				data = st.deserialize(data);
-				if key == "storage:storage:bookmarks" then
-					data = inject_bookmarks(origin.username, origin.host, data);
-				end
-				origin.send(st.reply(stanza):tag("query", {xmlns = "jabber:iq:private"})
-					:add_child(data));
-			else
-				origin.send(st.reply(stanza):add_child(stanza.tags[1]));
-			end
-			return true;
+		local data = data and data[key];
+		if (not data) and key == "storage:storage:bookmarks" then
+			data = st.stanza("storage", { xmlns = "storage:bookmarks" });
 		end
+		if data then
+			data = st.deserialize(data);
+			if key == "storage:storage:bookmarks" then
+				data = inject_bookmarks(origin.username, origin.host, data);
+			end
+			origin.send(st.reply(stanza):tag("query", {xmlns = "jabber:iq:private"})
+				:add_child(data));
+		else
+			origin.send(st.reply(stanza):add_child(stanza.tags[1]));
+		end
+		return true;
 	end
 end, 1);
 
