@@ -19,7 +19,13 @@ module:provides("http", {
 			local ok, items = pubsub_service:get_items("urn:xmpp:microblog:0", actor);
 			if ok then
 				event.response.headers.content_type = "application/atom+xml";
-				local feed = st.stanza("feed", { xmlns = "http://www.w3.org/2005/Atom" });
+				local feed = st.stanza("feed", { xmlns = "http://www.w3.org/2005/Atom" })
+					:text_tag("generator", "Prosody", { uri = "xmpp:prosody.im", version = prosody.version })
+					:tag("author")
+						:text_tag("name", user)
+
+				feed:reset();
+
 				for i = #items, 1, -1 do
 					feed:add_direct_child(items[items[i]].tags[1]);
 				end
