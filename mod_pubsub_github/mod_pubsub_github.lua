@@ -3,12 +3,17 @@ module:depends("http");
 local st = require "util.stanza";
 local json = require "util.json";
 local formdecode = require "net.http".formdecode;
+local hmac_sha1 = require "util.hashes".hmac_sha1;
 
 local pubsub_service = module:depends("pubsub").service;
 local node = module:get_option("github_node", "github");
+local secret = module:get_option("github_secret");
 
 function handle_POST(event)
 	local request = event.request;
+	if secret and ("sha1=" .. hmac_sha1(secret, request.body, true)) ~= request.headers.x_hub_signature then
+		return 401;
+	end
 	local data = json.decode(request.body);
 	if not data then
 		return "Invalid JSON. From you of all people...";
