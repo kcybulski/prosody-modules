@@ -26,6 +26,10 @@ module:provides("http", {
 					:tag("author")
 						:text_tag("name", user)
 						:text_tag("preferredUsername", user, { xmlns = "http://portablecontacts.net/spec/1.0" });
+				local ok, _, nick = pubsub_service:get_last_item("http://jabber.org/protocol/nick", actor);
+				if ok and nick then
+					feed:text_tag("displayName", nick.tags[1][1], { xmlns = "http://portablecontacts.net/spec/1.0" });
+				end
 
 				feed:reset();
 
