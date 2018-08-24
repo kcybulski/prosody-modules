@@ -565,7 +565,6 @@ local function disco_items_hook(event)
 	--		account-disco-items can't be cancelled (return value of hooks are not checked in mod_disco), so corountine needs
 	--		to be used with util.async (to get the IQ result, merge items then return from the event)
 	local origin, stanza = event.origin, event.stanza;
-	if stanza.attr.type ~= "get" then return; end
 	local node = stanza.tags[1].attr.node;
 	local username = jid_split(stanza.attr.to) or origin.username;
 	if not stanza.attr.to or is_contact_subscribed(username, module.host, jid_bare(stanza.attr.from)) then
@@ -578,7 +577,7 @@ local function disco_items_hook(event)
 		end
 	end
 end
-module:hook("iq/bare/http://jabber.org/protocol/disco#items:query", disco_items_hook, 100)
+module:hook("iq-get/bare/http://jabber.org/protocol/disco#items:query", disco_items_hook, 100)
 
 local function disco_items_raw_hook(event)
 	-- this method is called when account-disco-items-* event are not called
