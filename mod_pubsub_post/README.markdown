@@ -43,6 +43,24 @@ nicely with the `autocreate_on_publish` setting, where the first actor
 to attempt to publish to a non-existant node becomes owner of it, which
 includes publishing rights.
 
+## WebSub
+
+``` {.lua}
+-- Per node secrets
+pubsub_post_secrets = {
+    my_node = "shared secret"
+}
+
+-- Same secret for all nodes
+pubsub_post_secret = "shared secret"
+```
+
+This enables the
+[WebSub](https://www.w3.org/TR/2018/REC-websub-20180123/) [Authenticated
+Content
+Distribution](https://www.w3.org/TR/2018/REC-websub-20180123/#authenticated-content-distribution)
+authentication method, where payloads are signed using a shared secret.
+
 ## Setting up affiliations
 
 Prosodys PubSub module supports [setting affiliations via
