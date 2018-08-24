@@ -7,14 +7,9 @@
 -- COPYING file in the source package for more information.
 --
 
-
 local st = require "util.stanza"
 local dm_load = require "util.datamanager".load
-
-local jid = require "util.jid";
-local jid_bare, jid_prep, jid_split = jid.bare, jid.prep, jid.split;
-
-local module_host = module:get_host();
+local jid_prep = require "util.jid".prep;
 
 local rooms;
 local members;
@@ -23,7 +18,7 @@ local bookmarks_file;
 
 module:add_feature("jabber:iq:private");
 
-function inject_bookmarks(username, host, data)
+local function inject_bookmarks(username, host, data)
 	local jid = username.."@"..host;
 	data:reset();
 	if members[jid] then
@@ -97,8 +92,7 @@ function module.load()
 			-- Add JID
 			local entryjid, name = line:match("([^=]*)=?(.*)");
 			module:log("debug", "entryjid = '%s', name = '%s'", entryjid, name);
-			local jid;
-			jid = jid_prep(entryjid:match("%S+"));
+			local jid = jid_prep(entryjid:match("%S+"));
 			if jid then
 				module:log("debug", "New member of %s: %s", tostring(curr_room), tostring(jid));
 				rooms[curr_room][jid] = name or false;
@@ -109,4 +103,3 @@ function module.load()
 	end
 	module:log("info", "Group bookmarks loaded successfully");
 end
-
