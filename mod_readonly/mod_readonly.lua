@@ -9,9 +9,8 @@ for name, namespace in pairs(stores) do
 	namespaces[table.concat(namespace, ":")] = name;
 end
 
-function prevent_write(event)
+local function prevent_write(event)
 	local stanza = event.stanza;
-	if stanza.attr.type ~= "set" then return; end
 	local xmlns_and_tag = stanza.tags[1].attr.xmlns..":"..stanza.tags[1].name;
 	local store_name = namespaces[xmlns_and_tag];
 	if store_name then
@@ -22,5 +21,5 @@ function prevent_write(event)
 end
 
 for namespace in pairs(namespaces) do
-	module:hook("iq/bare/"..namespace, prevent_write, 200);
+	module:hook("iq-set/bare/"..namespace, prevent_write, 200);
 end
