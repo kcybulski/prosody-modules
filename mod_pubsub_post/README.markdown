@@ -43,6 +43,8 @@ nicely with the `autocreate_on_publish` setting, where the first actor
 to attempt to publish to a non-existant node becomes owner of it, which
 includes publishing rights.
 
+## Setting up affiliations
+
 Prosodys PubSub module supports [setting affiliations via
 XMPP](https://xmpp.org/extensions/xep-0060.html#owner-affiliations), in
 trunk since [revision
