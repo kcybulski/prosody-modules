@@ -8,9 +8,9 @@
 
 
 local st = require "util.stanza"
+local dm_load = require "util.datamanager".load
 
-local datamanager = require "util.datamanager"
-local jid, datamanager = require "util.jid", require "util.datamanager";
+local jid = require "util.jid";
 local jid_bare, jid_prep, jid_split = jid.bare, jid.prep, jid.split;
 
 local module_host = module:get_host();
@@ -49,7 +49,7 @@ module:hook("iq/self/jabber:iq:private:query", function(event)
 	if #query.tags == 1 then
 		local tag = query.tags[1];
 		local key = tag.name..":"..tag.attr.xmlns;
-		local data, err = datamanager.load(origin.username, origin.host, "private");
+		local data, err = dm_load(origin.username, origin.host, "private");
 		if err then
 			origin.send(st.error_reply(stanza, "wait", "internal-server-error"));
 			return true;
