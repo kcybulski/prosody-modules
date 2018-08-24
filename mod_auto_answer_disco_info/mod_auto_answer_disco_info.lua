@@ -2,15 +2,9 @@ module:depends("cache_c2s_caps");
 
 local st = require "util.stanza";
 
-local function iq_stanza_handler(event)
+local function disco_handler(event)
 	local stanza, origin = event.stanza, event.origin;
-	local type = stanza.attr.type;
-
-	local query = stanza:get_child("query", "http://jabber.org/protocol/disco#info");
-	if type ~= "get" or query == nil then
-		return;
-	end
-
+	local query = stanza.tags[1];
 	local to = stanza.attr.to;
 	local node = query.attr.node;
 
@@ -30,4 +24,4 @@ local function iq_stanza_handler(event)
 	end
 end
 
-module:hook("iq/full", iq_stanza_handler, 1);
+module:hook("iq-get/full/http://jabber.org/protocol/disco#info:query", disco_handler, 1);
