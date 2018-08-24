@@ -109,92 +109,85 @@ local function disable_cert(username, name, disconnect)
 	return info;
 end
 
-module:hook("iq/self/"..xmlns_saslcert..":items", function(event)
+module:hook("iq-get/self/"..xmlns_saslcert..":items", function(event)
 	local origin, stanza = event.origin, event.stanza;
-	if stanza.attr.type == "get" then
-		module:log("debug", "%s requested items", origin.full_jid);
+	module:log("debug", "%s requested items", origin.full_jid);
 
-		local reply = st.reply(stanza):tag("items", { xmlns = xmlns_saslcert });
-		local certs = dm_load(origin.username, module.host, dm_table) or {};
+	local reply = st.reply(stanza):tag("items", { xmlns = xmlns_saslcert });
+	local certs = dm_load(origin.username, module.host, dm_table) or {};
 
-		for digest,info in pairs(certs) do
-			reply:tag("item")
-				:tag("name"):text(info.name):up()
-				:tag("x509cert"):text(info.x509cert):up()
-			:up();
-		end
-
-		origin.send(reply);
-		return true
+	for digest,info in pairs(certs) do
+		reply:tag("item")
+			:tag("name"):text(info.name):up()
+			:tag("x509cert"):text(info.x509cert):up()
+		:up();
 	end
+
+	origin.send(reply);
+	return true
 end);
 
-module:hook("iq/self/"..xmlns_saslcert..":append", function(event)
+module:hook("iq-set/self/"..xmlns_saslcert..":append", function(event)
 	local origin, stanza = event.origin, event.stanza;
-	if stanza.attr.type == "set" then
+	local append = stanza:get_child("append", xmlns_saslcert);
+	local name = append:get_child_text("name", xmlns_saslcert);
+	local x509cert = append:get_child_text("x509cert", xmlns_saslcert);
 
-		local append = stanza:get_child("append", xmlns_saslcert);
-		local name = append:get_child_text("name", xmlns_saslcert);
-		local x509cert = append:get_child_text("x509cert", xmlns_saslcert);
-
-		if not x509cert or not name then
-			origin.send(st.error_reply(stanza, "cancel", "bad-request", "Missing fields.")); -- cancel? not modify?
-			return true
-		end
-
-		local can_manage = append:get_child("no-cert-management", xmlns_saslcert) ~= nil;
-		x509cert = x509cert:gsub("^%s*(.-)%s*$", "%1");
-
-		local cert = ssl_x509.load(util_x509.der2pem(base64.decode(x509cert)));
-
-		if not cert then
-			origin.send(st.error_reply(stanza, "modify", "not-acceptable", "Could not parse X.509 certificate"));
-			return true;
-		end
-
-		local ok, err = enable_cert(origin.username, cert, {
-			name = name,
-			x509cert = x509cert,
-			no_cert_management = can_manage,
-		});
-
-		if not ok then
-			origin.send(st.error_reply(stanza, "cancel", "bad-request", err));
-			return true -- REJECT?!
-		end
-
-		module:log("debug", "%s added certificate named %s", origin.full_jid, name);
-
-		origin.send(st.reply(stanza));
-
+	if not x509cert or not name then
+		origin.send(st.error_reply(stanza, "cancel", "bad-request", "Missing fields.")); -- cancel? not modify?
 		return true
 	end
+
+	local can_manage = append:get_child("no-cert-management", xmlns_saslcert) ~= nil;
+	x509cert = x509cert:gsub("^%s*(.-)%s*$", "%1");
+
+	local cert = ssl_x509.load(util_x509.der2pem(base64.decode(x509cert)));
+
+	if not cert then
+		origin.send(st.error_reply(stanza, "modify", "not-acceptable", "Could not parse X.509 certificate"));
+		return true;
+	end
+
+	local ok, err = enable_cert(origin.username, cert, {
+		name = name,
+		x509cert = x509cert,
+		no_cert_management = can_manage,
+	});
+
+	if not ok then
+		origin.send(st.error_reply(stanza, "cancel", "bad-request", err));
+		return true -- REJECT?!
+	end
+
+	module:log("debug", "%s added certificate named %s", origin.full_jid, name);
+
+	origin.send(st.reply(stanza));
+
+	return true
 end);
 
 
 local function handle_disable(event)
 	local origin, stanza = event.origin, event.stanza;
-	if stanza.attr.type == "set" then
-		local disable = stanza.tags[1];
-		module:log("debug", "%s disabled a certificate", origin.full_jid);
+	local disable = stanza.tags[1];
+	module:log("debug", "%s disabled a certificate", origin.full_jid);
 
-		local name = disable:get_child_text("name");
+	local name = disable:get_child_text("name");
 
-		if not name then
-			origin.send(st.error_reply(stanza, "cancel", "bad-request", "No key specified."));
-			return true
-		end
-
-		disable_cert(origin.username, name, disable.name == "revoke");
-
-		origin.send(st.reply(stanza));
-
+	if not name then
+		origin.send(st.error_reply(stanza, "cancel", "bad-request", "No key specified."));
 		return true
 	end
+
+	disable_cert(origin.username, name, disable.name == "revoke");
+
+	origin.send(st.reply(stanza));
+
+	return true
 end
 
-module:hook("iq/self/"..xmlns_saslcert..":disable", handle_disable);
-module:hook("iq/self/"..xmlns_saslcert..":revoke", handle_disable);
+module:hook("iq-set/self/"..xmlns_saslcert..":disable", handle_disable);
+module:hook("iq-set/self/"..xmlns_saslcert..":revoke", handle_disable);
 
 -- Ad-hoc command
 local adhoc_new = module:require "adhoc".new;
