@@ -23,6 +23,7 @@ module:provides("http", {
 					:text_tag("generator", "Prosody", { uri = "xmpp:prosody.im", version = prosody.version })
 					:tag("author")
 						:text_tag("name", user)
+						:text_tag("preferredUsername", user, { xmlns = "http://portablecontacts.net/spec/1.0" });
 
 				feed:reset();
 
