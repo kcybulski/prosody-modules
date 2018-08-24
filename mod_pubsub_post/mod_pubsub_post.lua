@@ -85,6 +85,10 @@ function handle_POST(event, path)
 		return 500;
 	end
 
+	if not actor then
+		return 401;
+	end
+
 	if content_type == "application/xml" or content_type:sub(-4) == "+xml" then
 		return handle_xml(path, actor, request.body);
 	elseif content_type == "application/json" or content_type:sub(-5) == "+json" then
