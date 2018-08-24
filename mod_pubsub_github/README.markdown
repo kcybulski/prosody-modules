@@ -11,6 +11,8 @@ pubsub component for XMPP clients to subscribe to.
 
 Entries are pushed as Atom payloads.
 
+It may also work with Gitlab.
+
 Configuration
 -------------
 
