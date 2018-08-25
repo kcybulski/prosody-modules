@@ -160,6 +160,8 @@ function fetch(item, callback) -- HTTP Pull
 			end
 		elseif code == 304 then
 			item.last_update = time();
+		elseif code == < 100 then
+			module:log("error", "Error fetching %q: %q[%d]", item.url, data, code);
 		else
 			module:log("debug", "Unhandled status code %d when fetching %q", code, item.url);
 		end
