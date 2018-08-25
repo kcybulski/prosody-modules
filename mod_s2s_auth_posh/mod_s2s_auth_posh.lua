@@ -99,7 +99,7 @@ module:hook("s2s-check-certificate", function (event)
 	local jwk = posh and posh.jwk;
 	local fingerprints = jwk and jwk.fingerprints;
 
-	if not fingerprints then
+	if type(fingerprints) ~= "table" then
 		log("debug", "No POSH authentication data available");
 		return;
 	end
