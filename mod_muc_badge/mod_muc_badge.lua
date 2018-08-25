@@ -49,7 +49,7 @@ local template = module:get_option_string("badge_template", [[
     <path fill="#fe7d37" d="M{labelwidth} 0h{countwidth}v20H{labelwidth}z"/>
     <path fill="url(#b)" d="M0 0h{width}v20H0z"/>
   </g>
-  <g fill="#fff" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+  <g fill="#fff" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11" xml:space="preserve">
     <text fill="#010101" y="14" x="0" textLength="{labelwidth}">{label}</text>
     <text y="13" x="0" textLength="{labelwidth}">{label}</text>
     <text fill="#010101" y="14" x="{labelwidth}" textLength="{countwidth}">{number}</text>
