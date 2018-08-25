@@ -39,7 +39,7 @@ do
 	end
 	if not template then
 		module:log("error", "Error loading template: %s", err);
-		template = render("<h1>mod_{module} could not read the template</h1><p>Tried to open <b>{filename}</b><pre>{error}</pre>",
+		template = render("<h1>mod_{module} could not read the template</h1><p>Tried to open <b>{filename}</b></p><pre>{error}</pre>",
 			{ module = module.name, filename = template_filename, error = err });
 	end
 end
