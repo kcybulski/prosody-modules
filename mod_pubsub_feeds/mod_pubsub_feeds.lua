@@ -162,7 +162,7 @@ function fetch(item, callback) -- HTTP Pull
 			item.last_update = time();
 		elseif code == 301 and resp.headers.location then
 			module:log("info", "Feed %q has moved to %q", item.url, resp.headers.location);
-		elseif code == < 100 then
+		elseif code <= 100 then
 			module:log("error", "Error fetching %q: %q[%d]", item.url, data, code);
 		else
 			module:log("debug", "Unhandled status code %d when fetching %q", code, item.url);
