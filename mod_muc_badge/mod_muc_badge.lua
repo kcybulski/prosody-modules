@@ -76,8 +76,8 @@ module:provides("http", {
 			for _ in pairs(room._occupants) do
 				count = count + 1;
 			end
-			local badge_label = room:get_name();
-			local badge_count = string.format(number, count);
+			local badge_label = (" %s "):format(room:get_name());
+			local badge_count = (" %s "):format(string.format(number, count));
 
 			local response = event.response;
 			response.headers.content_type = "image/svg+xml";
