@@ -78,7 +78,12 @@ end
 function update_entry(item)
 	local node = item.node;
 	module:log("debug", "parsing %d bytes of data in node %s", #item.data or 0, node)
-	local feed = parse_feed(item.data);
+	local feed, err = parse_feed(item.data);
+	if not feed then
+		module:log("error", "Could not parse feed %q: %s", item.url, err);
+		module:log("debug", "Feed data:\n%s\n.", item.data);
+		return;
+	end
 	local entries = {};
 	for entry in feed:childtags("entry") do
 		table.insert(entries, entry);
