@@ -54,7 +54,7 @@ local function posh_lookup(host_session, resume)
 		end
 		log("debug", "Received POSH response");
 		local jwk = json.decode(response);
-		if not jwk then
+		if not jwk or type(jwk) ~= "table" then
 			log("error", "POSH response is not valid JSON!\n%s", tostring(response));
 			resume();
 			return;
