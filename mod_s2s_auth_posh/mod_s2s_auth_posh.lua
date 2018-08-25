@@ -46,7 +46,8 @@ local function posh_lookup(host_session, resume)
 	local url = build_url { scheme = "https", host = target_host, path = "/.well-known/posh/xmpp-server.json" };
 
 	log("debug", "Request POSH information for %s", tostring(target_host));
-	http.request(url, nil, function (response, code)
+	local redirect_followed = false;
+	local function cb (response, code)
 		if code ~= 200 then
 			log("debug", "No or invalid POSH response received");
 			resume();
@@ -59,12 +60,24 @@ local function posh_lookup(host_session, resume)
 			resume();
 			return;
 		end
+		if type(jwk.url) == "string" then
+			if redirect_followed then
+				redirect_followed = true;
+				http.request(jwk.url, nil, cb);
+			else
+				log("error", "POSH had invalid redirect:\n%s", tostring(response));
+				resume();
+				return;
+			end
+		end
+
 		host_session.posh = { orig = response };
 		jwk.expires = os.time() + tonumber(jwk.expires) or 3600;
 		host_session.posh.jwk = jwk;
 		cache:set(target_host, jwk);
 		resume();
-	end)
+	end
+	http.request(url, nil, cb);
 	return true;
 end
 
