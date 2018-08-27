@@ -83,12 +83,12 @@ end
 local function on_resource_bind(event)
 	local session = event.session;
 	local username = session.username;
+	local service = mod_pep.get_pep_service(username);
 	local jid = username.."@"..session.host;
 
 	local data, err = private_storage:get(username, "storage:storage:bookmarks");
 	if not data then
 		module:log("debug", "No existing Private XML bookmarks for %s, migration already done: %s", jid, err);
-		local service = mod_pep.get_pep_service(username);
 		local ok, id = service:get_last_item("storage:bookmarks", session.full_jid);
 		if not ok or not id then
 			module:log("debug", "Additionally, no PEP bookmarks were existing for %s", jid);
@@ -98,6 +98,10 @@ local function on_resource_bind(event)
 	end
 	local bookmarks = st.deserialize(data);
 	module:log("debug", "Got private bookmarks of %s: %s", jid, bookmarks);
+
+	-- We don’t care if deleting succeeds or not, we only want to start with a non-existent node.
+	module:log("debug", "Deleting possibly existing PEP item for %s", jid);
+	service:delete("storage:bookmarks", jid);
 
 	module:log("debug", "Going to store PEP item for %s", jid);
 	local ok, err = publish_to_pep(session.full_jid, bookmarks);
