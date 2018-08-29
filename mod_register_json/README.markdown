@@ -24,7 +24,7 @@ Example Request format:
 
 Where the encoded content is this (example) JSON Array:
 
-```
+``` {.json}
     {
       "username":"john.smith",
       "password":"secret-password",
