@@ -24,7 +24,15 @@ Example Request format:
 
 Where the encoded content is this (example) JSON Array:
 
-    {"username":"usernameofchoice","password":"theuserpassword","ip":"theremoteaddroftheuser","mail":"usermail@usermaildomain.tld","auth\_token":"yourauthtokenofchoice"}\</code\>
+```
+    {
+      "username":"john.smith",
+      "password":"secret-password",
+      "ip":"192.168.0.0",
+      "mail":"john.smith@mail.example.net",
+      "auth_token":"yourauthtokenofchoice"
+    }
+```
 
 Your form implementation needs to pass **all** parameters, the
 auth\_token is needed to prevent misuses, if the request is successful
@@ -63,14 +71,23 @@ modules\_enabled.
 Hint: pairing with mod\_register\_redirect is helpful, to allow server
 registrations only via your webform.
 
+
+Required configuration:
+
+```
+    reg_servlet_auth_token = "your-secret-token"
+```
+
 Optional configuration directives:
 
+```
     reg_servlet_base = "/base-path/" -- Base path of the plugin (default is register_account)
     reg_servlet_secure = true -- Have the plugin only process requests on https (default is true)
     reg_servlet_ttime = seconds -- Specifies the time (in seconds) between each request coming from the same remote address.
     reg_servlet_bl = { "1.2.3.4", "4.3.2.1" } -- The ip addresses in this list will be blacklisted and will not be able to submit registrations.
     reg_servlet_wl = { "1.2.3.4", "4.3.2.1" } -- The ip addresses in this list will be ignored by the throttling.
     reg_servlet_filtered_mails = { ".*banneddomain.tld", ".*deamailprovider.tld" } -- allows filtering of mail addresses via Lua patterns.
+```
 
 Compatibility
 -------------
