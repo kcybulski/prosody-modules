@@ -13,6 +13,7 @@ Commands:
 - `list` - list available nodes
 - `subscribe node` - subscribe to a node
 - `unsubscribe node` - unsubscribe from a node
+- `last node` - send the last item (again)
 ]];
 
 module:hook("message/host", function (event)
@@ -47,6 +48,18 @@ module:hook("message/host", function (event)
 	elseif command == "unsubscribe" then
 		local ok, err = pubsub:remove_subscription(node_arg, from, jid.bare(from));
 		reply:body(ok and "OK" or err);
+	elseif command == "last" then
+		local ok, item_id, item = pubsub:get_last_item(node_arg, from);
+		if not ok then
+			reply:body(item_id); -- err message
+		elseif not item_id then
+			reply:body("node is empty");
+		else
+			pubsub.config.broadcaster("items", node_arg, {
+				[from] = { ["pubsub#include_body"] = true }
+			}, item);
+			reply:body("OK");
+		end
 	else
 		reply:body("Unknown command. `help` to list commands.");
 	end
