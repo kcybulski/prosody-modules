@@ -4,6 +4,11 @@ local jid_split = require "util.jid".split;
 local mod_pep = module:depends "pep";
 local private_storage = module:open_store("private", "map");
 
+local default_options = {
+	["persist_items"] = true;
+	["access_model"] = "whitelist";
+};
+
 module:hook("account-disco-info", function (event)
 	event.reply:tag("feature", { var = "urn:xmpp:bookmarks-conversion:0" }):up();
 end);
@@ -48,11 +53,7 @@ function publish_to_pep(jid, bookmarks)
 	local service = mod_pep.get_pep_service(jid_split(jid));
 	local item = st.stanza("item", { xmlns = "http://jabber.org/protocol/pubsub", id = "current" })
 		:add_child(bookmarks);
-	local options = {
-		["persist_items"] = true;
-		["access_model"] = "whitelist";
-	};
-	return service:publish("storage:bookmarks", jid, "current", item, options);
+	return service:publish("storage:bookmarks", jid, "current", item, default_options);
 end
 
 -- Synchronise Private XML to PEP.
@@ -123,7 +124,19 @@ local function on_item_published(event)
 	module:fire_event("bookmarks/updated", event);
 end
 
+local function on_node_created(event)
+	local service, node, actor = event.service, event.node, event.actor;
+	if node ~= "storage:bookmarks" then
+		return;
+	end
+	local node_config = service.nodes[node].config;
+	for config_field, value in pairs(default_options) do
+		node_config[config_field] = value;
+	end
+end
+
 module:hook("iq-get/bare/jabber:iq:private:query", on_retrieve_private_xml);
 module:hook("iq-set/bare/jabber:iq:private:query", on_publish_private_xml);
 module:hook("resource-bind", on_resource_bind);
 module:hook("item-published/storage:bookmarks", on_item_published);
+module:hook("node-created", on_node_created);
