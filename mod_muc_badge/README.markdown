@@ -20,7 +20,6 @@ Inspiration
 
   Option             Type     Default
   ------------------ -------- --------------------------
-  `badge_label`      string   `"Chatroom"`
   `badge_count`      string   `"%d online"`
   `badge_template`   string   A SVG image (see source)
 
