@@ -39,8 +39,3 @@ modules_enabled = {
     "muc_badge"
 }
 ```
-
-# TODO
-
--   Maybe use the room name instead of a fixed label. Would need dynamic
-    resizing.
