@@ -44,8 +44,9 @@ loaded automatically.
 HTTP
 ----
 
-See Prosodys [HTTP configuration][doc:http] for HTTP related
-options.
+The module is served on Prosody's default HTTP ports at the path
+`/conversejs`. More details on configuring HTTP modules in Prosody can
+be found in our [HTTP documentation](http://prosody.im/doc/http).
 
 Other
 -----
@@ -56,7 +57,7 @@ override the derived settings, one can set `conversejs_options` like
 this:
 
 ``` {.lua}
-converse_options = {
+conversejs_options = {
     debug = true;
     view_mode = "fullscreen";
 }
