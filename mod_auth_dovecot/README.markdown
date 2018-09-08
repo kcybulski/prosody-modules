@@ -32,14 +32,16 @@ You can create a new dedicated socket for Prosody too. Add the below to
 the *socket listen* section of /etc/dovecot/dovecot.conf, and match the
 socket path in Prosody's dovecot\_auth\_socket setting.
 
-    socket listen {
-      ...
-      client {
-        path = /var/spool/prosody/private/auth-client
-          mode = 0660
-          user = prosody
-          group = prosody
-      }
+    service auth {
+        socket listen {
+            client {
+                path = /var/spool/prosody/private/auth-client
+                    mode = 0660
+                    user = prosody
+                    group = prosody
+            }
+        }
+    }
 
 Make sure the socket directories exist and are owned by the Prosody
 user.
