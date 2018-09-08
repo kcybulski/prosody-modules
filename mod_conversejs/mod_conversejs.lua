@@ -14,8 +14,8 @@ local template = [[
 <html>
 <head>
 <meta charset="utf-8">
-<link rel="stylesheet" type="text/css" media="screen" href="https://cdn.conversejs.org/css/%s.min.css">
-<script charset="utf-8" src="https://cdn.conversejs.org/dist/converse.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="https://cdn.conversejs.org/css/converse.min.css"/>
+<script charset="utf-8" src="https://cdn.conversejs.org/dist/converse.min.js"/>
 </head>
 <body>
 <noscript>
@@ -59,18 +59,8 @@ module:provides("http", {
 				registration_domain = allow_registration and module.host or nil;
 			};
 
-			local view_mode_css = "converse";
-			if type(more_options) == "table" then
-				for k,v in pairs(more_options) do
-					converse_options[k] = v;
-				end
-				if more_options.view_mode == "fullscreen" then
-					view_mode_css = "inverse";
-				end
-			end
-
 			event.response.headers.content_type = "text/html";
-			return template:format(view_mode_css, json_encode(converse_options));
+			return template:format(json_encode(converse_options));
 		end;
 	}
 });
