@@ -19,8 +19,7 @@ PEP nodes are updated when the vCard is changed..
 # Configuration
 
     modules_enabled = {
-        -- "pep";   -- These two modules must be removed
-        -- "vcard";
+        -- "vcard";  -- This module must be removed
 
         "profile";
     }
@@ -29,4 +28,5 @@ PEP nodes are updated when the vCard is changed..
 
 Requires Prosody **trunk** as of 2014-05-29. Won't work in 0.10.x.
 
-It depends on the new [mod\_pep\_plus][doc:modules:mod_pep_plus] for PEP support.
+It depends on the trunk version of [mod\_pep][doc:modules:mod_pep] for PEP support, 
+previously known as [mod\_pep\_plus][doc:modules:mod_pep_plus].
