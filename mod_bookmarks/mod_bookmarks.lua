@@ -139,4 +139,7 @@ module:hook("iq-get/bare/jabber:iq:private:query", on_retrieve_private_xml);
 module:hook("iq-set/bare/jabber:iq:private:query", on_publish_private_xml);
 module:hook("resource-bind", on_resource_bind);
 module:hook("item-published/storage:bookmarks", on_item_published);
-module:hook("node-created", on_node_created);
+module:handle_items("pep-service", function (event)
+	local service = event.item.service;
+	module:hook_object_event(service.events, "node-created", on_node_created);
+end, function () end, true);
