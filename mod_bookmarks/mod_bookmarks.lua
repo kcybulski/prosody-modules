@@ -135,8 +135,13 @@ local function on_node_created(event)
 	end
 end
 
-module:hook("iq-get/bare/jabber:iq:private:query", on_retrieve_private_xml);
-module:hook("iq-set/bare/jabber:iq:private:query", on_publish_private_xml);
+module:hook("iq/bare/jabber:iq:private:query", function (event)
+	if event.stanza.attr.type == "get" then
+		return on_retrieve_private_xml(event);
+	else
+		return on_publish_private_xml(event);
+	end
+end, 1);
 module:hook("resource-bind", on_resource_bind);
 module:hook("item-published/storage:bookmarks", on_item_published);
 module:handle_items("pep-service", function (event)
