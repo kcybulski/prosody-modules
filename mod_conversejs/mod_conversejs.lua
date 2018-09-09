@@ -59,6 +59,12 @@ module:provides("http", {
 				registration_domain = allow_registration and module.host or nil;
 			};
 
+			if type(more_options) == "table" then
+				for k,v in pairs(more_options) do
+					converse_options[k] = v;
+				end
+			end
+
 			event.response.headers.content_type = "text/html";
 			return template:format(json_encode(converse_options));
 		end;
