@@ -33,13 +33,10 @@ the *socket listen* section of /etc/dovecot/dovecot.conf, and match the
 socket path in Prosody's dovecot\_auth\_socket setting.
 
     service auth {
-        socket listen {
-            client {
-                path = /var/spool/prosody/private/auth-client
-                    mode = 0660
-                    user = prosody
-                    group = prosody
-            }
+        unix_listener /var/spool/prosody/private/auth-client {
+            mode = 0660
+            user = prosody
+            group = prosody
         }
     }
 
