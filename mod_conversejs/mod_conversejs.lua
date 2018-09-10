@@ -76,6 +76,13 @@ module:provides("http", {
 			event.response.headers.content_type = "text/html";
 			return html_template:format(js_template:format(json_encode(converse_options)));
 		end;
+
+		["GET /prosody-converse.js"] = function (event)
+			local converse_options = get_converse_options();
+
+			event.response.headers.content_type = "application/javascript";
+			return js_template:format(json_encode(converse_options));
+		end;
 	}
 });
 
