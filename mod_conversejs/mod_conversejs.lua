@@ -9,7 +9,7 @@ local has_ws = pcall(function ()
 	module:depends("websocket");
 end);
 
-local template = [[
+local html_template = [[
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,10 +37,12 @@ local template = [[
 </dl>
 <p><a href="https://xmpp.org/software/clients.html">More clients...</a></p>
 </noscript>
-<script>converse.initialize(%s);</script>
+<script>%s</script>
 </body>
 </html>
 ]]
+
+js_template = "converse.initialize(%s);";
 
 local more_options = module:get_option("conversejs_options");
 
@@ -66,7 +68,7 @@ module:provides("http", {
 			end
 
 			event.response.headers.content_type = "text/html";
-			return template:format(json_encode(converse_options));
+			return html_template:format(js_template:format(json_encode(converse_options)));
 		end;
 	}
 });
