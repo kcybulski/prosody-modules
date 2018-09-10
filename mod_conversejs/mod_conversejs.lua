@@ -46,26 +46,32 @@ js_template = "converse.initialize(%s);";
 
 local more_options = module:get_option("conversejs_options");
 
+local function get_converse_options()
+	local allow_registration = module:get_option_boolean("allow_registration", false);
+	local converse_options = {
+		bosh_service_url = module:http_url("bosh","/http-bind");
+		websocket_url = has_ws and module:http_url("websocket","xmpp-websocket"):gsub("^http", "ws") or nil;
+		authentication = module:get_option_string("authentication") == "anonymous" and "anonymous" or "login";
+		jid = module.host;
+		default_domain = module.host;
+		domain_placeholder = module.host;
+		allow_registration = allow_registration;
+		registration_domain = allow_registration and module.host or nil;
+	};
+
+	if type(more_options) == "table" then
+		for k,v in pairs(more_options) do
+			converse_options[k] = v;
+		end
+	end
+
+	return converse_options;
+end
+
 module:provides("http", {
 	route = {
 		GET = function (event)
-			local allow_registration = module:get_option_boolean("allow_registration", false);
-			local converse_options = {
-				bosh_service_url = module:http_url("bosh","/http-bind");
-				websocket_url = has_ws and module:http_url("websocket","xmpp-websocket"):gsub("^http", "ws") or nil;
-				authentication = module:get_option_string("authentication") == "anonymous" and "anonymous" or "login";
-				jid = module.host;
-				default_domain = module.host;
-				domain_placeholder = module.host;
-				allow_registration = allow_registration;
-				registration_domain = allow_registration and module.host or nil;
-			};
-
-			if type(more_options) == "table" then
-				for k,v in pairs(more_options) do
-					converse_options[k] = v;
-				end
-			end
+			local converse_options = get_converse_options();
 
 			event.response.headers.content_type = "text/html";
 			return html_template:format(js_template:format(json_encode(converse_options)));
