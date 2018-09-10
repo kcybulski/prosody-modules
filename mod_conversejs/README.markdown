@@ -36,10 +36,10 @@ whether to configure Converse.js to use `login` or `anonymous` mode.
 Connection methods
 ------------------
 
-It also determines the [BOSH][mod_bosh] and
-[WebSocket][mod_websocket] URL automatically, see their respective
-documentation for how to configure them. Both connection methods are
-loaded automatically.
+It also determines the [BOSH][doc:modules:mod_bosh] and
+[WebSocket][doc:modules:mod_websocket] URL automatically, see their
+respective documentation for how to configure them. Both connection
+methods are loaded automatically.
 
 HTTP
 ----
