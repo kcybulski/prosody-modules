@@ -22,6 +22,8 @@ local rm = require "core.rostermanager";
 local st = require "util.stanza";
 local array = require "util.array";
 
+local new_id = require "util.id".short;
+
 local host = module.host;
 local sessions = hosts[host].sessions;
 
@@ -30,7 +32,7 @@ local roster_url = module:get_option_string("http_roster_url", "http://localhost
 -- Send a roster push to the named user, with the given roster, for the specified
 -- contact's roster entry. Used to notify clients of changes/removals.
 local function roster_push(username, roster, contact_jid)
-	local stanza = st.iq({type="set"})
+	local stanza = st.iq({type="set", id=new_id()})
 		:tag("query", {xmlns = "jabber:iq:roster" });
 	local item = roster[contact_jid];
 	if item then
