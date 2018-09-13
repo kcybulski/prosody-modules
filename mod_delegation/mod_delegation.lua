@@ -13,6 +13,8 @@ local jid = require("util.jid")
 local st = require("util.stanza")
 local set = require("util.set")
 
+local new_id = require("util.id").short;
+
 local delegation_session = module:shared("/*/delegation/session")
 
 -- FIXME: temporarily needed for disco_items_hook, to be removed when clean implementation is done
@@ -252,11 +254,11 @@ end
 local function forward_iq(stanza, ns_data)
 	local to_jid = ns_data.connected
 	stanza.attr.xmlns = 'jabber:client'
-	local iq_stanza  = st.iq({ from=module.host, to=to_jid, type="set" })
+	local iq_id = new_id();
+	local iq_stanza  = st.iq({ from=module.host, to=to_jid, type="set", id = iq_id })
 		:tag("delegation", { xmlns=_DELEGATION_NS })
 		:tag("forwarded", { xmlns=_FORWARDED_NS })
 		:add_child(stanza)
-	local iq_id = iq_stanza.attr.id
 	-- we save the original stanza to check the managing entity result
 	if not stanza_cache[to_jid] then stanza_cache[to_jid] = {} end
 	stanza_cache[to_jid][iq_id] = stanza
@@ -475,10 +477,9 @@ function disco_nest(namespace, entity_jid)
 	for _, prefix in ipairs(_PREFIXES) do
 		local node = prefix..namespace
 
-		local iq = st.iq({from=module.host, to=entity_jid, type='get'})
+		local iq_id = new_id();
+		local iq = st.iq({from=module.host, to=entity_jid, type='get', id = iq_id })
 			:tag('query', {xmlns=_DISCO_INFO_NS, node=node})
-
-		local iq_id = iq.attr.id
 
 		module:hook("iq-result/host/"..iq_id, disco_result)
 		module:hook("iq-error/host/"..iq_id, disco_error)
