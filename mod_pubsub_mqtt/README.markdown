@@ -16,7 +16,7 @@ Details
 
 MQTT has the concept of 'topics' (similar to XMPP's pubsub 'nodes').
 mod\_pubsub\_mqtt maps pubsub nodes to MQTT topics of the form
-`HOST/NODE', e.g.`pubsub.example.org/mynode\`.
+`HOST/NODE`, e.g.`pubsub.example.org/mynode`.
 
 ### Limitations
 
