@@ -192,7 +192,7 @@ end
 local function pep_service_added(event)
 	local item = event.item;
 	local service, username = item.service, jid_split(item.jid);
-	service.events.add_handler("item-published", on_publish);
+	module:hook_object_event(service.events, "item-published", on_publish);
 	local data = storage:get(username);
 	if data then
 		update_pep(username, data, service);
