@@ -14,8 +14,8 @@ local html_template = [[
 <html>
 <head>
 <meta charset="utf-8">
-<link rel="stylesheet" type="text/css" media="screen" href="https://cdn.conversejs.org/4.0.0/css/converse.min.css"/>
-<script charset="utf-8" src="https://cdn.conversejs.org/4.0.0/dist/converse.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="https://cdn.conversejs.org/4.0.1/css/converse.min.css"/>
+<script charset="utf-8" src="https://cdn.conversejs.org/4.0.1/dist/converse.min.js"></script>
 </head>
 <body>
 <noscript>
