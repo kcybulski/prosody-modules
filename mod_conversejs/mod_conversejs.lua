@@ -3,6 +3,7 @@
 
 local json_encode = require"util.json".encode;
 
+module:depends"http";
 module:depends"bosh";
 
 local has_ws = pcall(function ()
