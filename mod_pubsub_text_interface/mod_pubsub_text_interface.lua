@@ -12,9 +12,10 @@ Commands:
 - `help` - this help message
 - `list` - list available nodes
 - `subscribe node` - subscribe to a node
-- `unsubscribe node` - unsubscribe from a node
-- `last node` - send the last item (again)
-]];
+- `unsubscribe node` - unsubscribe from a node]];
+if pubsub.get_last_item then -- COMPAT not available in 0.10
+	help = help ..  "\n- `last node` - send the last item (again)"
+end
 
 module:hook("message/host", function (event)
 	local origin, stanza = event.origin, event.stanza;
@@ -48,7 +49,7 @@ module:hook("message/host", function (event)
 	elseif command == "unsubscribe" then
 		local ok, err = pubsub:remove_subscription(node_arg, from, jid.bare(from));
 		reply:body(ok and "OK" or err);
-	elseif command == "last" then
+	elseif command == "last" and pubsub.get_last_item then
 		local ok, item_id, item = pubsub:get_last_item(node_arg, from);
 		if not ok then
 			reply:body(item_id); -- err message
