@@ -17,7 +17,8 @@ local ldap_scope = module:get_option_string("ldap_scope", "subtree");
 local ldap_filter = module:get_option_string("ldap_filter", "(uid=$user)"):gsub("%%s", "$user", 1);
 local ldap_base = assert(module:get_option_string("ldap_base"), "ldap_base is a required option for ldap");
 local ldap_mode = module:get_option_string("ldap_mode", "bind");
-local ldap_admins = module:get_option_string("ldap_admin_filter");
+local ldap_admins = module:get_option_string("ldap_admin_filter",
+	module:get_option_string("ldap_admins")); -- COMPAT with mistake in documentation
 local host = ldap_filter_escape(module:get_option_string("realm", module.host));
 
 -- Initiate connection
