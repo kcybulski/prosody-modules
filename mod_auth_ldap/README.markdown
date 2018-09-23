@@ -30,17 +30,17 @@ ldap_base = "ou=people,dc=example,dc=com"
 
 Further LDAP options are:
 
-  Name             Description                                                                                                            Default value
-  ---------------- ---------------------------------------------------------------------------------------------------------------------- --------------------
-  ldap\_base       LDAP base directory which stores user accounts                                                                         **Required field**
-  ldap\_server     Space-separated list of hostnames or IPs, optionally with port numbers (e.g. "localhost:8389")                         `"localhost"`
-  ldap\_rootdn     The distinguished name to auth against                                                                                 `""` (anonymous)
-  ldap\_password   Password for rootdn                                                                                                    `""`
-  ldap\_filter     Search filter, with `$user` and `$host` substituted for user- and hostname                                             `"(uid=$user)"`
-  ldap\_scope      Search scope. other values: "base" and "onelevel"                                                                      `"subtree"`
-  ldap\_tls        Enable TLS (StartTLS) to connect to LDAP (can be true or false). The non-standard 'LDAPS' protocol is not supported.   `false`
-  ldap\_mode       How passwords are validated.                                                                                           `"bind"`
-  ldap\_admins     Search filter to match admins, works like ldap\_filter
+  Name                  Description                                                                                                            Default value
+  --------------------- ---------------------------------------------------------------------------------------------------------------------- --------------------
+  ldap\_base            LDAP base directory which stores user accounts                                                                         **Required field**
+  ldap\_server          Space-separated list of hostnames or IPs, optionally with port numbers (e.g. "localhost:8389")                         `"localhost"`
+  ldap\_rootdn          The distinguished name to auth against                                                                                 `""` (anonymous)
+  ldap\_password        Password for rootdn                                                                                                    `""`
+  ldap\_filter          Search filter, with `$user` and `$host` substituted for user- and hostname                                             `"(uid=$user)"`
+  ldap\_scope           Search scope. other values: "base" and "onelevel"                                                                      `"subtree"`
+  ldap\_tls             Enable TLS (StartTLS) to connect to LDAP (can be true or false). The non-standard 'LDAPS' protocol is not supported.   `false`
+  ldap\_mode            How passwords are validated.                                                                                           `"bind"`
+  ldap\_admin\_filter   Search filter to match admins, works like ldap\_filter
 
 **Note:** lua-ldap reads from `/etc/ldap/ldap.conf` and other files like
 `~prosody/.ldaprc` if they exist. Users wanting to use a particular TLS
