@@ -36,11 +36,14 @@ plaintext content and metadata will be shared with centralized servers
 The [Converse](http://conversejs.org/) client has support for registering push
 "app servers" against a MUC.
 
-You specify app servers with the [push_app_servers](https://github.com/conversejs/converse.js/blob/master/docs/source/configuration.rst#push_app_servers)
+You specify app servers with the [push_app_servers](https://conversejs.org/docs/html/configuration.html#push-app-servers)
 config setting.
 
-And then you need to set [allow_muc_invitations](https://github.com/conversejs/converse.js/blob/master/docs/source/configuration.rst#allow_muc_invitations)
+And then you need to set [allow_muc_invitations](https://conversejs.org/docs/html/configuration.html#allow-muc-invitations)
 to `true` so that these app servers are also registered against MUC domains.
+
+Additionally you need to set [auto_register_muc_nickname](https://conversejs.org/docs/html/configuration.html#auto-register-muc-nickname)
+to true.
 
 Then, when you enter a MUC, Converse will try to automatically registered the
 app servers against the MUC domain.
