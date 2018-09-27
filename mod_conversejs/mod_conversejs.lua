@@ -76,6 +76,16 @@ local function get_converse_options()
 	return converse_options;
 end
 
+local add_tags = module:get_option_set("conversejs_tags");
+
+if add_tags then
+	local tags = {};
+	for tag in add_tags do
+		table.insert(tags, tag);
+	end
+	html_template = html_template:gsub("</head>", table.concat(tags, "\n"):gsub("%%", "%%").."\n</head>");
+end
+
 module:provides("http", {
 	route = {
 		GET = function (event)
