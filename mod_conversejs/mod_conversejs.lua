@@ -10,13 +10,19 @@ local has_ws = pcall(function ()
 	module:depends("websocket");
 end);
 
-local html_template = [[
+local cdn_url = module:get_option_string("conversejs_cdn", "https://cdn.conversejs.org");
+
+local version = module:get_option_string("conversejs_version", "4.0.1");
+local js_url = module:get_option_string("conversejs_script", cdn_url.."/"..version.."/dist/converse.min.js");
+local css_url = module:get_option_string("conversejs_css", cdn_url.."/"..version.."/css/converse.min.css");
+
+local html_template = ([[
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<link rel="stylesheet" type="text/css" media="screen" href="https://cdn.conversejs.org/4.0.1/css/converse.min.css"/>
-<script charset="utf-8" src="https://cdn.conversejs.org/4.0.1/dist/converse.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="$css_url"/>
+<script charset="utf-8" src="$js_url"></script>
 <title>Prosody IM and Converse.js</title>
 </head>
 <body>
@@ -42,7 +48,7 @@ local html_template = [[
 <script>%s</script>
 </body>
 </html>
-]]
+]]):gsub("$([%w_]+)", { js_url = js_url, css_url = css_url });
 
 js_template = "converse.initialize(%s);";
 
