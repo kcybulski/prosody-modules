@@ -334,7 +334,7 @@ function module.command(args)
 			if user then
 				assert(expire(user, host));
 			else
-				for user in datamanager.users(host, module.name, "list") do
+				for user in assert(datamanager.users(host, module.name, "list")) do
 					expire(user, host);
 				end
 			end
