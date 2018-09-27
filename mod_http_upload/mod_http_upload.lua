@@ -326,6 +326,7 @@ module:provides("http", {
 module:log("info", "URL: <%s>; Storage path: %s", module:http_url(), storage_path);
 
 function module.command(args)
+	datamanager = require "core.storagemanager".olddm;
 	-- luacheck: ignore 421/user
 	if args[1] == "expire" then
 		local split = require "util.jid".prepped_split;
