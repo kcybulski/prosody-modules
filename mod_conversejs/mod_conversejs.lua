@@ -87,6 +87,7 @@ if add_tags then
 end
 
 module:provides("http", {
+	title = "Converse.js";
 	route = {
 		GET = function (event)
 			local converse_options = get_converse_options();
