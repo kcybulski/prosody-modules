@@ -326,10 +326,18 @@ module:provides("http", {
 module:log("info", "URL: <%s>; Storage path: %s", module:http_url(), storage_path);
 
 function module.command(args)
+	-- luacheck: ignore 421/user
 	if args[1] == "expire" then
 		local split = require "util.jid".prepped_split;
 		for i = 2, #args do
-			assert(expire(split(args[i])));
+			local user, host = split(args[i]);
+			if user then
+				assert(expire(user, host));
+			else
+				for user in datamanager.users(host, module.name, "list") do
+					expire(user, host);
+				end
+			end
 		end
 	end
 end
