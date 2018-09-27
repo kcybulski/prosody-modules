@@ -52,7 +52,7 @@ local html_template = ([[
 
 js_template = "converse.initialize(%s);";
 
-local more_options = module:get_option("conversejs_options");
+local user_options = module:get_option("conversejs_options");
 
 local function get_converse_options()
 	local allow_registration = module:get_option_boolean("allow_registration", false);
@@ -67,8 +67,8 @@ local function get_converse_options()
 		registration_domain = allow_registration and module.host or nil;
 	};
 
-	if type(more_options) == "table" then
-		for k,v in pairs(more_options) do
+	if type(user_options) == "table" then
+		for k,v in pairs(user_options) do
 			converse_options[k] = v;
 		end
 	end
