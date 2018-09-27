@@ -30,6 +30,7 @@ local function handler(event)
 	for _, item in ipairs(host_items) do
 		if module.name ~= item._provided_by then
 			table.insert(http_apps, {
+				title = item.title or item.name;
 				name = item.name;
 				module = "mod_" .. item._provided_by;
 				url = relative(canonical, module:http_url(item.name, item.default_path));
