@@ -66,10 +66,52 @@ conversejs_options = {
 Note that the following options are automatically provided, and
 **overriding them may cause problems**:
 
--   `authentication` *based on Prosodys authentication settings*
+-   `authentication` *based on Prosody's authentication settings*
 -   `jid` *the current `VirtualHost`*
 -   `bosh_service_url`
 -   `websocket_url` *if `mod_websocket` is available*
+
+Loading resources
+-----------------
+
+By default the module will load the main script and CSS from cdn.conversejs.org. For privacy or performance
+reasons you may want to load the scripts from somewhere else, simply use the conversejs_cdn option:
+
+``` {.lua}
+conversejs_cdn = "https://cdn.example.com"
+```
+
+To select a specific version of Converse.js, you may override the version:
+
+``` {.lua}
+conversejs_version = "4.0.1"
+```
+
+Note that versions other than the default may not have been tested with this module, and may include incompatible changes.
+
+Finally, if you can override all of the above and just specify links directly to the CSS and JS files:
+
+``` {.lua}
+conversejs_script = "https://example.com/my-converse.js"
+conversejs_css = "https://example.com/my-converse.css"
+```
+
+Additional tags
+---------------
+
+To add additional tags to the module, such as custom CSS or scripts, you may use the conversejs_tags option:
+
+``` {.lua}
+conversejs_tags = {
+        -- Load custom CSS
+        [[<link rel="stylesheet" href="https://example.org/css/custom.css">]];
+
+        -- Load libsignal-protocol.js for OMEMO support (GPLv3; be aware of licence implications)
+        [[<script src="https://cdn.conversejs.org/3rdparty/libsignal-protocol.min.js"></script>]];
+}
+```
+
+The example above uses the `[[` and `]]` syntax simply because it will not conflict with any embedded quotes.
 
 Compatibility
 =============
