@@ -295,6 +295,7 @@ function handle_refresh_multi(event)
 	return true;
 end
 
+module:depends("http");
 module:provides("http", {
 	route = {
 		["POST /refresh"] = handle_refresh_multi;
