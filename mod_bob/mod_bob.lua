@@ -12,11 +12,7 @@ local cache = {};
 local in_flight = {};
 
 local function check_cid(src)
-	-- TODO: figure out why ^ can’t be used at the beginning of the pattern.
-	for cid in src:gmatch("cid:(%w+%+%w+@bob%.xmpp%.org)$") do
-		return cid;
-	end
-	return nil;
+	return src:match("^cid:(%w+%+%w+@bob%.xmpp%.org)$");
 end
 
 local function handle_data_carrier(tag)
