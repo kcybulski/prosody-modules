@@ -152,6 +152,15 @@ if pastebin_private_messages then
 	module:hook("message/full", check_message);
 end
 
+module:hook("muc-disco#info", function (event)
+	local reply, form, formdata = event.reply, event.form, event.formdata;
+	reply:tag("feature", { var = "https://modules.prosody.im/mod_pastebin" }):up();
+	table.insert(form, { name = "https://modules.prosody.im/mod_pastebin#max_lines", datatype = "xs:integer" });
+	table.insert(form, { name = "https://modules.prosody.im/mod_pastebin#max_characters", datatype = "xs:integer" });
+	formdata["https://modules.prosody.im/mod_pastebin#max_lines"] = line_threshold;
+	formdata["https://modules.prosody.im/mod_pastebin#max_characters"] = length_threshold;
+end);
+
 function expire_pastes(time)
 	time = time or os_time(); -- COMPAT with 0.5
 	if pastes[1] then
