@@ -12,7 +12,7 @@ end);
 
 local cdn_url = module:get_option_string("conversejs_cdn", "https://cdn.conversejs.org");
 
-local version = module:get_option_string("conversejs_version", "4.0.1");
+local version = module:get_option_string("conversejs_version", "");
 if version ~= "" then version = "/" .. version end
 local js_url = module:get_option_string("conversejs_script", cdn_url..version.."/dist/converse.min.js");
 local css_url = module:get_option_string("conversejs_css", cdn_url..version.."/css/converse.min.css");
