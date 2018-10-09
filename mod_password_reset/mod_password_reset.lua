@@ -16,8 +16,9 @@ local max_token_age = module:get_option_number("password_reset_validity", 86400)
 
 local serve = module:depends"http_files".serve;
 
-module:depends"adhoc";
-module:depends"http";
+module:depends("adhoc");
+module:depends("http");
+local password_policy = module:depends("password_policy");
 
 local form_template = assert(module:load_resource("password_reset/password_reset.html")):read("*a");
 local result_template = assert(module:load_resource("password_reset/password_result.html")):read("*a");
@@ -38,6 +39,7 @@ function generate_page(event)
 	return apply_template(form_template, {
 		jid = reset_info.user.."@"..module.host;
 		token = token;
+		min_password_length = password_policy.get_policy().length;
 	});
 end
 
@@ -52,6 +54,16 @@ function handle_form(event)
 
 	if not reset_info or os.difftime(os.time(), reset_info.generated_at) > max_token_age then
 		return apply_template(result_template, { classes = "alert-danger", message = "This link has expired." })
+	end
+
+	local policy_ok, policy_err = password_policy.check_password(password);
+	if not policy_ok then
+		return apply_template(form_template, {
+			classes = "alert-danger", message = "Unsuitable password: "..policy_err;
+			jid = reset_info.user.."@"..module.host;
+			token = token;
+			min_password_length = password_policy.get_policy().length;
+		})
 	end
 
 	local ok, err = usermanager.set_password(reset_info.user, password, module.host);
