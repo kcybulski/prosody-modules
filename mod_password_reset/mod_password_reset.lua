@@ -5,7 +5,8 @@ local jid_prepped_split = require "util.jid".prepped_split;
 local http_formdecode = require "net.http".formdecode;
 local usermanager = require "core.usermanager";
 local dataforms_new = require "util.dataforms".new;
-local tohtml = require "util.stanza".xml_escape
+local st = require "util.stanza";
+local apply_template = require"util.interpolation".new("%b{}", st.xml_escape);
 local tostring = tostring;
 
 local reset_tokens = module:open_store();
@@ -17,16 +18,8 @@ local serve = module:depends"http_files".serve;
 module:depends"adhoc";
 module:depends"http";
 
-local function apply_template(template, args)
-	return
-		template:gsub("{{([^}]*)}}", function (k)
-			if args[k] then
-				return tohtml(args[k])
-			else
-				return k
-			end
-		end)
-end
+local form_template = assert(module:load_resource("password_reset/password_reset.html")):read("*a");
+local result_template = assert(module:load_resource("password_reset/password_result.html")):read("*a");
 
 function generate_page(event)
 	local request, response = event.request, event.response;
@@ -38,14 +31,13 @@ function generate_page(event)
 
 	if not reset_info or os.difftime(os.time(), reset_info.generated_at) > max_token_age then
 		module:log("warn", "Expired token: %s", token or "<none>");
-		local template = assert(module:load_resource("password_reset/password_result.html")):read("*a");
-
-		return apply_template(template, { classes = "alert-danger", message = "This link has expired." })
+		return apply_template(result_template, { classes = "alert-danger", message = "This link has expired." })
 	end
 
-	local template = assert(module:load_resource("password_reset/password_reset.html")):read("*a");
-
-	return apply_template(template, { jid = reset_info.user.."@"..module.host, token = token });
+	return apply_template(form_template, {
+		jid = reset_info.user.."@"..module.host;
+		token = token;
+	});
 end
 
 function handle_form(event)
@@ -55,12 +47,10 @@ function handle_form(event)
 
 	local reset_info = reset_tokens:get(token);
 
-	local template = assert(module:load_resource("password_reset/password_result.html")):read("*a");
-
 	response.headers.content_type = "text/html; charset=utf-8";
 
 	if not reset_info or os.difftime(os.time(), reset_info.generated_at) > max_token_age then
-		return apply_template(template, { classes = "alert-danger", message = "This link has expired." })
+		return apply_template(result_template, { classes = "alert-danger", message = "This link has expired." })
 	end
 
 	local ok, err = usermanager.set_password(reset_info.user, password, module.host);
@@ -68,12 +58,14 @@ function handle_form(event)
 	if ok then
 		reset_tokens:set(token, nil);
 
-		return apply_template(template, { classes = "alert-success",
+		return apply_template(result_template, { classes = "alert-success",
 			message = "Your password has been updated! Happy chatting :)" })
 	else
 		module:log("debug", "Resetting password failed: " .. tostring(err));
-
-		return apply_template(template, { classes = "alert-danger", message = "An unknown error has occurred." })
+		return apply_template(result_template, {
+			classes = "alert-danger";
+			message = "An unknown error has occurred.";
+		})
 	end
 end
 
