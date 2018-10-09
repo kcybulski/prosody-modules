@@ -23,6 +23,10 @@ function check_password(password)
 	return true;
 end
 
+function get_policy()
+	return options;
+end
+
 function handler(event)
 	local origin, stanza = event.origin, event.stanza;
 
