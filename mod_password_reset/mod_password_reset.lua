@@ -1,6 +1,7 @@
 local adhoc_new = module:require "adhoc".new;
 local adhoc_simple_form = require "util.adhoc".new_simple_form;
 local new_token = require "util.id".long;
+local new_error_id = require "util.id".short;
 local jid_prepped_split = require "util.jid".prepped_split;
 local http_formdecode = require "net.http".formdecode;
 local usermanager = require "core.usermanager";
@@ -61,10 +62,11 @@ function handle_form(event)
 		return apply_template(result_template, { classes = "alert-success",
 			message = "Your password has been updated! Happy chatting :)" })
 	else
-		module:log("debug", "Resetting password failed: " .. tostring(err));
+		local error_id = new_error_id();
+		module:log("warn", "Resetting password for %s failed: %s [%s]", reset_info.user, err, error_id);
 		return apply_template(result_template, {
 			classes = "alert-danger";
-			message = "An unknown error has occurred.";
+			message = "An unknown error has occurred. Please contact your administrator and quote error id '"..error_id.."'";
 		})
 	end
 end

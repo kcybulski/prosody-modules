@@ -234,7 +234,7 @@ end
 function iq_success(origin, stanza)
 	local reply = data_cache.success;
 	if reply == nil then
-		reply = st.iq({type='result', from=stanza.attr.to or component_host});
+		reply = st.reply(stanza);
 		data_cache.success = reply;
 	end
 	reply.attr.id = stanza.attr.id;
