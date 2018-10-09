@@ -17,7 +17,10 @@ options.length = options.length or 8;
 local st = require "util.stanza";
 
 function check_password(password)
-	return #password >= options.length;
+	if #password < options.length then
+		return nil, ("Password is too short (minimum %d characters)"):format(options.length);
+	end
+	return true;
 end
 
 function handler(event)
