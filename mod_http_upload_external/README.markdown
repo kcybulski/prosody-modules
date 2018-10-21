@@ -110,7 +110,11 @@ Then you need to validate the auth token.
 It is probable that a future v3 will be specified that allows carrying information about the uploader identity, allowing
 the implementation of per-user quotas and limits.
 
-Implementations may implement one or more versions of the protocol simultaneously. The XMPP server generates the URLs and ultimately selects which version will be used.
+Implementations may implement one or more versions of the protocol simultaneously. The XMPP server generates the URLs and
+ultimately selects which version will be used.
+
+XMPP servers MUST only generate URLs with **one** of the versions listed here. However in case multiple parameters are
+present, upload services MUST **only** use the token from the highest parameter version that they support.
 
 #### Version 1 (v)
 
