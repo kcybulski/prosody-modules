@@ -195,7 +195,7 @@ This prevents the browser interpreting scripts and other resources that may pote
 Some browsers may also benefit from explicitly telling them not to try guessing the type of a file:
 
 ```
-X-Content-Type-Options "nosniff"
+X-Content-Type-Options: nosniff
 ```
 
 #### Security headers
@@ -204,7 +204,7 @@ The following headers should be included to provide additional sandboxing of res
 content is not understood or trusted by the upload service:
 
 ```
-Content-Security-Policy: "default-src 'none'"
-X-Content-Security-Policy: "default-src 'none'"
-X-WebKit-CSP: "default-src 'none'"
+Content-Security-Policy: default-src 'none'
+X-Content-Security-Policy: default-src 'none'
+X-WebKit-CSP: default-src 'none'
 ```
