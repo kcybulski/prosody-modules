@@ -97,7 +97,24 @@ GET https://example.com/upload/foo/bar.jpg
 
 The only tricky logic is in validation of the PUT request. Firstly, don't overwrite existing files (return 409 Conflict).
 
-Then you need to validate the auth token. This will be in the URL query parameter 'v'. If it is absent, fail with 403 Forbidden.
+Then you need to validate the auth token.
+
+### Validating the auth token
+
+
+| Version | Supports                                                                                                |
+|:--------|:--------------------------------------------------------------------------------------------------------|
+| v       | Validates only filename and size. Does not support file type restrictions by the XMPP server.           |
+| v2      | Validates the filename, size and MIME type. This allows the server to implement MIME type restrictions. |
+
+It is probable that a future v3 will be specified that allows carrying information about the uploader identity, allowing
+the implementation of per-user quotas and limits.
+
+Implementations may implement one or more versions of the protocol simultaneously. The XMPP server generates the URLs and ultimately selects which version will be used.
+
+#### Version 1 (v)
+
+The token will be in the URL query parameter 'v'. If it is absent, fail with 403 Forbidden.
 
 Calculate the expected auth token by reading the value of the Content-Length header of the PUT request. E.g. for a 1MB file
 will have a Content-Length of '1048576'. Append this to the uploaded file name, separated by a space (0x20) character.
@@ -112,5 +129,82 @@ calculated_auth_token = hmac_sha256("foo/bar.jpg 1048576", "secret string")
 
 If this is not equal to the 'v' parameter provided in the upload URL, reject the upload with 403 Forbidden.
 
-Note: your language/environment may provide a function for doing a constant-time comparison of these, to guard against
-timing attacks that may be used to discover the secret key.
+**Security note:** When comparing `calculated_auth_token` with the token provided in the URL, you must use a constant-time string
+comparison, otherwise an attacker may be able to discover your secret key. Most languages/environments provide such a function, such
+as `hash_equals()` in PHP, `hmac.compare_digest()` in Python, or `ConstantTimeCompare()` from `crypto/subtle` in Go.
+
+#### Version 2 (v2)
+
+The token will be in the URL query parameter 'v2'. If it is absent, fail with 403 Forbidden.
+
+| Input         | Example     |Read from                                                            |
+|:--------------|:------------|:--------------------------------------------------------------------|
+|`file_path`    | foo/bar.jpg | The URL of the PUT request, with the service's base prefix removed. |
+|`content_size` | 1048576     | Content-Size header                                                 |
+|`content_type` | image/jpeg  | Content-Type header                                                 |
+
+The parameters should be joined into a single string, separated by NUL bytes (`\0`):
+
+```
+  signed_string = ( file_path + '\0' + content_size + '\0' + content_type )
+```
+
+```
+  signed_string = "foo/bar.jpg\01048576\0image/jpeg"
+```
+
+The expected auth token is the SHA256 HMAC of this string, using the configured secret key as the key. E.g.:
+
+```
+calculated_auth_token = hmac_sha256(signed_string, "secret string")
+```
+
+If this is not equal to the 'v2' parameter provided in the upload URL, reject the upload with 403 Forbidden.
+
+**Security note:** When comparing `calculated_auth_token` with the token provided in the URL, you must use a constant-time string
+comparison, otherwise an attacker may be able to discover your secret key. Most languages/environments provide such a function, such
+as `hash_equals()` in PHP, `hmac.compare_digest()` in Python, or `ConstantTimeCompare()` from `crypto/subtle` in Go.
+
+### Security considerations
+
+#### HTTPS
+
+All uploads and downloads should only be over HTTPS. The security of the served content is protected only
+by the uniqueness present in the URLs themselves, and not using HTTPS may leak the URLs and contents to third-parties.
+
+Implementations should consider including HSTS and HPKP headers, with consent of the administrator.
+
+#### MIME types
+
+If the upload Content-Type header matches any of the following MIME types, it MUST be preserved and included in the Content-Type
+of any GET requests made to download the file:
+
+- `image/*`
+- `video/*`
+- `audio/*`
+- `text/plain`
+
+It is recommended that other MIME types are preserved, but served with the addition of the following header:
+
+```
+Content-Disposition: attachment
+```
+
+This prevents the browser interpreting scripts and other resources that may potentially be malicious.
+
+Some browsers may also benefit from explicitly telling them not to try guessing the type of a file:
+
+```
+X-Content-Type-Options "nosniff"
+```
+
+#### Security headers
+
+The following headers should be included to provide additional sandboxing of resources, considering the uploaded
+content is not understood or trusted by the upload service:
+
+```
+Content-Security-Policy: "default-src 'none'"
+X-Content-Security-Policy: "default-src 'none'"
+X-WebKit-CSP: "default-src 'none'"
+```
