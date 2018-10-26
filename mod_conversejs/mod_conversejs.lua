@@ -4,7 +4,10 @@
 local json_encode = require"util.json".encode;
 
 module:depends"http";
-module:depends"bosh";
+
+local has_bosh = pcall(function ()
+	module:depends"bosh";
+end);
 
 local has_ws = pcall(function ()
 	module:depends("websocket");
@@ -58,7 +61,7 @@ local user_options = module:get_option("conversejs_options");
 local function get_converse_options()
 	local allow_registration = module:get_option_boolean("allow_registration", false);
 	local converse_options = {
-		bosh_service_url = module:http_url("bosh","/http-bind");
+		bosh_service_url = has_bosh and module:http_url("bosh","/http-bind") or nil;
 		websocket_url = has_ws and module:http_url("websocket","xmpp-websocket"):gsub("^http", "ws") or nil;
 		authentication = module:get_option_string("authentication") == "anonymous" and "anonymous" or "login";
 		jid = module.host;
