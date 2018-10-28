@@ -407,7 +407,11 @@ function save_to_history(self, stanza)
 	end
 
 	-- Policy check
-	if not archiving_enabled(self) then return end -- Don't log
+	if not archiving_enabled(self) then -- Don't log
+		module:log("debug", "Not archiving %s", stanza:top_tag());
+		return;
+	end
+	module:log("debug", "Archiving %s", stanza:top_tag());
 
 	-- And stash it
 	local with = stanza.name
