@@ -109,6 +109,13 @@ local function check_quota(username, host, does_it_fit)
 	return sum < quota;
 end
 
+local measure_slot = function () end
+if module.measure then
+	-- COMPAT 0.9
+	-- module:measure was added in 0.10
+	measure_slot = module:measure("sizes", "slot");
+end
+
 local function handle_request(origin, stanza, xmlns, filename, filesize)
 	local username, host = origin.username, origin.host;
 	-- local clients only
@@ -156,6 +163,8 @@ local function handle_request(origin, stanza, xmlns, filename, filesize)
 	module:add_timer(900, function()
 		pending_slots[slot] = nil;
 	end);
+
+	measure_slot(filesize);
 
 	origin.log("debug", "Given upload slot %q", slot);
 
@@ -213,6 +222,13 @@ module:hook("iq/host/"..legacy_namespace..":request", function (event)
 	return true;
 end);
 
+local measure_upload = function () end
+if module.measure then
+	-- COMPAT 0.9
+	-- module:measure was added in 0.10
+	measure_upload = module:measure("sizes", "upload");
+end
+
 -- http service
 local function upload_data(event, path)
 	local uploader = pending_slots[path];
@@ -252,6 +268,7 @@ local function upload_data(event, path)
 		os.remove(full_filename);
 		return 500;
 	end
+	measure_upload(#event.request.body);
 	module:log("info", "File uploaded by %s to slot %s", uploader, random_dir);
 	return 201;
 end
