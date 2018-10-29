@@ -6,7 +6,7 @@ local pposix = require"util.pposix";
 local measures = {};
 setmetatable(measures, {
 	__index = function (t, k)
-		local m = measure("sizes", "memory."..k); t[k] = m; return m;
+		local m = measure("amount", "memory."..k); t[k] = m; return m;
 	end
 });
 module:hook("stats-update", function ()
