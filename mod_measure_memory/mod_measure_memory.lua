@@ -5,7 +5,7 @@ local measure = require"core.statsmanager".measure;
 local measures = {};
 setmetatable(measures, {
 	__index = function (t, k)
-		local m = measure("sizes", "memory."..k); t[k] = m; return m;
+		local m = measure("amount", "memory."..k); t[k] = m; return m;
 	end
 });
 
