@@ -87,6 +87,9 @@ local function message_handler(event)
 
 	-- Find and query all of the cids not already cached.
 	local tag = stanza:get_child("html", "http://jabber.org/protocol/xhtml-im");
+	if not tag then
+		return;
+	end
 	for body in tag:childtags("body", "http://www.w3.org/1999/xhtml") do
 		find_images(body, jid, room_jid, log);
 	end
