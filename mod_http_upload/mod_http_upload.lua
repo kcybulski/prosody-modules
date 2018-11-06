@@ -113,7 +113,7 @@ local measure_slot = function () end
 if module.measure then
 	-- COMPAT 0.9
 	-- module:measure was added in 0.10
-	measure_slot = module:measure("sizes", "slot");
+	measure_slot = module:measure("slot", "sizes");
 end
 
 local function handle_request(origin, stanza, xmlns, filename, filesize)
@@ -226,7 +226,7 @@ local measure_upload = function () end
 if module.measure then
 	-- COMPAT 0.9
 	-- module:measure was added in 0.10
-	measure_upload = module:measure("sizes", "upload");
+	measure_upload = module:measure("upload", "sizes");
 end
 
 -- http service
