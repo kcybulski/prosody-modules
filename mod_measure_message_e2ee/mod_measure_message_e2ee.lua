@@ -34,10 +34,9 @@ local function message_handler(event)
 		return;
 	end
 
-	local body = stanza:get_child("body");
-	if body ~= nil then
-		local otr_index = body:find("?OTR", 1, true);
-		if otr_index == 1 then
+	local body = stanza:get_child_text("body");
+	if body then
+		if body:sub(1,4) == "?OTR" then
 			count_otr();
 			return;
 		end
