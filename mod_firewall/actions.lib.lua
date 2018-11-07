@@ -198,10 +198,13 @@ function action_handlers.JUMP_CHAIN(name)
 		log('debug', 'chain \"%%s\" returned %%s', %q, tostring(ret));
 		if ret ~= nil then
 			if ret == false then
+				log("debug", "Chain accepted stanza");
 				return pass_return;
 			end
+			log("debug", "Chain rejected stanza");
 			return ret;
 		end
+		log("debug", "Chain did not accept or reject stanza");
 	end]]):format("firewall/chains/"..name, name);
 end
 
