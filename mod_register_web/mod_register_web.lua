@@ -7,6 +7,10 @@ local path_sep = package.config:sub(1,1);
 local json = require "util.json".decode;
 local t_concat = table.concat;
 
+pcall(function ()
+	module:depends("register_limits");
+end);
+
 module:depends"http";
 
 local extra_fields = {
