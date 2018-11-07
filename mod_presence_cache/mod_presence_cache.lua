@@ -86,13 +86,14 @@ local function answer_probe_from_cache(event)
 
 	local cached = bare_cache[bare_cache_key];
 	if not cached then return end
+	local user_bare = jid_bare(origin.full_jid);
 	for jid, presence_bits in pairs(cached) do
 		local presence = st.presence({ to = origin.full_jid, from = jid })
 		if presence_bits.show then
 			presence:tag("show"):text(presence_bits.show):up();
 		end
 		if presence_bits.stamp then
-			presence:tag("delay", { xmlns = "urn:xmpp:delay", from = module.host, stamp = presence_bits.stamp }):up();
+			presence:tag("delay", { xmlns = "urn:xmpp:delay", from = user_bare, stamp = presence_bits.stamp }):up();
 		end
 		origin.send(presence);
 	end
