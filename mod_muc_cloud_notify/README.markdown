@@ -39,16 +39,16 @@ The [Converse](http://conversejs.org/) client has support for registering push
 You specify app servers with the [push_app_servers](https://conversejs.org/docs/html/configuration.html#push-app-servers)
 config setting.
 
-And then you need to set [allow_muc_invitations](https://conversejs.org/docs/html/configuration.html#allow-muc-invitations)
+And then you need to set [enable_muc_push](https://conversejs.org/docs/html/configuration.html#enable-muc-push)
 to `true` so that these app servers are also registered against MUC domains.
 
 Additionally you need to set [auto_register_muc_nickname](https://conversejs.org/docs/html/configuration.html#auto-register-muc-nickname)
 to true.
 
-Then, when you enter a MUC, Converse will try to automatically registered the
-app servers against the MUC domain.
+Then, when you enter a MUC, Converse will try to automatically register your nickname
+on that MUC.
 
-Note: currently Converse currently doesn't let you register separate app servers for
+Note: Converse currently doesn't let you register separate app servers for
 a MUC domain. The same app servers are registered for the MUC domain and your
 own domain.
 
