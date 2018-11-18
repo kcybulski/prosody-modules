@@ -231,6 +231,8 @@ end
 
 -- http service
 local function upload_data(event, path)
+	set_cross_domain_headers(event.response);
+
 	local uploader = pending_slots[path];
 	if not uploader then
 		module:log("warn", "Attempt to upload to unknown slot %q", path);
