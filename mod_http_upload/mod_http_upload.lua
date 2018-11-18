@@ -351,9 +351,7 @@ module:provides("http", {
 		["PUT /*"] = upload_data;
 
 		["OPTIONS /*"] = function (event)
-			if event.request.headers.origin then
-				set_cross_domain_headers(event.response);
-			end
+			set_cross_domain_headers(event.response);
 			return "";
 		end;
 	};
