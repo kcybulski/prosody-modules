@@ -230,6 +230,15 @@ if module.measure then
 end
 
 -- http service
+local function set_cross_domain_headers(response)
+        local headers = response.headers;
+        headers.access_control_allow_methods = "GET, PUT, POST, OPTIONS";
+        headers.access_control_allow_headers = "Content-Type";
+        headers.access_control_max_age = "7200";
+        headers.access_control_allow_origin = response.request.headers.origin or "*";
+        return response;
+end
+
 local function upload_data(event, path)
 	set_cross_domain_headers(event.response);
 
@@ -285,15 +294,6 @@ local headerfix = setmetatable({}, {
 		return v;
 	end
 });
-
-local function set_cross_domain_headers(response)
-        local headers = response.headers;
-        headers.access_control_allow_methods = "GET, PUT, POST, OPTIONS";
-        headers.access_control_allow_headers = "Content-Type";
-        headers.access_control_max_age = "7200";
-        headers.access_control_allow_origin = response.request.headers.origin or "*";
-        return response;
-end
 
 local function send_response_sans_body(response, body)
 	if response.finished then return; end
