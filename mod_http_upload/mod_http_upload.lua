@@ -232,7 +232,7 @@ end
 -- http service
 local function set_cross_domain_headers(response)
         local headers = response.headers;
-        headers.access_control_allow_methods = "GET, PUT, POST, OPTIONS";
+        headers.access_control_allow_methods = "GET, PUT, OPTIONS";
         headers.access_control_allow_headers = "Content-Type";
         headers.access_control_max_age = "7200";
         headers.access_control_allow_origin = response.request.headers.origin or "*";
