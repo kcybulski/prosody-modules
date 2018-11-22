@@ -21,4 +21,4 @@ No options.
 
 It should work with Prosody up until 0.10.x.
 
-Prosody trunk natively supports XEP-0410 so this module is not needed.
+Prosody 0.11.x and trunk natively supports XEP-0410 so this module is **not** needed.
