@@ -12,7 +12,7 @@ local e2e_policy_message_required_muc = module:get_option_string("e2e_policy_mes
 
 function warn_on_plaintext_messages(event)
     -- check if JID is whitelisted
-    if e2e_policy_whitelist:contains(jid_bare(stanza.attr.from)) or e2e_policy_whitelist:contains(jid_bare(stanza.attr.to)) then
+    if e2e_policy_whitelist:contains(jid_bare(event.stanza.attr.from)) or e2e_policy_whitelist:contains(jid_bare(event.stanza.attr.to)) then
         return nil;
     end
     local body = event.stanza:get_child_text("body");
