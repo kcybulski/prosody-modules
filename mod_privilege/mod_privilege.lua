@@ -332,6 +332,19 @@ end);
 
 --> message permission <--
 
+local function clean_xmlns(node)
+	-- Recursively remove "jabber:client" attribute from node.
+	-- In Prosody internal routing, xmlns should not be set.
+	-- Keeping xmlns would lead to issues like mod_smacks ignoring the outgoing stanza,
+	-- so we remove all xmlns attributes with a value of "jabber:client"
+	if node.attr.xmlns == 'jabber:client' then
+		for childnode in node:childtags() do
+			clean_xmlns(childnode);
+		end
+		node.attr.xmlns = nil;
+	end
+end
+
 module:hook("message/host", function(event)
 	local session, stanza = event.origin, event.stanza;
 	local privilege_elt = stanza:get_child('privilege', _PRIV_ENT_NS)
@@ -346,6 +359,7 @@ module:hook("message/host", function(event)
 			if message_elt ~= nil then
 				local _, from_host, from_resource = jid.split(message_elt.attr.from)
 				if from_resource == nil and hosts[from_host] then -- we only accept bare jids from one of the server hosts
+					clean_xmlns(message_elt);  -- needed do to proper routing
 					-- at this point everything should be alright, we can send the message
 					prosody.core_route_stanza(nil, message_elt)
 				else -- trying to send a message from a forbidden entity
