@@ -52,13 +52,19 @@ running in 'blocking' or 'non-blocking' mode:
 Blocking vs non-blocking
 ------------------------
 
-Non-blocking mode is automatically activated when:
+Non-blocking mode is experimental and is disabled by default.
+
+Enable at your own risk if you fulfil these conditions:
 
 -   Running Prosody trunk ([nightly](http://prosody.im/nightly/) build
     414+).
 -   [libevent](http://prosody.im/doc/libevent) is enabled in the config,
     and LuaEvent is available.
 -   lpty (see installation above) is version 1.0.1 or later.
+
+```lua
+external_auth_blocking = false;
+```
 
 Protocol
 ========
