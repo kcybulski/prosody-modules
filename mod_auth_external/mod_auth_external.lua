@@ -21,7 +21,7 @@ local host = module.host;
 local script_type = module:get_option_string("external_auth_protocol", "generic");
 local command = module:get_option_string("external_auth_command", "");
 local read_timeout = module:get_option_number("external_auth_timeout", 5);
-local blocking = module:get_option_boolean("external_auth_blocking", not(have_async and server.event and lpty.getfd));
+local blocking = module:get_option_boolean("external_auth_blocking", true); -- non-blocking is very experimental
 local auth_processes = module:get_option_number("external_auth_processes", 1);
 
 assert(script_type == "ejabberd" or script_type == "generic",
