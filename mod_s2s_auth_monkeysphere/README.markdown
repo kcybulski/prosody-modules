@@ -3,23 +3,20 @@ labels:
 - 'Stage-Alpha'
 - 'Type-S2SAuth'
 summary: Monkeysphere certificate checking for s2s
-...
+---
 
-Introduction
-------------
+## Introduction
 
 [Monkeysphere](http://web.monkeysphere.info/) is a project aiming to
 introduce PGP's web of trust to protocols such as SSH and TLS (which
 XMPP uses).
 
-Details
--------
+## Details
 
 This module is currently just a prototype, it has numerous issues and is
 **not** suitable for production use.
 
-Compatibility
--------------
+## Compatibility
 
   ------- -------
   trunk   Works
