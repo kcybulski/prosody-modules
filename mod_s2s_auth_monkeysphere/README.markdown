@@ -18,8 +18,9 @@ This module is currently just a prototype, it has numerous issues and is
 
 ## Compatibility
 
-  ------- -------
-  trunk   Works
-  0.10    Works
-  0.9     Works
-  ------- -------
+  ------- -----------------------------
+  trunk   Works (not tested recently)
+  0.11    Works (not tested)
+  0.10    Does not work
+  0.9     Does not work
+  ------- -----------------------------
