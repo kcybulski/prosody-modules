@@ -350,7 +350,7 @@ end
 local function feature_added(event)
 	local source, item = event.source, event.item
 	for namespace, _ in pairs(ns_delegations) do
-		if source ~= module and string.sub(item, 1, #namespace) == namespace then
+		if source ~= nil and source ~= module and string.sub(item, 1, #namespace) == namespace then
 			module:log("debug", "Removing %s feature which is delegated", item)
 			source:remove_item("feature", item)
 			disabled_modules:add(source)
@@ -373,7 +373,7 @@ local function extension_added(event)
 	if not form_type then return end
 
 	for namespace, _ in pairs(ns_delegations) do
-		if source ~= module and string.sub(form_type, 1, #namespace) == namespace then
+		if source ~= nil and source ~= module and string.sub(form_type, 1, #namespace) == namespace then
 			module:log("debug", "Removing extension which is delegated: %s", tostring(stanza))
 			source:remove_item("extension", stanza)
 		end
