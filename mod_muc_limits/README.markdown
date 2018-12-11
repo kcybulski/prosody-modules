@@ -66,12 +66,13 @@ the user the MUC is overactive, and asking them to try again.
 Compatibility
 =============
 
-  ------- ------------------
-  Trunk   Unknown
+  ------- ---------------------------------------------------------------------------------
+  trunk   Doesn't work since [0ebc7ff1fff5](https://hg.prosody.im/trunk/rev/0ebc7ff1fff5)
+  0.11    Doesn't work
   0.10    Works
   0.9     Works
   0.8     Doesn't work[^1]
-  ------- ------------------
+  ------- ---------------------------------------------------------------------------------
 
 [^1]: This module can be made to work in 0.8 (and *maybe* previous
     versions) of Prosody by copying the new

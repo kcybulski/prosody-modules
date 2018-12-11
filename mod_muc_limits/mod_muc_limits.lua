@@ -2,7 +2,7 @@
 local mod_muc = module:depends"muc";
 local rooms = rawget(mod_muc, "rooms"); -- Old MUC API
 if not rooms then
-	rooms = module:shared"muc/rooms"; -- New MUC API
+	error "Not compatible with 0.11 MUC API"
 end
 
 local jid_split, jid_bare = require "util.jid".split, require "util.jid".bare;
