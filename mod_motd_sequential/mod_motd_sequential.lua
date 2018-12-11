@@ -7,6 +7,7 @@
 -- COPYING file in the source package for more information.
 --
 
+local core_route_stanza = prosody.core_route_stanza;
 local host = module:get_host();
 local motd_jid = module:get_option("motd_jid") or host;
 local datamanager = require "util.datamanager";
