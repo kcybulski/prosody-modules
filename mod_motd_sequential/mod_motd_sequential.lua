@@ -27,7 +27,7 @@ module:hook("resource-bind",
             local session = event.session;
     local alreadyseen_list = datamanager.load(session.username, session.host, "motd_sequential_seen") or { max = 0 };
     local alreadyseen = alreadyseen_list["max"] + 1;
-    local mod_stanza;
+    local motd_stanza;
     for i = alreadyseen, max do
             motd_stanza =
                     st.message({ to = session.username..'@'..session.host, from = motd_jid },
