@@ -19,7 +19,7 @@ local function ban_ip(session, from)
 		ip_bans[ip] = banned_from;
 	end
 	banned_from[from] = true;
-	module:log("debug", "Banned IP address %s from %s", ip, from);
+	module:log("debug", "Added ban for IP address %s from %s", ip, from);
 end
 
 local function check_for_incoming_ban(event)
@@ -43,15 +43,17 @@ local function check_for_incoming_ban(event)
 end
 
 local function check_for_ban(event)
-	local ip = event.origin.ip;
-	local to = jid_bare(event.stanza.attr.to);
+	local origin, stanza = event.origin, event.stanza;
+	local ip = origin.ip;
+	local to = jid_bare(stanza.attr.to);
 	if ip_bans[ip] and ip_bans[ip][to] then
-		event.origin.send(st.error_reply(event.stanza, "auth", "forbidden")
+		origin.log("debug", "IP banned: %s is banned from %s", ip, to)
+		origin.send(st.error_reply(stanza, "auth", "forbidden")
 			:tag("x", { xmlns = xmlns_muc_user })
 				:tag("status", { code = '301' }));
 		return true;
 	end
-	module:log("debug", "Not banned: %s from %s", ip, to)
+	origin.log("debug", "IP not banned: %s from %s", ip, to)
 end
 
 function module.add_host(module)
