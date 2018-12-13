@@ -87,8 +87,8 @@ local function sanitize_xhtml(tag)
 				end
 			end
 		else
-			-- Can't happen with the above assert.
-			return nil;
+			tag.name = "span"
+			tag.attr = { xmlns = "http://www.w3.org/1999/xhtml" }
 		end
 		-- Check child tags
 		tag:maptags(sanitize_xhtml);
