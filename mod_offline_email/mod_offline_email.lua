@@ -2,7 +2,10 @@
 local jid_bare = require "util.jid".bare;
 local os_time = os.time;
 local t_concat = table.concat;
+
+prosody.unlock_globals(); -- LuaSocket wants to pollute the global scope
 local smtp = require "socket.smtp";
+prosody.lock_globals();
 
 local smtp_server = module:get_option_string("smtp_server", "localhost");
 local smtp_user = module:get_option_string("smtp_username");
