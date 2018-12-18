@@ -1,6 +1,6 @@
 ---
 labels:
-- 'Stage-Alpha'
+- 'Stage-Stable'
 summary: 'XEP-0288: Bidirectional Server-to-Server Connections'
 ...
 
