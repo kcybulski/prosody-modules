@@ -40,3 +40,15 @@ end);
 function module.unload()
 	pubsub.service:delete(node, true);
 end
+
+module:hook("pubsub-summary/http://jabber.org/protocol/stats", function (event)
+	local payload = event.payload;
+	local summary = {};
+	for stat in payload:childtags("stat") do
+		if stat.attr.name and stat.attr.value then
+			table.insert(summary, string.format("%s: %g %s", stat.attr.name, tonumber(stat.attr.value), stat.attr.units or ""));
+		end
+	end
+	return table.concat(summary, "\n");
+end);
+
