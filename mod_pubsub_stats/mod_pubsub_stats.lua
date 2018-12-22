@@ -49,6 +49,7 @@ module:hook("pubsub-summary/http://jabber.org/protocol/stats", function (event)
 			table.insert(summary, string.format("%s: %g %s", stat.attr.name, tonumber(stat.attr.value), stat.attr.units or ""));
 		end
 	end
+	table.sort(summary);
 	return table.concat(summary, "\n");
 end);
 
