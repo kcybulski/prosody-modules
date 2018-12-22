@@ -26,3 +26,10 @@ subscribe to or unsubscribe from.
 -   `subscribe node` - subscribe to a node
 -   `unsubscribe node` - unsubscribe from a node
 -   `last node` - sends the last published item from the node to you
+
+# Compatibility
+
+Should work with Prosody since 0.9, when
+[modpubsub][doc:modules:mod_pubsub] was introduced.
+
+The `last` command is available from Prosody 0.11.
