@@ -2,12 +2,12 @@
 
 This module lets you manage subscriptions to pubsub nodes via simple
 chat messages. Subscriptions are always added based on bare JID. The
-`include_body` flag is enabled so that a plain text body version of events
-can be included, where supported.
+`include_body` flag is enabled so that a plain text body version of
+events can be included, where supported.
 
 # Configuring
 
-```lua
+``` {.lua}
 Component "pubsub.example.com" "pubub"
 modules_enabled = {
     "pubsub_text_interface",
@@ -21,7 +21,7 @@ to the PubSub component where this module is enabled. When subscribing
 or unsubscribing, be sure to replace `node` with the node you want to
 subscribe to or unsubscribe from.
 
-- `help` - a help message, listing these commands
-- `list` - list available nodes
-- `subscribe node` - subscribe to a node
-- `unsubscribe node` - unsubscribe from a node
+-   `help` - a help message, listing these commands
+-   `list` - list available nodes
+-   `subscribe node` - subscribe to a node
+-   `unsubscribe node` - unsubscribe from a node
