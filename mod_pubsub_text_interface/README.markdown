@@ -25,3 +25,4 @@ subscribe to or unsubscribe from.
 -   `list` - list available nodes
 -   `subscribe node` - subscribe to a node
 -   `unsubscribe node` - unsubscribe from a node
+-   `last node` - sends the last published item from the node to you
