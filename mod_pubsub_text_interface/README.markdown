@@ -30,6 +30,6 @@ subscribe to or unsubscribe from.
 # Compatibility
 
 Should work with Prosody since 0.9, when
-[modpubsub][doc:modules:mod_pubsub] was introduced.
+[mod\_pubsub][doc:modules:mod_pubsub] was introduced.
 
 The `last` command is available from Prosody 0.11.
