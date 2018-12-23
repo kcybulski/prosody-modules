@@ -131,7 +131,7 @@ function module.command( args )
 	if command == "top" then
 		local dir = module:get_directory();
 		package.path = dir.."/?.lua;"..dir.."/?.lib.lua;"..package.path;
-		local prosodytop = require "prosodytop";
+		local prosodytop = module:require "prosodytop";
 		prosodytop.run();
 	end
 end

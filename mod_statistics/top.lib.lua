@@ -1,9 +1,7 @@
-module("prosodytop", package.seeall);
-
 local array = require "util.array";
 local it = require "util.iterators";
 local curses = require "curses";
-local stats = require "stats".stats;
+local stats = module:require "stats".stats;
 local time = require "socket".gettime;
 
 local sessions_idle_after = 60;
@@ -119,7 +117,7 @@ function top:draw_conn_list()
 	local widths = self.column_widths;
 	local top_sessions = array.collect(it.values(self.active_sessions)):sort(session_compare);
 	for index = 1, rows do
-		session = top_sessions[index];
+		local session = top_sessions[index];
 		if session then
 			if session.last_update < cutoff_time then
 				self.active_sessions[session.id] = nil;
@@ -172,7 +170,7 @@ function top:update_session(id, jid, stats)
 	stats.updated = true;
 end
 
-function new(base)
+local function new(base)
 	setmetatable(base, top);
 	base.data = setmetatable({}, {
 		__index = function (t, k)
@@ -214,4 +212,4 @@ function new(base)
 	return base;
 end
 
-return _M;
+return { new = new };
