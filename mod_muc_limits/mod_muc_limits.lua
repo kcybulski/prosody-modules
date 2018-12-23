@@ -1,9 +1,6 @@
 
 local mod_muc = module:depends"muc";
 local rooms = rawget(mod_muc, "rooms"); -- Old MUC API
-if not rooms then
-	error "Not compatible with 0.11 MUC API"
-end
 
 local jid_split, jid_bare = require "util.jid".split, require "util.jid".bare;
 local st = require "util.stanza";
@@ -31,7 +28,7 @@ local function handle_stanza(event)
 		return;
 	end
 	local dest_room, dest_host, dest_nick = jid_split(stanza.attr.to);
-	local room = rooms[dest_room.."@"..dest_host];
+	local room = event.room or rooms[dest_room.."@"..dest_host];
 	if not room then return; end
 	local from_jid = stanza.attr.from;
 	local occupant = room._occupants[room._jid_nick[from_jid]];
@@ -82,7 +79,13 @@ function module.unload()
 	end
 end
 
-module:hook("message/bare", handle_stanza, 501);
-module:hook("message/full", handle_stanza, 501);
-module:hook("presence/bare", handle_stanza, 501);
-module:hook("presence/full", handle_stanza, 501);
+if rooms then
+	module:hook("message/bare", handle_stanza, 501);
+	module:hook("message/full", handle_stanza, 501);
+	module:hook("presence/bare", handle_stanza, 501);
+	module:hook("presence/full", handle_stanza, 501);
+else
+	module:hook("muc-occupant-pre-join", handle_stanza);
+	module:hook("muc-occupant-pre-change", handle_stanza);
+	module:hook("muc-occupant-groupchat", handle_stanza);
+end
