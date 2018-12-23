@@ -31,8 +31,7 @@ local function handle_stanza(event)
 	local room = event.room or rooms[dest_room.."@"..dest_host];
 	if not room then return; end
 	local from_jid = stanza.attr.from;
-	local occupant = room._occupants[room._jid_nick[from_jid]];
-	if (occupant and occupant.affiliation) or (not(occupant) and room._affiliations[jid_bare(from_jid)]) then
+	if room:get_affiliation(jid_bare(from_jid)) then
 		module:log("debug", "Skipping stanza from affiliated user...");
 		return;
 	elseif dest_nick and max_nick_length and stanza.name == "presence" and not room._occupants[stanza.attr.to] and #dest_nick > max_nick_length then
