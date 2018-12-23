@@ -4,7 +4,7 @@ local timer = require "util.timer";
 
 assert(curses.timeout, "Incorrect version of curses library. Try 'sudo luarocks install luaposix'");
 
-local top = require "top";
+local top = module:require "top";
 
 function main()
 	local stdscr = curses.stdscr()  -- it's a userdatum
