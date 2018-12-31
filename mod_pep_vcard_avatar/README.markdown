@@ -20,9 +20,10 @@ no further configuration needed.
 
 ## Compatibility
 
-  ------- ---------------
-  trunk   Does not work
+  ------- --------------------------------
+  trunk   Use mod\_vcard\_legacy instead
+  0.11    Use mod\_vcard\_legacy instead
   0.10    Works
   0.9     Does not work
   0.8     Does not work
-  ------- ---------------
+  ------- --------------------------------
