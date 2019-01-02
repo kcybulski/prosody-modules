@@ -57,6 +57,7 @@ read_globals = {
 	"module.remove_item",
 	"module.require",
 	"module.send",
+	"module.send_iq",
 	"module.set_global",
 	"module.shared",
 	"module.unhook",
