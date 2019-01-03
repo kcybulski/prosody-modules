@@ -64,6 +64,6 @@ module:hook("message/host", function (event)
 	else
 		reply:body("Unknown command. `help` to list commands.");
 	end
-	origin.send(reply);
+	module:send(reply);
 	return true;
 end);
