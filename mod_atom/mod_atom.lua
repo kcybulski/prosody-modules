@@ -3,6 +3,7 @@
 
 local mod_pep = module:depends"pep";
 
+local um = require "core.usermanager";
 local nodeprep = require "util.encodings".stringprep.nodeprep;
 local st = require "util.stanza";
 
@@ -15,6 +16,9 @@ module:provides("http", {
 
 			user = nodeprep(user);
 			if not user then return 400; end
+			if not um.user_exists(user, module.host) then
+				return 404;
+			end
 
 			local pubsub_service = mod_pep.get_pep_service(user);
 			local ok, items = pubsub_service:get_items("urn:xmpp:microblog:0", actor);
