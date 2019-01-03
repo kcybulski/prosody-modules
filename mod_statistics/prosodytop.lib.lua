@@ -76,7 +76,7 @@ function main()
 				view:update_session(id, jid, stats);
 			end end end;
 		};
-		local chunk = assert(envload(line, e));
+		local chunk = assert(envload(line, "=prosodytop", e));
 		chunk();
 	end
 
