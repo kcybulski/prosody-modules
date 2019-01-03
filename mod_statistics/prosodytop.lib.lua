@@ -1,6 +1,7 @@
 local curses = require "curses";
 local server = require "net.server_select";
 local timer = require "util.timer";
+local envload = require "util.envload".envload;
 
 assert(curses.timeout, "Incorrect version of curses library. Try 'sudo luarocks install luaposix'");
 
@@ -75,8 +76,7 @@ function main()
 				view:update_session(id, jid, stats);
 			end end end;
 		};
-		local chunk = assert(loadstring(line));
-		setfenv(chunk, e);
+		local chunk = assert(envload(line, e));
 		chunk();
 	end
 
