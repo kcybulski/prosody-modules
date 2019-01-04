@@ -1,6 +1,6 @@
 local bytes = module:measure("bytes", "sizes");
-local lines = module:measure("lines", "count");
-local words = module:measure("words", "count");
+local lines = module:measure("lines", "distribution");
+local words = module:measure("words", "distribution");
 
 local function measure_length(event)
 	local body = event.stanza:get_child_text("body");
