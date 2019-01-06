@@ -25,9 +25,6 @@ local is_stanza = st.is_stanza or function (s)
 end
 
 function archive:append(username, _, data, when, with)
-	if type(when) ~= "number" then
-		when, with, data = data, when, with;
-	end
 	if not is_stanza(data) then
 		module:log("error", "Attempt to store non-stanza object, traceback: %s", debug.traceback());
 		return nil, "unsupported-datatype";
