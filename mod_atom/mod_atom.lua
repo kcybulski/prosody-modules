@@ -6,6 +6,7 @@ local mod_pep = module:depends"pep";
 local um = require "core.usermanager";
 local nodeprep = require "util.encodings".stringprep.nodeprep;
 local st = require "util.stanza";
+local urlencode = require "util.http".urlencode;
 
 module:depends("http")
 module:provides("http", {
@@ -14,8 +15,12 @@ module:provides("http", {
 			local request, response = event.request, event.response;
 			local actor = request.ip;
 
-			user = nodeprep(user);
-			if not user then return 400; end
+			local prepped = nodeprep(user);
+			if not prepped then return 400; end
+			if prepped ~= user then
+				response.headers.location = module:http_url() .. "/" .. urlencode(prepped);
+				return 302;
+			end
 			if not um.user_exists(user, module.host) then
 				return 404;
 			end
