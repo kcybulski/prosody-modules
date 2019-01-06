@@ -10,7 +10,12 @@ Introduction
 ============
 
 This module implements stanza archives using files, similar to the
-default "internal" storage.
+default "internal" storage. Unlike "internal", it saves messages in two
+files per day (and per user), one containing metadata and one containing
+the actual messages in XML format (hence the name).
+
+Splitting data per day improves performance for larger archives as it
+does not have to look through data from other days.
 
 Configuration
 =============
@@ -87,3 +92,8 @@ be expensive as potentially the entire archive will be read.
 
 Each archive ID is of the form `YYYY-MM-DD-random`, making lookups by
 archive id just as simple as time based queries.
+
+## Limitations
+
+-   Only XML stanzas can be stored.
+-   The deletion method only supports removing entire days at a time.
