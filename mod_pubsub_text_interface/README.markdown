@@ -8,7 +8,7 @@ events can be included, where supported.
 # Configuring
 
 ``` {.lua}
-Component "pubsub.example.com" "pubub"
+Component "pubsub.example.com" "pubsub"
 modules_enabled = {
     "pubsub_text_interface",
 }
