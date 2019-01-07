@@ -1,5 +1,10 @@
 # Introduction
 
+::: {.alert .alert-danger}
+Consider using [mod_mam][doc:modules:mod_mam] together with
+[mod_readonly] instead.
+:::
+
 This module logs messages to a SQL database.
 
 SQL connection options are configured in a `message_log_sql` option,
