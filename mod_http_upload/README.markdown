@@ -49,6 +49,8 @@ Files can be set to be deleted after some time:
 http_upload_expire_after = 60 * 60 * 24 * 7 -- a week in seconds
 ```
 
+Expired files are deleted when a new upload slot is requested,
+
 ### User quota
 
 A total maximum size of all uploaded files per user can be set by:
