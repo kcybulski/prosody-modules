@@ -65,6 +65,8 @@ A total maximum size of all uploaded files per user can be set by:
 http_upload_quota = 1234 -- bytes
 ```
 
+A request for a slot that would take an user over quota is denied.
+
 Path
 ----
 
