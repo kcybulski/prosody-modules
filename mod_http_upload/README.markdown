@@ -51,6 +51,12 @@ http_upload_expire_after = 60 * 60 * 24 * 7 -- a week in seconds
 
 Expired files are deleted when a new upload slot is requested,
 
+A command exists to invoke expiry:
+
+```
+prosodyctl mod_http_upload expire [optional list of users]
+```
+
 ### User quota
 
 A total maximum size of all uploaded files per user can be set by:
