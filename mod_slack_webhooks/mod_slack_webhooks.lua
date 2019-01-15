@@ -6,7 +6,6 @@
 
 module:depends"http"
 
-local host_session = prosody.hosts[module.host];
 local msg = require "util.stanza".message;
 local jid = require "util.jid";
 local now = require "util.datetime".datetime;
@@ -15,13 +14,12 @@ local formdecode = require "net.http".formdecode;
 local http = require "net.http";
 local dataform = require "util.dataforms";
 
-local function get_room_from_jid(mod_muc, room_jid)
-	if mod_muc.get_room_from_jid then
-		return mod_muc.get_room_from_jid(room_jid);
-	elseif mod_muc.rooms then
-		return mod_muc.rooms[room_jid]; -- COMPAT 0.9, 0.10
+local mod_muc = module:depends"muc";
+local rooms = rawget(mod_muc, "rooms");
+local get_room_from_jid = rawget(mod_muc, "get_room_from_jid") or
+	function (room_jid)
+		return rooms[room_jid];
 	end
-end
 
 local button_ns = "xmpp:prosody.im/community/mod_slack_webhooks#buttons";
 local routing = module:get_option("outgoing_webhook_routing") or {};
@@ -34,10 +32,8 @@ end
 
 function check_message(data)
 	local stanza = data.stanza;
-	local mod_muc = host_session.muc;
-	if not mod_muc then return; end
 
-	local this_room = get_room_from_jid(mod_muc, stanza.attr.to);
+	local this_room = get_room_from_jid(stanza.attr.to);
 	if not this_room then return; end -- no such room
 
 	local from_room_jid = this_room._jid_nick[stanza.attr.from];
@@ -105,8 +101,7 @@ module:hook("message/bare", check_message, 10);
 local function route_post(f)
 	return function(event, path)
 		local bare_room = jid.join(path, module.host);
-		local mod_muc = host_session.muc;
-		if not get_room_from_jid(mod_muc, bare_room) then
+		if not get_room_from_jid(bare_room) then
 			module:log("warn", "mod_slack_webhook: invalid JID: %s", bare_room);
 			return 404;
 		end
@@ -116,7 +111,6 @@ local function route_post(f)
 end
 
 local function handle_post(event, path)
-	local mod_muc = host_session.muc;
 	local request = event.request;
 	local headers = request.headers;
 
@@ -133,7 +127,7 @@ local function handle_post(event, path)
 		return 422;
 	end
 	local bare_room = jid.join(path, module.host);
-	local dest_room = get_room_from_jid(mod_muc, bare_room);
+	local dest_room = get_room_from_jid(bare_room);
 	local from_nick = default_from_nick;
 	if post_body["username"] then
 		from_nick = post_body["username"];
