@@ -9,7 +9,7 @@ local unauthed_endpoints = module:get_option_set("unauthenticated_http_endpoints
 
 module:wrap_object_event(server._events, false, function (handlers, event_name, event_data)
 	local request = event_data.request;
-	if request and not unauthed_endpoints[request.path] then
+	if event_name ~= "http-error" and request and not unauthed_endpoints[request.path] then
 		local response = event_data.response;
 		local headers = request.headers;
 		if not headers.authorization then
