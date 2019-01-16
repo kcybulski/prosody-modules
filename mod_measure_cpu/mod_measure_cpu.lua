@@ -6,7 +6,7 @@ local get_time = require "socket".gettime;
 local get_clock = os.clock;
 
 local measure_cpu_now = measure("amount", "cpu.percent"); -- Current percentage
-local measure_cpu_now = measure("counter", "cpu.clock");
+local measure_cpu_total = measure("counter", "cpu.clock");
 
 local last_cpu_wall, last_cpu_clock;
 module:hook("stats-update", function ()
@@ -18,7 +18,7 @@ module:hook("stats-update", function ()
 	last_cpu_wall, last_cpu_clock = new_wall, new_clock;
 
 	measure_cpu_now(pc);
-	measure_cpu_now(new_clock);
+	measure_cpu_total(new_clock);
 end);
 
 -- Some metadata for mod_munin
