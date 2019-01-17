@@ -38,7 +38,7 @@ local function dedup_presence(stanza, session)
 end
 
 module:hook("presence/initial",	function (event)
-	local session, stanza = event.origin, event.stanza;
+	local session = event.origin;
 	session.presence_cache = cache.new(cache_size);
 	add_filter(session, "stanzas/out", dedup_presence, 90);
 end);
