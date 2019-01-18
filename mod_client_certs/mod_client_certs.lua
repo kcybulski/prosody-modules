@@ -94,7 +94,7 @@ local function disable_cert(username, name, disconnect)
 		local disabled_cert_pem = info.pem;
 
 		for _, session in pairs(sessions) do
-			if session and session.conn then
+			if session and session.conn and session.conn:socket().getpeercertificate then
 				local cert = session.conn:socket():getpeercertificate();
 
 				if cert and cert:pem() == disabled_cert_pem then
@@ -336,7 +336,12 @@ local now = os.time;
 module:hook("stream-features", function(event)
 	local session, features = event.origin, event.features;
 	if session.secure and session.type == "c2s_unauthed" then
-		local cert = session.conn:socket():getpeercertificate();
+		local socket = session.conn:socket();
+		if not socket.getpeercertificate then
+			module:log("debug", "Not a TLS socket");
+			return
+		end
+		local cert = socket:getpeercertificate();
 		if not cert then
 			module:log("error", "No Client Certificate");
 			return
