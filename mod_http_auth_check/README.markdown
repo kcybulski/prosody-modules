@@ -28,4 +28,4 @@ if there is a problem handling the request.
 
 Here follows some example usage using `curl`.
 
-    curl http://prosody.local:5280/data/accounts -u user@example.com:secr1t
+    curl http://prosody.local:5280/auth_check -u user@example.com:secr1t
