@@ -24,7 +24,7 @@ To use this with [mod\_mam] add this to your config:
 
 ``` lua
 storage = {
-    archive2 = "xmlarchive"
+    archive = "xmlarchive"
 }
 ```
 
