@@ -355,9 +355,12 @@ function handle_a(origin, stanza)
 			origin.log("debug", "Q item %d: %s", i, tostring(queue[i]));
 		end
 	end
+
 	for i=1,math_min(handled_stanza_count,#queue) do
-		t_remove(origin.outgoing_stanza_queue, 1);
+		local handled_stanza = t_remove(origin.outgoing_stanza_queue, 1);
+		module:fire_event("delivery/success", { session = origin, stanza = handled_stanza });
 	end
+
 	origin.log("debug", "#queue = %d", #queue);
 	origin.last_acknowledged_stanza = origin.last_acknowledged_stanza + handled_stanza_count;
 	request_ack_if_needed(origin, false)
@@ -377,12 +380,14 @@ function handle_unacked_stanzas(session)
 	if #queue > 0 then
 		session.outgoing_stanza_queue = {};
 		for i=1,#queue do
-			local reply = st.reply(queue[i]);
-			if reply.attr.to ~= session.full_jid then
-				reply.attr.type = "error";
-				reply:tag("error", error_attr)
-					:tag("recipient-unavailable", {xmlns = "urn:ietf:params:xml:ns:xmpp-stanzas"});
-				core_process_stanza(session, reply);
+			if not module:fire_event("delivery/failure", { session = session, stanza = queue[i] }) then
+				local reply = st.reply(queue[i]);
+				if reply.attr.to ~= session.full_jid then
+					reply.attr.type = "error";
+					reply:tag("error", error_attr)
+						:tag("recipient-unavailable", {xmlns = "urn:ietf:params:xml:ns:xmpp-stanzas"});
+					core_process_stanza(session, reply);
+				end
 			end
 		end
 	end
