@@ -69,7 +69,9 @@ function archive:_get_idx(username, id, dates)
 					return d, i, items;
 				end
 			end
-			return; -- Assuming no duplicates
+			if date then
+				return; -- Assuming no duplicates
+			end
 		elseif date and date < dates[d] then
 			return; -- List is assumed to be sorted
 		end
