@@ -59,9 +59,9 @@ end
 function archive:_get_idx(username, id, dates)
 	module:log("debug", "Looking for item with id %q", id);
 	dates = dates or self:dates(username) or empty;
-	local date = id:sub(1, 10);
+	local date = id:match("^%d%d%d%d%-%d%d%-%d%d");
 	for d = 1, #dates do
-		if date == dates[d] then
+		if not date or date == dates[d] then
 			module:log("debug", "Loading index for %s", dates[d]);
 			local items = dm.list_load(username .. "@" .. dates[d], self.host, self.store) or empty;
 			for i = 1, #items do
@@ -70,7 +70,7 @@ function archive:_get_idx(username, id, dates)
 				end
 			end
 			return; -- Assuming no duplicates
-		elseif date < dates[d] then
+		elseif date and date < dates[d] then
 			return; -- List is assumed to be sorted
 		end
 	end
