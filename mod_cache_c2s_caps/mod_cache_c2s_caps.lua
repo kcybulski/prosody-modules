@@ -14,6 +14,7 @@ local function iq_result_handler(event)
 	local query = stanza:get_child("query", "http://jabber.org/protocol/disco#info");
 	if not query then
 		origin.log("debug", "Wrong iq payload in disco#info result: %s", stanza);
+		origin.caps_cache = nil;
 		return;
 	end
 
@@ -29,6 +30,7 @@ local function iq_result_handler(event)
 
 	if node_string ~= node_query then
 		origin.log("debug", "Wrong node for our disco#info query, expected %s, received %s", node_string, node_query);
+		origin.caps_cache = nil;
 		return;
 	end
 
@@ -36,6 +38,7 @@ local function iq_result_handler(event)
 	local hash = calculate_hash(query)
 	if ver ~= hash then
 		origin.log("debug", "Wrong hash for disco#info: %s ~= %s", ver, hash);
+		origin.caps_cache = nil;
 		return;
 	end
 
