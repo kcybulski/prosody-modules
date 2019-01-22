@@ -26,7 +26,6 @@ local function iq_result_handler(event)
 		query.attr.node = node_query;
 	end
 	iq_node_map[from..id] = nil;
-	in_flight_iqs[from..node_string] = nil;
 
 	if node_string ~= node_query then
 		origin.log("debug", "Wrong node for our disco#info query, expected %s, received %s", node_string, node_query);
@@ -88,11 +87,10 @@ local function presence_stanza_handler(event)
 	iq_node_map[from..id] = node_query
 	local iq = st_iq({ type = "get", from = module.host, to = from, id = id })
 		:tag("query", { xmlns = "http://jabber.org/protocol/disco#info", node = node_query });
-	module:hook("iq-result/host/"..id, iq_result_handler);
-	module:hook("iq-error/host/"..id, iq_error_handler);
-	module:send(iq);
-
 	in_flight_iqs[from..node_query] = true;
+	module:send_iq(iq, origin)
+		:next(iq_result_handler, iq_error_handler)
+		:finally(function () in_flight_iqs[from..node_query] = nil; end)
 end
 
 -- Handle only non-directed presences for now.
