@@ -36,6 +36,7 @@ local function iq_result_handler(event)
 	local hash = calculate_hash(query)
 	if ver ~= hash then
 		origin.log("debug", "Wrong hash for disco#info: %s ~= %s", ver, hash);
+		return;
 	end
 
 	origin.caps_cache = query;
