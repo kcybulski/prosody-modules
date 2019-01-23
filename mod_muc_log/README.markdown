@@ -34,11 +34,13 @@ all rooms, set
 Compatibility
 =============
 
-  ----- -------
-  0.6   Works
-  0.7   Works
-  0.8   Works
-  0.9   Works
-  ----- -------
+  ------ ---------------
+  0.6    Works
+  0.7    Works
+  0.8    Works
+  0.9    Works
+  0.10   Works
+  0.11   Does not work
+  ------ ---------------
 
 **Note** that per-room configuration only works in 0.9+.
