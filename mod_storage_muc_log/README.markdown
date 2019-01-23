@@ -36,4 +36,8 @@ storage = {
 Compatibility
 =============
 
-Requires Prosody 0.10 or above.
+  version   status
+  --------- ---------------
+  0.9       unknown
+  0.10      works
+  0.11      does not work
