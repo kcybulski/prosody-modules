@@ -69,6 +69,12 @@ Where `$DIR` is `to` or `from`, `$STORE` is e.g. `archive` or `archive2`
 for MAM and `muc_log` for MUC logs. Finally, `$JID` is the JID of the
 user or MUC room to be migrated, which can be repeated.
 
+::: {.alert .alert-danger}
+Since this is a destructive command, don't forget to backup your data
+first.
+:::
+
+
 Data structure
 ==============
 
