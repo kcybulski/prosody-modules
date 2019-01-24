@@ -72,6 +72,8 @@ user or MUC room to be migrated, which can be repeated.
 ::: {.alert .alert-danger}
 Since this is a destructive command, don't forget to backup your data
 first.
+
+Prosody should *not* be running while converting data.
 :::
 
 
