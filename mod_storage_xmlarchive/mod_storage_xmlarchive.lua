@@ -66,6 +66,7 @@ function archive:_get_idx(username, id, dates)
 			local items = dm.list_load(username .. "@" .. dates[d], self.host, self.store) or empty;
 			for i = 1, #items do
 				if items[i].id == id then
+					module:log("debug", "Found item!");
 					return d, i, items;
 				end
 			end
@@ -73,9 +74,11 @@ function archive:_get_idx(username, id, dates)
 				return; -- Assuming no duplicates
 			end
 		elseif date and date < dates[d] then
+			module:log("debug", "Skipping remaining dates after %s", date);
 			return; -- List is assumed to be sorted
 		end
 	end
+	module:log("debug", "Item not found");
 end
 
 function archive:find(username, query)
