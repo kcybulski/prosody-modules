@@ -8,6 +8,8 @@ local in_flight_iqs = {}
 -- Some clients (*ahem* poezio…) don’t include the @node in their result iq.
 local iq_node_map = {}
 
+assert(module.send_iq, "This module is not compatible with this version of Prosody.");
+
 local function iq_result_handler(event)
 	local origin, stanza = event.origin, event.stanza;
 
