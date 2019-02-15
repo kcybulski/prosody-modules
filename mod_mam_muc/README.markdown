@@ -50,6 +50,7 @@ Compatibility
 
   ------- --------------------------------------------
   trunk   Use mod\_muc\_mam (included with Prosody)
+  0.11    Use mod\_muc\_mam (included with Prosody)
   0.10    Works partially, only XEP-0313 version 0.5
   0.9     Does not work
   0.8     Does not work
