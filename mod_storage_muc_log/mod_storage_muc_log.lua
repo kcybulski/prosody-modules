@@ -6,7 +6,6 @@ local data_load, data_store = datamanager.load, datamanager.store;
 local datastore = "muc_log";
 local datetime = require"util.datetime"
 local lfs = require"lfs";
-local noop = function () end;
 local os_date = os.date;
 
 local timef, datef = "!%H:%M:%S", "!%y%m%d";
