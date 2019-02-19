@@ -135,12 +135,13 @@ function driver:find(node, query)
 						if item then
 							time = item.attr.time;
 							item = item.tags[1];
+							local with = st_with(item);
 							if (today >= start_date or time >= start_time) and
 								(today <= end_date or time <= end_time) and
-								(not query_with or query_with == st_with(item)) and
+								(not query_with or query_with == with) and
 								item:get_child_text("alreadyJoined") ~= "true" then
 								matches = matches + 1;
-								coroutine.yield(today.."_"..i, item, parse_silly(today, time));
+								coroutine.yield(today.."_"..i, item, parse_silly(today, time), with);
 								if query_limit and matches >= query_limit then
 									return;
 								end
