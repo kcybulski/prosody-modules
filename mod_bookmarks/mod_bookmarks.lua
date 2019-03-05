@@ -120,10 +120,6 @@ local function on_resource_bind(event)
 	module:log("debug", "Removed private bookmarks of %s, migration done!", jid);
 end
 
-local function on_item_published(event)
-	module:fire_event("bookmarks/updated", event);
-end
-
 local function on_node_created(event)
 	local service, node, actor = event.service, event.node, event.actor;
 	if node ~= "storage:bookmarks" then
@@ -143,7 +139,6 @@ module:hook("iq/bare/jabber:iq:private:query", function (event)
 	end
 end, 1);
 module:hook("resource-bind", on_resource_bind);
-module:hook("item-published/storage:bookmarks", on_item_published);
 module:handle_items("pep-service", function (event)
 	local service = event.item.service;
 	module:hook_object_event(service.events, "node-created", on_node_created);
