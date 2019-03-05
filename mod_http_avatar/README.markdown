@@ -24,5 +24,6 @@ Compatibility
 
   ------- --------------
   trunk   Works
+  0.11    Works
   0.10    Should work
   ------- --------------
