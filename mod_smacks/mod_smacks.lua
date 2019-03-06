@@ -522,6 +522,8 @@ function handle_resume(session, stanza, xmlns_sm)
 		original_session.stream = session.stream;
 		original_session.secure = session.secure;
 		original_session.hibernating = nil;
+		session.log = original_session.log;
+		session.type = original_session.type;
 		wrap_session(original_session, true);
 		-- Inform xmppstream of the new session (passed to its callbacks)
 		original_session.stream:set_session(original_session);
