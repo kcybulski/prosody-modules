@@ -152,11 +152,11 @@ module:hook("s2s-stream-features",
 			end
 		end);
 
-local function request_ack_if_needed(session, force)
+local function request_ack_if_needed(session, force, reason)
 	local queue = session.outgoing_stanza_queue;
 	if session.awaiting_ack == nil and not session.hibernating then
 		if (#queue > max_unacked_stanzas and session.last_queue_count ~= #queue) or force then
-			session.log("debug", "Queuing <r> (in a moment)");
+			session.log("debug", "Queuing <r> (in a moment) from %s - #queue=%d", reason, #queue);
 			session.awaiting_ack = false;
 			session.awaiting_ack_timer = stoppable_timer(1e-06, function ()
 				if not session.awaiting_ack and not session.hibernating then
@@ -202,12 +202,11 @@ local function outgoing_stanza_filter(stanza, session)
 		end
 
 		queue[#queue+1] = cached_stanza;
-		session.log("debug", "#queue = %d", #queue);
 		if session.hibernating then
 			session.log("debug", "hibernating, stanza queued");
 			return nil;
 		end
-		request_ack_if_needed(session, false);
+		request_ack_if_needed(session, false, "outgoing_stanza_filter");
 	end
 	return stanza;
 end
@@ -364,7 +363,7 @@ function handle_a(origin, stanza)
 
 	origin.log("debug", "#queue = %d", #queue);
 	origin.last_acknowledged_stanza = origin.last_acknowledged_stanza + handled_stanza_count;
-	request_ack_if_needed(origin, false)
+	request_ack_if_needed(origin, false, "handle_a")
 	return true;
 end
 module:hook_stanza(xmlns_sm2, "a", handle_a);
@@ -505,6 +504,7 @@ function handle_resume(session, stanza, xmlns_sm)
 	elseif session.username == original_session.username
 	and session.host == original_session.host then
 		session.log("debug", "mod_smacks resuming existing session %s...", get_session_id(original_session));
+		original_session.log("debug", "mod_smacks session resumed from %s...", get_session_id(session));
 		-- TODO: All this should move to sessionmanager (e.g. session:replace(new_session))
 		if original_session.conn then
 			original_session.log("debug", "mod_smacks closing an old connection for this session");
@@ -548,7 +548,7 @@ function handle_resume(session, stanza, xmlns_sm)
 			return false;
 		end
 		module:fire_event("smacks-hibernation-end", {origin = session, resumed = original_session, queue = queue});
-		request_ack_if_needed(original_session, true);
+		request_ack_if_needed(original_session, true, "handle_resume");
 	else
 		module:log("warn", "Client %s@%s[%s] tried to resume stream for %s@%s[%s]",
 			session.username or "?", session.host or "?", session.type,
