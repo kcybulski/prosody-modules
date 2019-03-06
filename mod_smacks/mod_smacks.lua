@@ -344,6 +344,7 @@ function handle_a(origin, stanza)
 	local h = tonumber(stanza.attr.h);
 	if not h then
 		origin:close{ condition = "invalid-xml"; text = "Missing or invalid 'h' attribute"; };
+		return;
 	end
 	local handled_stanza_count = h-origin.last_acknowledged_stanza;
 	local queue = origin.outgoing_stanza_queue;
