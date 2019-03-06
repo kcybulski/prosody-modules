@@ -50,10 +50,12 @@ local function iq_result_handler(event)
 	return true;
 end
 
-local function iq_error_handler(event)
-	local origin = event.origin;
-	origin.caps_cache = nil;
-	module:fire_event("c2s-capabilities-changed", { origin = origin });
+local function iq_error_handler(err)
+	local origin = err.context.origin;
+	if origin ~= nil then
+		origin.caps_cache = nil;
+		module:fire_event("c2s-capabilities-changed", { origin = origin });
+	end
 end
 
 local function presence_stanza_handler(event)
