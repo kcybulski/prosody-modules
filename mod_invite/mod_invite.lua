@@ -109,6 +109,9 @@ function handle_form(event)
 
 		invite_storage:set(nil, tokens);
 
+		module:fire_event("user-registered", {
+			username = prepped_username, host = module.host, source = "mod_invite", });
+
 		return apply_template(template, { classes = "alert-success",
 			message = "Your account has been created! You can now log in using an XMPP client." })
 	else
