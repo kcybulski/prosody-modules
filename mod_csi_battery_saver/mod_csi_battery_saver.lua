@@ -19,32 +19,16 @@ local xmlns_delay = "urn:xmpp:delay";
 local id = s_sub(require "util.hashes".sha256(datetime.datetime(), true), 1, 4);
 
 
--- Patched version of util.stanza:find() that supports giving stanza names
--- without their namespace, allowing for every namespace.
-local function find(self, path)
-	local pos = 1;
-	local len = #path + 1;
-
-	repeat
-		local xmlns, name, text;
-		local char = s_sub(path, pos, pos);
-		if char == "@" then
-			return self.attr[s_sub(path, pos + 1)];
-		elseif char == "{" then
-			xmlns, pos = s_match(path, "^([^}]+)}()", pos + 1);
-		end
-		name, text, pos = s_match(path, "^([^@/#]*)([/#]?)()", pos);
-		name = name ~= "" and name or nil;
-		if pos == len then
-			if text == "#" then
-				local child = xmlns ~= nil and self:get_child(name, xmlns) or self:child_with_name(name);
-				return child and child:get_text() or nil;
-			end
-			return xmlns ~= nil and self:get_child(name, xmlns) or self:child_with_name(name);
-		end
-		self = xmlns ~= nil and self:get_child(name, xmlns) or self:child_with_name(name);
-	until not self
-	return nil;
+-- Returns a forwarded message, and either "in" or "out" depending on the direction
+-- Returns nil if the message is not a carbon
+local function extract_carbon(stanza)
+	local carbon = stanza:child_with_ns("urn:xmpp:carbons:2") or stanza:child_with_ns("urn:xmpp:carbons:1");
+	if not carbon then return; end
+	local direction = carbon.name == "sent" and "out" or "in";
+	local forward = carbon:get_child("urn:xmpp:forward:0", "forwarded");
+	local message = forward and forward:child_with_name("message") or nil;
+	if not message then return; end
+	return message, direction;
 end
 
 local function new_pump(output, ...)
@@ -106,22 +90,16 @@ local function is_important(stanza, session)
 		return false;
 	elseif st_name == "message" then
 		-- unpack carbon copies
-		local stanza_direction = "in";
-		local carbon;
-		local st_type;
-		-- support carbon copied message stanzas having an arbitrary message-namespace or no message-namespace at all
-		if not carbon then carbon = find(stanza, "{urn:xmpp:carbons:2}/forwarded/message"); end
-		if not carbon then carbon = find(stanza, "{urn:xmpp:carbons:1}/forwarded/message"); end
-		stanza_direction = carbon and stanza:child_with_name("sent") and "out" or "in";
+		local carbon, stanza_direction = extract_carbon(stanza);
 		--session.log("debug", "mod_csi_battery_saver(%s): stanza_direction = %s, carbon = %s, stanza = %s", id, stanza_direction, carbon and "true" or "false", tostring(stanza));
 		if carbon then stanza = carbon; end
-		st_type = stanza.attr.type;
 
+		local st_type = stanza.attr.type;
 		-- headline message are always not important
 		if st_type == "headline" then return false; end
 
 		-- chat markers (XEP-0333) are important, too, because some clients use them to update their notifications
-		if find(stanza, "{urn:xmpp:chat-markers:0}") then return true; end;
+		if stanza:child_with_ns("urn:xmpp:chat-markers:0") then return true; end;
 
 		-- carbon copied outgoing messages are important (some clients update their notifications upon receiving those) --> don't return false here
 		--if carbon and stanza_direction == "out" then return false; end
