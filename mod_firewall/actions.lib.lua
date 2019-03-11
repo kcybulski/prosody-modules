@@ -1,3 +1,6 @@
+local interpolation = require "util.interpolation";
+local template = interpolation.new("%b$$", function (s) return ("%q"):format(s) end);
+
 --luacheck: globals meta idsafe
 local action_handlers = {};
 
@@ -193,19 +196,18 @@ function action_handlers.JUMP_EVENT(name)
 end
 
 function action_handlers.JUMP_CHAIN(name)
-	return ([[do
-		local ret = fire_event(%q, event);
-		log('debug', 'chain \"%%s\" returned %%s', %q, tostring(ret));
+	return template([[do
+		local ret = fire_event($chain_event$, event);
 		if ret ~= nil then
 			if ret == false then
-				log("debug", "Chain accepted stanza");
+				log("debug", "Chain %q accepted stanza (ret %s)", $chain_name$, tostring(ret));
 				return pass_return;
 			end
-			log("debug", "Chain rejected stanza");
+			log("debug", "Chain %q rejected stanza (ret %s)", $chain_name$, tostring(ret));
 			return ret;
 		end
-		log("debug", "Chain did not accept or reject stanza");
-	end]]):format("firewall/chains/"..name, name);
+		log("debug", "Chain %q did not accept or reject stanza (ret %s)", $chain_name$, tostring(ret));
+	end]], { chain_event = "firewall/chains/"..name, chain_name = name });
 end
 
 function action_handlers.MARK_ORIGIN(name)
