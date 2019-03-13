@@ -5,6 +5,7 @@ local nodeprep = require"util.encodings".stringprep.nodeprep;
 local it = require"util.iterators";
 local url = require"socket.url";
 local os_time, os_date = os.time, os.date;
+local httplib = require "util.http";
 local render = require"util.interpolation".new("%b{}", require"util.stanza".xml_escape);
 
 local archive = module:open_store("muc_log", "archive");
@@ -109,9 +110,19 @@ end
 
 local lazy = module:get_option_boolean(module.name .. "_lazy_calendar", true);
 
+local function hide_presence(request)
+	if request.url.query then
+		local data = httplib.formdecode(request.url.query);
+		if data then
+			return data.p == "h"
+		end
+	end
+	return false;
+end
+
 -- Produce the calendar view
 local function years_page(event, path)
-	local response = event.response;
+	local request, response = event.request, event.response;
 
 	local room = nodeprep(path:match("^(.*)/$"));
 	local is_open = open_room(room);
@@ -204,6 +215,7 @@ local function years_page(event, path)
 	return render(template, {
 		title = get_room(room):get_name();
 		jid = get_room(room).jid;
+		hide_presence = hide_presence(request);
 		years = years;
 		links = {
 			{ href = "../", rel = "up", text = "Room list" },
@@ -213,7 +225,7 @@ end
 
 -- Produce the chat log view
 local function logs_page(event, path)
-	local response = event.response;
+	local request, response = event.request, event.response;
 
 	-- FIXME In the year, 105105, if MUC is still alive,
 	-- if Prosody can survive... Enjoy this Y10k bug
@@ -234,6 +246,7 @@ local function logs_page(event, path)
 	local iter, err = archive:find(room, {
 		["start"] = day_start;
 		["end"]   = day_start + 86399;
+		["with"]  = hide_presence(request) and "message<groupchat" or nil;
 	});
 	if not iter then
 		module:log("warn", "Could not search archive: %s", err or "no error");
@@ -304,6 +317,7 @@ local function logs_page(event, path)
 	return render(template, {
 		title = ("%s - %s"):format(get_room(room):get_name(), date);
 		jid = get_room(room).jid;
+		hide_presence = hide_presence(request);
 		lines = logs;
 		links = {
 			{ href = "./", rel = "up", text = "Calendar" },
@@ -314,7 +328,7 @@ local function logs_page(event, path)
 end
 
 local function list_rooms(event)
-	local response = event.response;
+	local request, response = event.request, event.response;
 	local room_list, i = {}, 1;
 	for room in each_room() do
 		if not (room.get_hidden or room.is_hidden)(room) then
@@ -330,6 +344,7 @@ local function list_rooms(event)
 	return render(template, {
 		title = module:get_option_string("name", "Prosody Chatrooms");
 		jid = module.host;
+		hide_presence = hide_presence(request);
 		rooms = room_list;
 	});
 end
