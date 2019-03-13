@@ -38,6 +38,7 @@ li:hover .time{opacity:1;}
 .body::before,.body::after{content:"";}
 .presence .verb{font-style:normal;color:#30c030;}
 .unavailable .verb{color:#c03030;}
+form{text-align:right}
 </style>
 </head>
 <body>
@@ -45,7 +46,7 @@ li:hover .time{opacity:1;}
 <h1 title="xmpp:{jid?}">{title}</h1>
 <nav>
 <a href="xmpp:{jid?}?join">Join using a client</a>{links#
-<a class="{item.rel?}" href="{item.href}" rel="{item.rel?}">{item.text}</a>}
+<a class="{item.rel?}" href="{item.href}{hide_presence&?p=h}" rel="{item.rel?}">{item.text}</a>}
 </nav>
 </header>
 <hr>
@@ -53,7 +54,7 @@ li:hover .time{opacity:1;}
 <nav>
 <dl class="room-list">
 {rooms#
-<dt class="name"><a href="{item.href}">{item.name}</a></dt>
+<dt class="name"><a href="{item.href}{hide_presence&?p=h}">{item.name}</a></dt>
 <dd class="description">{item.description?}</dd>}
 </dl>
 {years#
@@ -62,11 +63,24 @@ li:hover .time{opacity:1;}
 <table id="{item.month}-{item.year}">
 <caption>{item.month}</caption>
 <tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>{item.weeks#
-<tr>{item.days#<td>{item.href&<a href="{item.href}">}{item.day?&nbsp;}{item.href&</a>}</td>}</tr>}
+<tr>{item.days#<td>{item.href&<a href="{item.href}{hide_presence&?p=h}">}{item.day?&nbsp;}{item.href&</a>}</td>}</tr>}
 </table>
 }
 }
 </nav>
+
+<div>
+<form>
+<label>
+<input name="p" value="h" type="checkbox"{hide_presence& checked}>
+<span>Hide joins and parts</span>
+</label>
+<noscript>
+<button type="submit">Apply</button>
+</noscript>
+</form>
+</div>
+
 <ol class="chat-logs">{lines#
 <li class="{item.st_name} {item.st_type?}" id="{item.key}">
 <a class="time" href="#{item.key}"><time datetime="{item.datetime}">{item.time}</time></a>
@@ -79,7 +93,7 @@ li:hover .time{opacity:1;}
 <hr>
 <footer>
 <nav>{links#
-<a class="{item.rel?}" href="{item.href}" rel="{item.rel?}">{item.text}</a>}
+<a class="{item.rel?}" href="{item.href}{hide_presence&?p=h}" rel="{item.rel?}">{item.text}</a>}
 </nav>
 <br>
 <div class="powered-by">Prosody</div>
@@ -99,6 +113,9 @@ tag.textContent = date.toLocaleTimeString(navigator.language);
 tag.setAttribute("title", date.toString());
 }
 }
+document.forms[0].elements.p.addEventListener("change", function() {
+document.forms[0].submit();
+});
 })();
 </script>
 </body>
