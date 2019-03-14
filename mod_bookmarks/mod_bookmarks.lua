@@ -125,9 +125,9 @@ local function on_node_created(event)
 	if node ~= "storage:bookmarks" then
 		return;
 	end
-	local ok, config = service:get_node_config(node, actor);
+	local ok, node_config = service:get_node_config(node, actor);
 	if not ok then
-		module:log("error", "Failed to get node config of %s: %s", node, config);
+		module:log("error", "Failed to get node config of %s: %s", node, node_config);
 		return;
 	end
 	local changed = false;
@@ -140,7 +140,7 @@ local function on_node_created(event)
 	if not changed then
 		return;
 	end
-	local ok, err = service:set_node_config(node, actor, config);
+	local ok, err = service:set_node_config(node, actor, node_config);
 	if not ok then
 		module:log("error", "Failed to set node config of %s: %s", node, err);
 		return;
