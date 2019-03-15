@@ -19,7 +19,7 @@ if pubsub.get_last_item then -- COMPAT not available in 0.10
 end
 
 module:hook("message/host", function (event)
-	local origin, stanza = event.origin, event.stanza;
+	local stanza = event.stanza;
 	local body = stanza:get_child_text("body");
 	if not body then return end -- bail out
 
