@@ -11,6 +11,7 @@ Commands:
 
 - `help` - this help message
 - `list` - list available nodes
+- `subscriptions` - list nodes you are subscribed to
 - `subscribe node` - subscribe to a node
 - `unsubscribe node` - unsubscribe from a node]];
 if pubsub.get_last_item then -- COMPAT not available in 0.10
@@ -42,6 +43,19 @@ module:hook("message/host", function (event)
 			reply:body(table.concat(list, "\n"));
 		else
 			reply:body(nodes);
+		end
+	elseif command == "subscriptions" then
+		local ok, subs = pubsub:get_subscriptions(nil, from, from);
+		if not ok then
+			reply:body(subs);
+		elseif #subs == 0 then
+			reply:body("You are not subscribed to anything from this pubsub service");
+		else
+			local response = {};
+			for i = 1, #subs do
+				response[i] = string.format("- `%s`", subs[i].node);
+			end
+			reply:body(table.concat(response, "\n"));
 		end
 	elseif command == "subscribe" then
 		local ok, err = pubsub:add_subscription(node_arg, from, jid.bare(from), { ["pubsub#include_body"] = true });
