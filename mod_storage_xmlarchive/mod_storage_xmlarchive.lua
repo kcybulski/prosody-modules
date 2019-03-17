@@ -336,6 +336,8 @@ function module.command(arg)
 						data.attr.stamp_legacy = dt.legacy(data.when);
 						assert(dm.list_append(user, host, store, data));
 					end
+					assert(os.remove(dm.getpath(user .. "@" .. date, host, store, "list")));
+					assert(os.remove(dm.getpath(user .. "@" .. date, host, store, "xml")));
 				end
 			end
 		else -- convert from internal
