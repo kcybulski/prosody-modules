@@ -25,7 +25,7 @@ local function extract_carbon(stanza)
 	local carbon = stanza:child_with_ns("urn:xmpp:carbons:2") or stanza:child_with_ns("urn:xmpp:carbons:1");
 	if not carbon then return; end
 	local direction = carbon.name == "sent" and "out" or "in";
-	local forward = carbon:get_child("urn:xmpp:forward:0", "forwarded");
+	local forward = carbon:get_child("forwarded", "urn:xmpp:forward:0");
 	local message = forward and forward:child_with_name("message") or nil;
 	if not message then return; end
 	return message, direction;
