@@ -54,7 +54,16 @@ local html_template = ([[
 </html>
 ]]):gsub("$([%w_]+)", { js_url = js_url, css_url = css_url });
 
-js_template = "converse.initialize(%s);";
+js_template = [[
+if(typeof converse == 'undefined') {
+	var div = document.createElement("div");
+	var noscript = document.getElementsByTagName("noscript")[0];
+	div.innerHTML = noscript.innerText;
+	document.body.appendChild(div);
+} else {
+	converse.initialize(%s);
+}
+]];
 
 local user_options = module:get_option("conversejs_options");
 
