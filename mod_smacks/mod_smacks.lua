@@ -44,6 +44,9 @@ local max_old_sessions = module:get_option_number("smacks_max_old_sessions", 10)
 local core_process_stanza = prosody.core_process_stanza;
 local sessionmanager = require"core.sessionmanager";
 
+assert(max_hibernated_sessions > 0, "smacks_max_hibernated_sessions must be greater than 0");
+assert(max_old_sessions > 0, "smacks_old_sessions must be greater than 0");
+
 local c2s_sessions = module:shared("/*/c2s/sessions");
 
 local function init_session_cache(max_entries, evict_callback)
