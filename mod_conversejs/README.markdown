@@ -69,7 +69,10 @@ Note that the following options are automatically provided, and
 -   `authentication` *based on Prosody's authentication settings*
 -   `jid` *the current `VirtualHost`*
 -   `bosh_service_url`
--   `websocket_url` *if `mod_websocket` is available*
+-   `websocket_url`
+
+`mod_bosh` and/or `mod_websocket` are automatically enabled if available
+and the respective endpoint is included in the generated options.
 
 Loading resources
 -----------------
