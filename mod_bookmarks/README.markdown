@@ -15,6 +15,8 @@ version](https://xmpp.org/extensions/attic/xep-0048-1.0.html) and
 recent clients which use it in
 [PEP](https://xmpp.org/extensions/xep-0163.html).
 
+This behavior is described in [XEP-0411: Bookmarks Conversion].
+
 Configuration
 -------------
 
