@@ -1,8 +1,13 @@
+---
+summary: Publish to PubSub nodes from via HTTP POST/WebHooks
+---
+
 # Introduction
 
-Lets you easily publish data to PubSub using a HTTP POST request. The
-payload can be Atom feeds, arbitrary XML, or arbitrary JSON. The type
-should be indicated via the `Content-Type` header.
+This module is a fairly generic WebHook receiver that lets you easily
+publish data to PubSub using a HTTP POST request. The payload can be
+Atom feeds, arbitrary XML, or arbitrary JSON. The type should be
+indicated via the `Content-Type` header.
 
 ``` {.bash}
 curl http://localhost:5280/pubsub_post/princely_musings \
