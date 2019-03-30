@@ -95,13 +95,15 @@ end
 
 function handle_POST(event, path)
 	local request = event.request;
-	module:log("debug", "Handling POST: \n%s\n", tostring(request.body));
 
 	local content_type = request.headers.content_type or "application/octet-stream";
 	local actor = actors and actors[path] or default_actor or request.ip;
 	local secret = actor_secrets and actor_secrets[path] or default_secret;
 
+	module:log("debug", "Handling POST to node %q by %q with %q: \n%s\n", path, actor, content_type, request.body);
+
 	if secret and not verify_signature(secret, request.body, request.headers.x_hub_signature) then
+		module:log("debug", "Signature validation failed");
 		return 401;
 	end
 
