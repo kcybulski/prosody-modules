@@ -40,7 +40,7 @@ pubsub_post_actor = "request.ip"
 Uses the IP address from the HTTP request as actor, which means this
 pseudo-JID must be given a 'publisher' affiliation. This should work
 nicely with the `autocreate_on_publish` setting, where the first actor
-to attempt to publish to a non-existant node becomes owner of it, which
+to attempt to publish to a nonexistent node becomes owner of it, which
 includes publishing rights.
 
 ## WebSub
