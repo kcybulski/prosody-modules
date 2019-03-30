@@ -1,4 +1,6 @@
 ---
+labels:
+- 'Stage-Stable'
 summary: Publish to PubSub nodes from via HTTP POST/WebHooks
 ---
 
