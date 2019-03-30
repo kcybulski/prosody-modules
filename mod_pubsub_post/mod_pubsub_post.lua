@@ -75,9 +75,14 @@ local function handle_xml(node, actor, payload)
 	end
 end
 
-local actor_source = module:get_option_string("pubsub_post_actor", "superuser");
-local actor_secret = module:get_option_string("pubsub_post_secret");
+local actor_source = module:get_option_string("pubsub_post_actor"); -- COMPAT
+local default_secret = module:get_option_string("pubsub_post_default_secret");
 local actor_secrets = module:get_option("pubsub_post_secrets");
+local actors = module:get_option("pubsub_post_actors");
+local default_actor = module:get_option_string("pubsub_post_default_actor");
+if not default_actor and actor_source == "superuser" then
+	default_actor = true;
+end
 
 local function verify_signature(secret, body, signature)
 	if not signature then return false; end
@@ -93,20 +98,11 @@ function handle_POST(event, path)
 	module:log("debug", "Handling POST: \n%s\n", tostring(request.body));
 
 	local content_type = request.headers.content_type or "application/octet-stream";
-	local actor;
+	local actor = actors and actors[path] or default_actor or request.ip;
+	local secret = actor_secrets and actor_secrets[path] or default_secret;
 
-	local secret = actor_secrets and actor_secrets[path] or actor_secret;
 	if secret and not verify_signature(secret, request.body, request.headers.x_hub_signature) then
 		return 401;
-	end
-
-	if actor_source == "request.ip" then
-		actor = request.ip or request.conn:ip();
-	elseif actor_source == "superuser" then
-		actor = true;
-	else
-		module:log("error", "pubsub_post_actor set to unsupported value %q", actor_source);
-		return 500;
 	end
 
 	if not actor then

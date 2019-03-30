@@ -17,56 +17,60 @@ curl http://localhost:5280/pubsub_post/princely_musings \
 
 # Configuration
 
-## Authentication
+All settings are optional.
 
-Authentication can be handled in two different ways.
+## Actor identification
 
-### None
-
-``` {.lua}
-pubsub_post_actor = "superuser"
-```
-
-The module uses an internal actor that has all privileges and can always
-do everything. It is strongly suggested that you do not expose this to
-the Internet. *Maybe* it shouldn't be the default...
-
-### IP
-
-``` {.lua}
-pubsub_post_actor = "request.ip"
-```
-
-Uses the IP address from the HTTP request as actor, which means this
-pseudo-JID must be given a 'publisher' affiliation. This should work
-nicely with the `autocreate_on_publish` setting, where the first actor
-to attempt to publish to a nonexistent node becomes owner of it, which
-includes publishing rights.
-
-## WebSub
+First we have to figure out who is making the request.
+This is configured on a per-node basis like this:
 
 ``` {.lua}
 -- Per node secrets
-pubsub_post_secrets = {
-    my_node = "shared secret"
+pubsub_post_actors = {
+    princely_musings = "hamlet@denmark.lit"
 }
-
--- Same secret for all nodes
-pubsub_post_secret = "shared secret"
+pubsub_post_default_actor = "nobody@nowhere.invalid"
 ```
 
-This enables the
+`pubsub_post_default_actor` is used when trying to publish to a node
+that is not listed in `pubsub_post_actors`. Otherwise the IP address
+of the connection is used.
+
+## Authentication
+
 [WebSub](https://www.w3.org/TR/2018/REC-websub-20180123/) [Authenticated
 Content
 Distribution](https://www.w3.org/TR/2018/REC-websub-20180123/#authenticated-content-distribution)
-authentication method, where payloads are signed using a shared secret.
+authentication is used.
 
-## Setting up affiliations
+``` {.lua}
+pubsub_post_secrets = {
+    princely_musings = "shared secret"
+}
+pubsub_post_default_secret = "default secret"
+```
+
+`pubsub_post_default_secret` is used when trying to publish to a node
+that is not listed in `pubsub_post_secrets`. Otherwise the request
+proceeds with the previously identified actor.
+
+::: {.alert .alert-danger}
+If configured without a secret and a default actor that has permission
+to create nodes the service becomes wide open.
+:::
+
+## Authorization
+
+Authorization is handled via pubsub affiliations. Publishing requires an
+affiliation with the _publish_ capability, usually `"publisher"`.
+
+### Setting up affiliations
 
 Prosodys PubSub module supports [setting affiliations via
 XMPP](https://xmpp.org/extensions/xep-0060.html#owner-affiliations), in
 trunk since [revision
-384ef9732b81](https://hg.prosody.im/trunk/rev/384ef9732b81).
+384ef9732b81](https://hg.prosody.im/trunk/rev/384ef9732b81), so
+affiliations can be configured with a capable client.
 
 It can however be done from another plugin:
 
