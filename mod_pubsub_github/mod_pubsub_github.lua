@@ -2,7 +2,14 @@ module:depends("http");
 
 local st = require "util.stanza";
 local json = require "util.json";
-local hmac_sha1 = require "util.hashes".hmac_sha1;
+local hashes = require "util.hashes";
+local from_hex = require "util.hex".from;
+local hmacs = {
+	sha1 = hashes.hmac_sha1;
+	sha256 = hashes.hmac_sha256;
+	sha384 = hashes.hmac_sha384;
+	sha512 = hashes.hmac_sha512;
+};
 
 local pubsub_service = module:depends("pubsub").service;
 local default_node = module:get_option("github_node", "github");
@@ -20,9 +27,20 @@ local error_mapping = {
 	["conflict"] = 409;
 };
 
+local function verify_signature(secret, body, signature)
+	if not signature then return false; end
+	local algo, digest = signature:match("^([^=]+)=(%x+)");
+	if not algo then return false; end
+	local hmac = hmacs[algo];
+	if not algo then return false; end
+	return hmac(secret, body) == from_hex(digest);
+end
+
 function handle_POST(event)
 	local request, response = event.request, event.response;
-	if ("sha1=" .. hmac_sha1(secret, request.body, true)) ~= request.headers.x_hub_signature then
+
+	if not verify_signature(secret, request.body, request.headers.x_hub_signature) then
+		module:log("debug", "Signature validation failed");
 		return 401;
 	end
 	local data = json.decode(request.body);
