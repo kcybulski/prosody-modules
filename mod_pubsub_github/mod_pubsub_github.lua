@@ -9,12 +9,13 @@ local node = module:get_option("github_node", "github");
 local secret = module:get_option("github_secret");
 
 function handle_POST(event)
-	local request = event.request;
+	local request, response = event.request, event.response;
 	if secret and ("sha1=" .. hmac_sha1(secret, request.body, true)) ~= request.headers.x_hub_signature then
 		return 401;
 	end
 	local data = json.decode(request.body);
 	if not data then
+		response.status_code = 400;
 		return "Invalid JSON. From you of all people...";
 	end
 
@@ -34,6 +35,7 @@ function handle_POST(event)
 	end
 
 	module:log("debug", "Handled POST: \n%s\n", tostring(request.body));
+	response.status_code = 202;
 	return "Thank you Github!";
 end
 
