@@ -26,6 +26,8 @@ function handle_POST(event)
 		return "Invalid JSON. From you of all people...";
 	end
 
+	module:log("debug", "Handling POST: \n%s\n", tostring(request.body));
+
 	for _, commit in ipairs(data.commits) do
 		local ok, err = pubsub_service:publish(node, true, data.repository.name,
 			st.stanza("item", { id = data.repository.name, xmlns = "http://jabber.org/protocol/pubsub" })
@@ -44,7 +46,6 @@ function handle_POST(event)
 		end
 	end
 
-	module:log("debug", "Handled POST: \n%s\n", tostring(request.body));
 	response.status_code = 202;
 	return "Thank you Github!";
 end
