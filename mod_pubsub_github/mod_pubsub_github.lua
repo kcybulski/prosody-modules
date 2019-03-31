@@ -38,8 +38,8 @@ function handle_POST(event)
 	end -- else .. is this even github?
 
 	for _, commit in ipairs(data.commits) do
-		local ok, err = pubsub_service:publish(node, github_actor, data.repository.name,
-			st.stanza("item", { id = data.repository.name, xmlns = "http://jabber.org/protocol/pubsub" })
+		local ok, err = pubsub_service:publish(node, github_actor, commit.id,
+			st.stanza("item", { id = commit.id, xmlns = "http://jabber.org/protocol/pubsub" })
 			:tag("entry", { xmlns = "http://www.w3.org/2005/Atom" })
 				:tag("id"):text(commit.id):up()
 				:tag("title"):text(commit.message):up()
