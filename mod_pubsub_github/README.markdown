@@ -17,9 +17,11 @@ It may also work with Gitlab.
 
 Load the module on a pubsub component:
 
-    Component "pubsub.example.com" "pubsub"
-        modules_enabled = { "pubsub_github" }
-        github_secret = "NP7bZooYSLKze96TQMpFW5ov"
+``` {.lua}
+Component "pubsub.example.com" "pubsub"
+    modules_enabled = { "pubsub_github" }
+    github_secret = "NP7bZooYSLKze96TQMpFW5ov"
+```
 
 The URL for Github to post to would be either:
 
