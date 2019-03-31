@@ -18,10 +18,10 @@ local default_node = module:get_option("github_node", "github");
 local node_prefix = module:get_option_string("github_node_prefix", "github/");
 local node_mapping = module:get_option_string("github_node_mapping");
 local github_actor = module:get_option_string("github_actor") or true;
-local secret = module:get_option("github_secret");
+local github_secret = module:get_option("github_secret");
 
 -- validation
-assert(secret, "Please set 'github_secret'");
+assert(github_secret, "Please set 'github_secret'");
 
 local error_mapping = {
 	["forbidden"] = 403;
@@ -42,7 +42,7 @@ end
 function handle_POST(event)
 	local request, response = event.request, event.response;
 
-	if not verify_signature(secret, request.body, request.headers.x_hub_signature) then
+	if not verify_signature(github_secret, request.body, request.headers.x_hub_signature) then
 		module:log("debug", "Signature validation failed");
 		return 401;
 	end
