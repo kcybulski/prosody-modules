@@ -58,7 +58,7 @@ function handle_POST(event)
 		node = node_prefix .. data.repository[node_mapping];
 	end
 
-	local github_event = request.headers.x_github_event
+	local github_event = request.headers.x_github_event or data.object_kind;
 	if github_event == "push" then
 		module:log("debug", "Handling 'push' event: \n%s\n", tostring(request.body));
 	elseif github_event then
