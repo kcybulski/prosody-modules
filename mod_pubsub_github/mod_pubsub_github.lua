@@ -5,7 +5,9 @@ local json = require "util.json";
 local hmac_sha1 = require "util.hashes".hmac_sha1;
 
 local pubsub_service = module:depends("pubsub").service;
-local node = module:get_option("github_node", "github");
+local default_node = module:get_option("github_node", "github");
+local node_prefix = module:get_option_string("github_node_prefix", "github/");
+local node_mapping = module:get_option_string("github_node_mapping");
 local github_actor = module:get_option_string("github_actor") or true;
 local secret = module:get_option("github_secret");
 
@@ -37,6 +39,11 @@ function handle_POST(event)
 		return 501;
 	end -- else .. is this even github?
 
+	local node = default_node;
+	if node_mapping then
+		node = node_prefix .. data.repository[node_mapping];
+	end
+
 	for _, commit in ipairs(data.commits) do
 		local ok, err = pubsub_service:publish(node, github_actor, commit.id,
 			st.stanza("item", { id = commit.id, xmlns = "http://jabber.org/protocol/pubsub" })
@@ -65,13 +72,15 @@ module:provides("http", {
 	};
 });
 
-function module.load()
-	if not pubsub_service.nodes[node] then
-		local ok, err = pubsub_service:create(node, true);
-		if not ok then
-			module:log("error", "Error creating node: %s", err);
-		else
-			module:log("debug", "Node %q created", node);
+if not node_mapping then
+	function module.load()
+		if not pubsub_service.nodes[default_node] then
+			local ok, err = pubsub_service:create(default_node, true);
+			if not ok then
+				module:log("error", "Error creating node: %s", err);
+			else
+				module:log("debug", "Node %q created", default_node);
+			end
 		end
 	end
 end
