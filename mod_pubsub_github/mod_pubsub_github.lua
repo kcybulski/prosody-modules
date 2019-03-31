@@ -59,6 +59,9 @@ function handle_POST(event)
 	end
 
 	local github_event = request.headers.x_github_event or data.object_kind;
+	if not github_event and data.commits then
+		github_event = "push"; -- curl?
+	end
 	module:log("debug", "Handling '%s' event: \n%s\n", github_event, tostring(request.body));
 
 	if github_event == "push" then
