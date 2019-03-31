@@ -9,6 +9,8 @@ local node = module:get_option("github_node", "github");
 local github_actor = module:get_option_string("github_actor") or true;
 local secret = module:get_option("github_secret");
 
+assert(secret, "Please set 'github_secret'");
+
 local error_mapping = {
 	["forbidden"] = 403;
 	["item-not-found"] = 404;
@@ -18,7 +20,7 @@ local error_mapping = {
 
 function handle_POST(event)
 	local request, response = event.request, event.response;
-	if secret and ("sha1=" .. hmac_sha1(secret, request.body, true)) ~= request.headers.x_hub_signature then
+	if ("sha1=" .. hmac_sha1(secret, request.body, true)) ~= request.headers.x_hub_signature then
 		return 401;
 	end
 	local data = json.decode(request.body);
