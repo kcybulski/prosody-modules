@@ -26,7 +26,13 @@ function handle_POST(event)
 		return "Invalid JSON. From you of all people...";
 	end
 
-	module:log("debug", "Handling POST: \n%s\n", tostring(request.body));
+	local github_event = request.headers.x_github_event
+	if github_event == "push" then
+		module:log("debug", "Handling 'push' event: \n%s\n", tostring(request.body));
+	elseif github_event then
+		module:log("debug", "Unsupported Github event %q", github_event);
+		return 501;
+	end -- else .. is this even github?
 
 	for _, commit in ipairs(data.commits) do
 		local ok, err = pubsub_service:publish(node, true, data.repository.name,
