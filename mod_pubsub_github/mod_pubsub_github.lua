@@ -12,12 +12,15 @@ local hmacs = {
 };
 
 local pubsub_service = module:depends("pubsub").service;
+
+-- configuration
 local default_node = module:get_option("github_node", "github");
 local node_prefix = module:get_option_string("github_node_prefix", "github/");
 local node_mapping = module:get_option_string("github_node_mapping");
 local github_actor = module:get_option_string("github_actor") or true;
 local secret = module:get_option("github_secret");
 
+-- validation
 assert(secret, "Please set 'github_secret'");
 
 local error_mapping = {
@@ -43,6 +46,7 @@ function handle_POST(event)
 		module:log("debug", "Signature validation failed");
 		return 401;
 	end
+
 	local data = json.decode(request.body);
 	if not data then
 		response.status_code = 400;
