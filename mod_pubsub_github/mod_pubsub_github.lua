@@ -8,6 +8,13 @@ local pubsub_service = module:depends("pubsub").service;
 local node = module:get_option("github_node", "github");
 local secret = module:get_option("github_secret");
 
+local error_mapping = {
+	["forbidden"] = 403;
+	["item-not-found"] = 404;
+	["internal-server-error"] = 500;
+	["conflict"] = 409;
+};
+
 function handle_POST(event)
 	local request, response = event.request, event.response;
 	if secret and ("sha1=" .. hmac_sha1(secret, request.body, true)) ~= request.headers.x_hub_signature then
@@ -32,6 +39,9 @@ function handle_POST(event)
 					:tag("email"):text(commit.author.email):up()
 					:up()
 		);
+		if not ok then
+			return error_mapping[err] or 500;
+		end
 	end
 
 	module:log("debug", "Handled POST: \n%s\n", tostring(request.body));
