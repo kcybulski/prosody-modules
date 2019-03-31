@@ -26,6 +26,7 @@ The module also takes the following config options:
   ----------------------- ------------------- ------------------------------------------------------------
   `github_node`           `"github"`{.lua}    The pubsub node to publish commits on.
   `github_secret`         *not set*           Shared secret used to sign HTTP requests.
+  `github_actor`          *superuser*         Which actor to do the publish as (used for access control)
 
 The URL for Github to post to would be either:
 

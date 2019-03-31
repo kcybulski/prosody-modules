@@ -6,6 +6,7 @@ local hmac_sha1 = require "util.hashes".hmac_sha1;
 
 local pubsub_service = module:depends("pubsub").service;
 local node = module:get_option("github_node", "github");
+local github_actor = module:get_option_string("github_actor") or true;
 local secret = module:get_option("github_secret");
 
 local error_mapping = {
@@ -35,7 +36,7 @@ function handle_POST(event)
 	end -- else .. is this even github?
 
 	for _, commit in ipairs(data.commits) do
-		local ok, err = pubsub_service:publish(node, true, data.repository.name,
+		local ok, err = pubsub_service:publish(node, github_actor, data.repository.name,
 			st.stanza("item", { id = data.repository.name, xmlns = "http://jabber.org/protocol/pubsub" })
 			:tag("entry", { xmlns = "http://www.w3.org/2005/Atom" })
 				:tag("id"):text(commit.id):up()
