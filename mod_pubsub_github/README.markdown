@@ -1,5 +1,6 @@
 ---
-labels: 'Stage-Beta'
+labels:
+- 'Stage-Beta'
 summary: Publish Github commits over pubsub
 ---
 
