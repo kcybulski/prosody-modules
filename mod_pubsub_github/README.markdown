@@ -22,10 +22,10 @@ Load the module on a pubsub component:
 
 The module also takes the following config options:
 
-  Name             Default     Description
-  ---------------- ----------- -------------------------------------------
-  github\_node     "github"    The pubsub node to publish commits on.
-  github\_secret   *not set*   Shared secret used to sign HTTP requests.
+  Name                    Default             Description
+  ----------------------- ------------------- ------------------------------------------------------------
+  `github_node`           `"github"`{.lua}    The pubsub node to publish commits on.
+  `github_secret`         *not set*           Shared secret used to sign HTTP requests.
 
 The URL for Github to post to would be either:
 
