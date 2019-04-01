@@ -27,6 +27,9 @@ module:hook("csi-is-stanza-important", function (event)
 					if body:find(room_nick, 1, true) then
 						return true;
 					end
+					if stanza.attr.from == (room_jid .. "/" .. room_nick) then
+						return true;
+					end
 				end
 			end
 		end
