@@ -21,10 +21,14 @@ module:hook("csi-is-stanza-important", function (event)
 
 			-- Look for mention
 			local rooms = session.rooms_joined;
-			if not rooms then return; end
-
-			local room_nick = rooms[room_jid];
-			if room_nick and body:find(room_nick, 1, true) then return true; end
+			if rooms then
+				local room_nick = rooms[room_jid];
+				if room_nick then
+					if body:find(room_nick, 1, true) then
+						return true;
+					end
+				end
+			end
 		end
 	end
 end);
