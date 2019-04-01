@@ -68,6 +68,7 @@ local adhoc_command_handler = adhoc_inital_data(priority_settings_form, function
 		for jid in pairs(prioritized_jids) do
 			table.insert(unimportant, jid);
 		end
+		table.sort(unimportant);
 	end
 	return { unimportant = unimportant };
 end, function(fields, form_err, data)
