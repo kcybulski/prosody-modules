@@ -1,7 +1,5 @@
 local jid = require "util.jid";
 
-module:depends"track_muc_joins"
-
 module:hook("csi-is-stanza-important", function (event)
 	local stanza, session = event.stanza, event.session;
 	if stanza.name == "message" then
@@ -10,9 +8,8 @@ module:hook("csi-is-stanza-important", function (event)
 			if not body then return end
 
 			local rooms = session.rooms_joined;
-			if not rooms then return false; end
+			if not rooms then return; end
 
-			-- TODO optional?
 			local room_nick = rooms[jid.bare(stanza.attr.from)];
 			if room_nick and body:find(room_nick, 1, true) then return true; end
 
