@@ -1,4 +1,4 @@
-local jid = require "util.jid";
+local jid_bare = require "util.jid".bare;
 
 module:hook("csi-is-stanza-important", function (event)
 	local stanza, session = event.stanza, event.session;
@@ -7,10 +7,12 @@ module:hook("csi-is-stanza-important", function (event)
 			local body = stanza:get_child_text("body");
 			if not body then return end
 
+			local room_jid = jid_bare(stanza.attr.from);
+
 			local rooms = session.rooms_joined;
 			if not rooms then return; end
 
-			local room_nick = rooms[jid.bare(stanza.attr.from)];
+			local room_nick = rooms[room_jid];
 			if room_nick and body:find(room_nick, 1, true) then return true; end
 
 			return false;
