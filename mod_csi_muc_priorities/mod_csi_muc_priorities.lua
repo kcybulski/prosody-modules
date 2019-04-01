@@ -9,6 +9,7 @@ module:hook("csi-is-stanza-important", function (event)
 
 			local room_jid = jid_bare(stanza.attr.from);
 
+			-- Look for mention
 			local rooms = session.rooms_joined;
 			if not rooms then return; end
 
