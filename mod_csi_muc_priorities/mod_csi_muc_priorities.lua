@@ -31,6 +31,9 @@ module:hook("csi-is-stanza-important", function (event)
 						return true;
 					end
 				end
+			elseif session.directed and session.directed[stanza.attr.from] then
+				-- fallback if no mod_track_muc_joins
+				return true;
 			end
 		end
 	end
