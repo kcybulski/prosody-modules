@@ -39,12 +39,12 @@ local function on_retrieve_private_xml(event)
 			module:log("error", "Failed to retrieve PEP bookmarks of %s: %s", jid, id);
 			session.send(st.error_reply(stanza, "cancel", "internal-server-error", "Failed to retrive bookmarks from PEP"));
 		end
-		return;
+		return true;
 	end
 	if not id or not item then
 		module:log("debug", "Got no PEP bookmarks item for %s, returning empty private bookmarks", jid);
 		session.send(st.reply(stanza):add_child(query));
-		return
+		return true;
 	end
 	module:log("debug", "Got item %s: %s", id, item);
 
@@ -79,7 +79,7 @@ local function on_publish_private_xml(event)
 	if not ok then
 		module:log("error", "Failed to publish to PEP bookmarks for %s@%s: %s", session.username, session.host, err);
 		session.send(st.error_reply(stanza, "cancel", "internal-server-error", "Failed to store bookmarks to PEP"));
-		return;
+		return true;
 	end
 
 	session.send(st.reply(stanza));
