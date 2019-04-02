@@ -59,7 +59,7 @@ function default_filter_set.bytes_in(bytes, session)
 	if throttle then
 		local ok, balance, outstanding = throttle:poll(#bytes, true);
 		if not ok then
-			session.log("debug", "Session over rate limit (%d) with %d (by %d), pausing", throttle.max, #bytes, outstanding);
+			session.log("debug", "Session %q over rate limit (%d) with %d (by %d), pausing", session.full_jid or session.from_host or session.to_host, throttle.max, #bytes, outstanding);
 			outstanding = ceil(outstanding);
 			session.conn:pause(); -- Read no more data from the connection until there is no outstanding data
 			local outstanding_data = bytes:sub(-outstanding);
