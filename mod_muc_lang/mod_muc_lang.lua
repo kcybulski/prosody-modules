@@ -1,3 +1,4 @@
+assert(module:depends"muc".rooms, "This module is not required with Prosody >= 0.11");
 
 module:hook("muc-config-form", function(event)
 	local room, form = event.room, event.form;
