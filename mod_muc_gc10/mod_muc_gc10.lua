@@ -1,7 +1,7 @@
 local jid_bare = require "util.jid".bare;
 local st = require "util.stanza";
 
-local rooms = module:depends"muc".rooms;
+local rooms = assert(module:depends"muc".rooms, "This module is not needed with Prosody >=0.11");
 
 module:hook("presence/full", function (event)
 	local stanza, origin = event.stanza, event.origin;
