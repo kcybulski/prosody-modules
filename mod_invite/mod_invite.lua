@@ -41,7 +41,12 @@ function generate_page(event, token)
 
 	response.headers.content_type = "text/html; charset=utf-8";
 
-	if not token or not tokens[token] then
+	if not token or token == "" then
+		local template = assert(module:load_resource("invite/invite_result.html")):read("*a");
+
+		-- TODO maybe show a friendlier information page instead?
+		return apply_template(template, { classes = "alert-danger", message = "No token given" })
+	elseif not tokens[token] then
 		local template = assert(module:load_resource("invite/invite_result.html")):read("*a");
 
 		return apply_template(template, { classes = "alert-danger", message = "This invite has expired." })
