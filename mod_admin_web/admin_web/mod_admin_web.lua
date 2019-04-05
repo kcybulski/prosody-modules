@@ -255,6 +255,7 @@ function module.add_host(module)
 
 	-- Register adminsub handler
 	module:hook("iq/host/http://prosody.im/adminsub:adminsub", function(event)
+		-- luacheck: ignore 431/ok
 		local origin, stanza = event.origin, event.stanza;
 		local adminsub = stanza.tags[1];
 		local action = adminsub.tags[1];
