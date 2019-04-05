@@ -35,7 +35,7 @@ local function apply_template(template, args)
 end
 
 function generate_page(event, token)
-	local request, response = event.request, event.response;
+	local response = event.response;
 
 	local tokens = invite_storage:get() or {};
 
