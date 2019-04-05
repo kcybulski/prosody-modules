@@ -12,7 +12,13 @@ local tostring = tostring;
 local invite_storage = module:open_store();
 local inviter_storage = module:open_store("inviter");
 
-local serve = module:depends"http_files".serve;
+local serve;
+if not pcall(function ()
+	local http_files = require "net.http.files";
+	serve = http_files.serve;
+end) then
+	serve = module:depends"http_files".serve;
+end
 
 module:depends"adhoc";
 module:depends"http";

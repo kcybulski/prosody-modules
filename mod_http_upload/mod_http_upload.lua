@@ -44,7 +44,13 @@ end
 module:depends("http");
 module:depends("disco");
 
-local http_files = module:depends("http_files");
+local http_files;
+
+if not pcall(function ()
+	http_files = require "net.http.files";
+end) then
+	http_files = module:depends"http_files";
+end
 
 -- namespaces
 local namespace = "urn:xmpp:http:upload:0";
