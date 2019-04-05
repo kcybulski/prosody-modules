@@ -8,7 +8,6 @@ local usermanager = require "core.usermanager";
 local dataforms_new = require "util.dataforms".new;
 local st = require "util.stanza";
 local apply_template = require"util.interpolation".new("%b{}", st.xml_escape);
-local tostring = tostring;
 
 local reset_tokens = module:open_store();
 
