@@ -34,12 +34,10 @@ local function apply_template(template, args)
 		end)
 end
 
-function generate_page(event)
+function generate_page(event, token)
 	local request, response = event.request, event.response;
 
 	local tokens = invite_storage:get() or {};
-
-	local token = request.path:match("^/invite/([^/]*)$");
 
 	response.headers.content_type = "text/html; charset=utf-8";
 
