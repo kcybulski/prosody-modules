@@ -14,7 +14,13 @@ local reset_tokens = module:open_store();
 
 local max_token_age = module:get_option_number("password_reset_validity", 86400);
 
-local serve = module:depends"http_files".serve;
+local serve;
+if not pcall(function ()
+	local http_files = require "net.http.files";
+	serve = http_files.serve;
+end) then
+	serve = module:depends"http_files".serve;
+end
 
 module:depends("adhoc");
 module:depends("http");

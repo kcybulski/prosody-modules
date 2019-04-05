@@ -122,7 +122,15 @@ function module.add_host(module)
 	module:depends("bosh");
 	module:depends("admin_adhoc");
 	module:depends("http");
-	local serve_file = module:depends("http_files").serve {
+
+	local serve;
+	if not pcall(function ()
+		local http_files = require "net.http.files";
+		serve = http_files.serve;
+	end) then
+		serve = module:depends"http_files".serve;
+	end
+	local serve_file = serve {
 		path = module:get_directory() .. "/www_files";
 	};
 
