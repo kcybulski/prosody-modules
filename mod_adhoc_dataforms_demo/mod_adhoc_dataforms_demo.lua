@@ -14,15 +14,9 @@ local form = dataforms.new({
 		value = "xmpp:prosody.im/spec/util.dataforms#1",
 	};
 	{
-		type = "boolean",
-		label = "boolean-label",
-		name = "boolean-field",
-		value = true,
-	},
-	{
 		type = "fixed",
 		label = "fixed-label",
-		name = "fixed-field",
+		name = "fixed-field#1",
 		value = "fixed-value",
 	},
 	{
@@ -32,19 +26,34 @@ local form = dataforms.new({
 		value = "hidden-value",
 	},
 	{
-		type = "jid-multi",
-		label = "jid-multi-label",
-		name = "jid-multi-field",
-		value = {
-			"jid@multi/value#1",
-			"jid@multi/value#2",
-		},
+		type = "text-single",
+		label = "text-single-label",
+		name = "text-single-field",
+		value = "text-single-value",
 	},
 	{
-		type = "jid-single",
-		label = "jid-single-label",
-		name = "jid-single-field",
-		value = "jid@single/value",
+		type = "text-multi",
+		label = "text-multi-label",
+		name = "text-multi-field",
+		value = "text\nmulti\nvalue",
+	},
+	{
+		type = "text-private",
+		label = "text-private-label",
+		name = "text-private-field",
+		value = "text-private-value",
+	},
+	{
+		type = "boolean",
+		label = "boolean-label",
+		name = "boolean-field",
+		value = true,
+	},
+	{
+		type = "fixed",
+		label = "fixed-label",
+		name = "fixed-field#2",
+		value = "fixed-value",
 	},
 	{
 		type = "list-multi",
@@ -73,6 +82,21 @@ local form = dataforms.new({
 		}
 	},
 	{
+		type = "jid-single",
+		label = "jid-single-label",
+		name = "jid-single-field",
+		value = "jid@single/value",
+	},
+	{
+		type = "jid-multi",
+		label = "jid-multi-label",
+		name = "jid-multi-field",
+		value = {
+			"jid@multi/value#1",
+			"jid@multi/value#2",
+		},
+	},
+	{
 		type = "list-single",
 		label = "list-single-label",
 		name = "list-single-field",
@@ -82,24 +106,6 @@ local form = dataforms.new({
 			"list-single-value#2",
 			"list-single-value#3",
 		}
-	},
-	{
-		type = "text-multi",
-		label = "text-multi-label",
-		name = "text-multi-field",
-		value = "text\nmulti\nvalue",
-	},
-	{
-		type = "text-private",
-		label = "text-private-label",
-		name = "text-private-field",
-		value = "text-private-value",
-	},
-	{
-		type = "text-single",
-		label = "text-single-label",
-		name = "text-single-field",
-		value = "text-single-value",
 	},
 })
 
