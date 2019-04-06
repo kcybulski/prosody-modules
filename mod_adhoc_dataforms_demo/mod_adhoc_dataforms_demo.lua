@@ -121,3 +121,59 @@ module:provides("adhoc",
 	adhoc_new("Dataforms Demo",
 		"xmpp:zash.se/mod_adhoc_dataforms_demo#form",
 		adhoc_util.new_simple_form(form, handler)));
+
+
+local function multi_step_command(_, data, state)
+
+	if data.action == "cancel" then
+		return { status = "canceled" };
+	elseif data.action == "complete" then
+		return {
+			status = "completed",
+			info = "State was:\n"
+				.. serialization.serialize(state, { fatal = false }),
+		};
+	end
+	state = state or { step = 1, forms = { } };
+
+	if data.action == "next" then
+		state.step = state.step + 1;
+	elseif data.action == "prev" then
+		state.step = math.max(state.step - 1, 1);
+	end
+
+	local current_form = state.forms[state.step]
+	if not current_form then
+		current_form = {
+			title = string.format("Step %d", state.step);
+			instructions = state.step == 1 and "Here's a form." or "Here's another form.";
+		};
+		local already_selected = {};
+		for _ = 1, math.random(1, 5) do
+			local random
+			repeat
+				random = math.random(2, #form);
+			until not already_selected[random]
+			table.insert(current_form, form[random]);
+		end
+		state.forms[state.step] = dataforms.new(current_form);
+	end
+
+	local next_step = {
+		status = "executing",
+		form = current_form,
+		actions = {
+			"next", "complete"
+		},
+	};
+	if state.step > 1 then
+		table.insert(next_step.actions, 1, "prev");
+	end
+	return next_step, state;
+end
+
+module:provides("adhoc",
+	adhoc_new("Multi-step command demo",
+		"xmpp:zash.se/mod_adhoc_dataforms_demo#multi",
+		multi_step_command));
+
