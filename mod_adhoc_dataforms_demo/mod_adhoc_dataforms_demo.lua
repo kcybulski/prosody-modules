@@ -14,10 +14,6 @@ local form = dataforms.new({
 		value = "xmpp:prosody.im/spec/util.dataforms#1",
 	};
 	{
-		type = "fixed";
-		value = "Fixed field";
-	},
-	{
 		type = "boolean",
 		label = "boolean-label",
 		name = "boolean-field",
