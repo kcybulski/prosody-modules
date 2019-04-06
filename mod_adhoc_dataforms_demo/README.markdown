@@ -1,10 +1,10 @@
 ---
-summary: Module for testing dataforms rendering
+summary: 'Module for testing ad-hoc commands and dataforms rendering'
 ---
 
 # Introduction
 
-This module adds an [Ad-Hoc command][xep0050] with a demo [data
+This module provides [Ad-Hoc commands][xep0050] for testing [data
 form][xep0004] that includes all kinds of fields. It's meant to help
 debug both Prosodys
 [`util.dataforms`][doc:developers:util:dataforms] library and
@@ -24,5 +24,13 @@ modules_enabled = {
 
 # Usage
 
-In your Ad-Hoc capable client, look for **Dataforms Demo**, and execute
-it. You should see a form with various kinds of fields.
+In your Ad-Hoc capable client, first look for "Execute command". You
+should see a form with various kinds of fields.
+
+Dataforms Demo
+:   A simple command that provides a dataform with every possible field
+    type, suitable for testing rending of dataforms.
+
+Multi-step command demo
+:   A command that has multiple steps, suitable for testing back and
+    forwards navigation.
