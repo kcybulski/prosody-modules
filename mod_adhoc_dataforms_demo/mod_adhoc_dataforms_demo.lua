@@ -119,5 +119,5 @@ end
 
 module:provides("adhoc",
 	adhoc_new("Dataforms Demo",
-		"xmpp:zash.se/mod_adhoc_test",
+		"xmpp:zash.se/mod_adhoc_dataforms_demo#form",
 		adhoc_util.new_simple_form(form, handler)));
