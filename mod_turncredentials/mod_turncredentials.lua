@@ -26,8 +26,8 @@ module:hook("iq-get/host/urn:xmpp:extdisco:1:services", function(event)
     local userpart = tostring(now);
     local nonce = base64.encode(hmac_sha1(secret, tostring(userpart), false));
     origin.send(st.reply(stanza):tag("services", {xmlns = "urn:xmpp:extdisco:1"})
-        :tag("service", { type = "stun", host = host, port = port }):up()
-        :tag("service", { type = "turn", host = host, port = port, username = userpart, password = nonce, ttl = ttl}):up()
+        :tag("service", { type = "stun", host = host, port = ("%d"):format(port) }):up()
+        :tag("service", { type = "turn", host = host, port = ("%d"):format(port), username = userpart, password = nonce, ttl = ("%d"):format(ttl) }):up()
     );
     return true;
 end);
