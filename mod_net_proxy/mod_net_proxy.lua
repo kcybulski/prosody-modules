@@ -289,7 +289,7 @@ local function wrap_proxy_connection(conn, session, proxy_data)
 	end
 
 	-- Attempt to find service by processing port<>service mappings
-	local mapping = mappings[conn:serverport()];
+	local mapping = mappings[tonumber(conn:serverport())];
 	if mapping == nil then
 		conn:close();
 		module:log("warn", "Connection %s@%s terminated: Could not find mapping for port %d",
@@ -443,6 +443,7 @@ end
 -- Process all configured port mappings and generate a list of mapped ports
 local mapped_ports = {};
 for port, mapping in pairs(config_mappings) do
+	port = tonumber(port);
 	table.insert(mapped_ports, port);
 	mappings[port] = {
 		service_name = mapping,
