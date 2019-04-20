@@ -24,5 +24,6 @@ Compatibility
 
   ----- -----------------------------------------------------------------------------
   trunk Not needed, mod\_pep provides this feature already
+  0.11  Not needed, mod\_pep provides this feature already
   0.10  Works
   ----- -----------------------------------------------------------------------------
