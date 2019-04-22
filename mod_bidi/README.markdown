@@ -19,6 +19,8 @@ Compatibility
 
   ------- --------------------------
   trunk   Works
+  0.11    Works
+  0.10    Works
   0.9     Works
   0.8     Works (use the 0.8 repo)
   ------- --------------------------
