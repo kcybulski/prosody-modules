@@ -111,7 +111,7 @@ elseif ldap_mode == "bind" then
 	local function test_password(userdn, password)
 		local ok, err = lualdap.open_simple(ldap_server, userdn, password, ldap_tls);
 		if not ok then
-			log("debug", "ldap open_simple error: %s", err);
+			module:log("debug", "ldap open_simple error: %s", err);
 		end
 		return not not ok;
 	end
