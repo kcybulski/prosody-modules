@@ -109,7 +109,11 @@ if ldap_mode == "getpasswd" then
 	end
 elseif ldap_mode == "bind" then
 	local function test_password(userdn, password)
-		return not not lualdap.open_simple(ldap_server, userdn, password, ldap_tls);
+		local ok, err = lualdap.open_simple(ldap_server, userdn, password, ldap_tls);
+		if not ok then
+			log("debug", "ldap open_simple error: %s", err);
+		end
+		return not not ok;
 	end
 
 	function provider.test_password(username, password)
