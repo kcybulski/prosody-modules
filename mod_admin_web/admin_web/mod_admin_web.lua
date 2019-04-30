@@ -56,7 +56,7 @@ local function add_client(session, host)
 		item:tag("compressed"):up();
 	end
 	service[host]:publish(xmlns_c2s_session, host, id, item);
-	module:log("debug", "Added client " .. name);
+	module:log("debug", "Added client %s", name);
 end
 
 local function del_client(session, host)
@@ -96,7 +96,7 @@ local function add_host(session, type, host)
 		item:tag("compressed"):up();
 	end
 	service[host]:publish(xmlns_s2s_session, host, id, item);
-	module:log("debug", "Added host " .. name .. " s2s" .. type);
+	module:log("debug", "Added host %s s2s%s", name, type);
 end
 
 local function del_host(session, type, host)
@@ -219,7 +219,7 @@ function module.add_host(module)
 	-- Create node for s2s sessions
 	local ok, err = service[module.host]:create(xmlns_s2s_session, true);
 	if not ok then
-		module:log("warn", "Could not create node " .. xmlns_s2s_session .. ": " .. tostring(err));
+		module:log("warn", "Could not create node %s: %s", xmlns_s2s_session, err);
 	else
 		service[module.host]:set_affiliation(xmlns_s2s_session, true, module.host, "owner")
 	end
@@ -241,7 +241,7 @@ function module.add_host(module)
 	-- Create node for c2s sessions
 	ok, err = service[module.host]:create(xmlns_c2s_session, true);
 	if not ok then
-		module:log("warn", "Could not create node " .. xmlns_c2s_session .. ": " .. tostring(err));
+		module:log("warn", "Could not create node %s: %s", xmlns_c2s_session, tostring(err));
 	else
 		service[module.host]:set_affiliation(xmlns_c2s_session, true, module.host, "owner")
 	end
