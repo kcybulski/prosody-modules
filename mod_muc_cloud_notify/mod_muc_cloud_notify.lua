@@ -440,6 +440,19 @@ local function handle_notify_request(stanza, node, user_push_services, log_push_
 	return pushes;
 end
 
+local function extract_reference(text, i, j)
+        -- COMPAT w/ pre-Lua 5.3
+        local c, pos, p1 = 0, 0, nil;
+        for char in text:gmatch("([%z\1-\127\194-\244][\128-\191]*)") do
+                c, pos = c + 1, pos + #char;
+                if not p1 and i < c then
+                        p1 = pos;
+                end
+                if c == j then
+                        return text:sub(p1, pos);
+                end
+        end
+end
 
 -- archive message added
 local function archive_message_added(event)
@@ -451,7 +464,7 @@ local function archive_message_added(event)
 
 	for reference in stanza:childtags("reference", "urn:xmpp:reference:0") do
 		if reference.attr['type'] == 'mention' and reference.attr['begin'] and reference.attr['end'] then
-			local nick = body:sub(tonumber(reference.attr['begin'])+1, tonumber(reference.attr['end']));
+			local nick = extract_reference(body, reference.attr['begin'], reference.attr['end']);
 			local jid = room:get_registered_jid(nick);
 
 			if room._occupants[room.jid..'/'..nick] then
