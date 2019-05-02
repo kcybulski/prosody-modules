@@ -48,7 +48,7 @@ function verify_token(username, password, realm, otp_seed, token_secret, log)
 	local signature = base64.decode(string.match(password, " (.+)"))
 	local jid = username.."@"..realm
 
-	if totp:verify(otp, OTP_DEVIATION, luatz.gmtime(luatz.time())) then
+	if totp:verify(otp, OTP_DEVIATION, luatz.time()) then
 		log("debug", "The TOTP was verified");
 		local hmac_ctx = hmac.new(token_secret, DIGEST_TYPE)
 		if signature == hmac_ctx:final(otp..nonce..jid) then
