@@ -129,7 +129,9 @@ function archive:find(username, query)
 		start_day, step, last_day = last_day, -step, start_day;
 		if query.before then
 			local before_day, before_item, items_ = self:_get_idx(username, query.before, dates);
-			if before_day and before_day <= start_day then
+			if not before_day then
+				return nil, "item-not-found";
+			elseif before_day <= start_day then
 				if before_item then
 					first_item = before_item - 1;
 				else
@@ -142,7 +144,9 @@ function archive:find(username, query)
 		end
 	elseif query.after then
 		local after_day, after_item, items_ = self:_get_idx(username, query.after, dates);
-		if after_day and after_day >= start_day then
+		if not after_day then
+			return nil, "item-not-found";
+		elseif after_day >= start_day then
 			if after_item then
 				first_item = after_item + 1;
 			else
