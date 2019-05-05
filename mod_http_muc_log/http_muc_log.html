@@ -62,8 +62,10 @@ form{text-align:right}
 {item.months#
 <table id="{item.month}-{item.year}">
 <caption>{item.month}</caption>
-<tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>{item.weeks#
+<thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead>
+<tbody>{item.weeks#
 <tr>{item.days#<td>{item.href&<a href="{item.href}{hide_presence&?p=h}">}{item.day?&nbsp;}{item.href&</a>}</td>}</tr>}
+</tbody>
 </table>
 }
 }
