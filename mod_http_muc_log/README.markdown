@@ -50,6 +50,21 @@ The module uses [util.interpolation][doc:developers:util:interpolation]
 for rendering templates, with the pattern `"%b{}"` and HTML / XML
 escaping enabled.
 
+## Calendar optimization
+
+The calendar view relies on an optional part of the Prosody archive
+storage API that provides a list of every valid date. If this is
+unavailable then the module queries for the first and the last messages
+and assumes that every date between those is valid. This may lead to
+many empty pages in case the logs are sparse.
+
+This optimization can be turned off, to get a more accurate calendar
+view, but it will likely be very slow.
+
+``` {.lua}
+http_muc_log_lazy_calendar = false
+```
+
 Compatibility
 =============
 
