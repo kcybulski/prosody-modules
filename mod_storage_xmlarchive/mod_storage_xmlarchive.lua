@@ -286,6 +286,10 @@ function archive:dates(username)
 	return dates;
 end
 
+function archive:users()
+	return dm.users(module.host, self.store, "list");
+end
+
 local provider = {};
 function provider:open(store, typ)
 	if typ ~= "archive" then return nil, "unsupported-store"; end
