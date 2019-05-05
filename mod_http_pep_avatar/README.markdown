@@ -10,7 +10,7 @@ This module serves avatars from local users who have published
 # Configuring
 
 Simply load the module. Avatars are then available at
-http://<host>:5280/pep_avatar/<username>
+`http://<host>:5280/pep_avatar/<username>`
 
     modules_enabled = {
         ...
