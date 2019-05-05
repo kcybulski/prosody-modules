@@ -28,8 +28,8 @@ nav .prev::before{content:"← ";}
 nav :empty::after,nav :empty::before{content:""}
 table{display:inline-block; margin:1ex 1em;vertical-align:top;}
 th{font-size:x-small}
-td{text-align:right;color:#bababa;padding:.5ex}
-td a{padding:0}
+td{text-align:right;color:#bababa}
+td > a, td > span{padding:0.4em}
 .content{background-color:white;padding:1em;list-style-position:inside;}
 .time{float:right;font-size:small;opacity:0.2;}
 li:hover .time{opacity:1;}
@@ -64,7 +64,7 @@ form{text-align:right}
 <caption>{item.month}</caption>
 <thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead>
 <tbody>{item.weeks#
-<tr>{item.days#<td>{item.href&<a href="{item.href}{hide_presence&?p=h}">}{item.day?&nbsp;}{item.href&</a>}</td>}</tr>}
+<tr>{item.days#<td>{item.href&<a href="{item.href}{hide_presence&?p=h}">}<span>{item.day?&nbsp;}</span>{item.href&</a>}</td>}</tr>}
 </tbody>
 </table>
 }
