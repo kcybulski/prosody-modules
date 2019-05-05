@@ -50,6 +50,15 @@ The module uses [util.interpolation][doc:developers:util:interpolation]
 for rendering templates, with the pattern `"%b{}"` and HTML / XML
 escaping enabled.
 
+## Inline images
+
+Inline images can optionally be shown. This is disabled by default for
+privacy reasons.
+
+``` {.lua}
+http_muc_log_show_images = true
+```
+
 ## Calendar optimization
 
 The calendar view relies on an optional part of the Prosody archive

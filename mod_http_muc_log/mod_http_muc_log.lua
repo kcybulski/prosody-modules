@@ -28,6 +28,7 @@ local function get_room(name)
 	return get_room_from_jid(jid);
 end
 
+local use_oob = module:get_option_boolean(module.name .. "_show_images", false);
 module:depends"http";
 
 local template;
@@ -268,8 +269,9 @@ local function logs_page(event, path)
 			-- TODO Distinguish between join and presence update
 			verb = item.attr.type == "unavailable" and "has left" or "has joined";
 		end
-		if body or verb then
-			logs[i], i = {
+		local oob = use_oob and item:get_child("x", "jabber:x:oob");
+		if body or verb or oob then
+			local line = {
 				key = key;
 				datetime = datetime.datetime(when);
 				time = datetime.time(when);
@@ -278,7 +280,14 @@ local function logs_page(event, path)
 				nick = select(3, jid_split(item.attr.from));
 				st_name = item.name;
 				st_type = item.attr.type;
-			}, i + 1;
+			};
+			if oob then
+				line.oob = {
+					url = oob:get_child_text("url");
+					desc = oob:get_child_text("desc");
+				}
+			end
+			logs[i], i = line, i + 1;
 		end
 		first = first or key;
 		last = key;
