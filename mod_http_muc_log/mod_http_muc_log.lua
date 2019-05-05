@@ -353,7 +353,7 @@ local function list_rooms(event)
 	end
 
 	table.sort(room_list, function (a, b)
-		return a.jid < b.jid; 
+		return a.jid < b.jid;
 	end);
 
 	response.headers.content_type = "text/html; charset=utf-8";
