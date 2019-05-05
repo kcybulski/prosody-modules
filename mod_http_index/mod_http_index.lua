@@ -40,7 +40,7 @@ local function handler(event)
 	table.sort(http_apps, function (a, b) return a.name < b.name; end);
 	event.response.headers.content_type = "text/html";
 	return render(base_template, {
-		title = "HTTP Apps";
+		title = "Prosody IM - HTTP Services";
 		items = http_apps;
 		prosody_version = prosody.version;
 		mod_name = module.name;
