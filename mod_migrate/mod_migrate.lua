@@ -1,7 +1,16 @@
 -- mod_migrate
 
+local unpack = table.unpack or unpack;
 local sm = require"core.storagemanager";
 local um = require"core.usermanager";
+
+local function users(store, host)
+	if store.users then
+		return store:users();
+	else
+		return um.users(host);
+	end
+end
 
 function module.command(arg)
 	local host, source_stores, migrate_to = unpack(arg);
@@ -62,7 +71,7 @@ function module.command(arg)
 			end
 		else
 			xpcall(function()
-				for user in um.users(host) do
+				for user in users(storage, host) do
 					migrate_user(user);
 				end
 			end,
