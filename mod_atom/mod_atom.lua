@@ -12,6 +12,10 @@ module:depends("http")
 module:provides("http", {
 	route = {
 		["GET /*"] = function (event, user)
+			if user == "" then
+				return [[<h1>Hello from mod_atom</h1><p>This module provides access to public microblogs of local users.</p>]];
+			end;
+
 			local request, response = event.request, event.response;
 			local actor = request.ip;
 
