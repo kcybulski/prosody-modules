@@ -335,12 +335,17 @@ local function list_rooms(event)
 	for room in each_room() do
 		if not (room.get_hidden or room.is_hidden)(room) then
 			room_list[i], i = {
+				jid = room.jid;
 				href = get_link(jid_split(room.jid), nil);
 				name = room:get_name();
 				description = room:get_description();
 			}, i + 1;
 		end
 	end
+
+	table.sort(room_list, function (a, b)
+		return a.jid < b.jid; 
+	end);
 
 	response.headers.content_type = "text/html; charset=utf-8";
 	return render(template, {
