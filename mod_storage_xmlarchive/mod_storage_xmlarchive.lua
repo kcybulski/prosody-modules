@@ -109,16 +109,20 @@ function archive:find(username, query)
 	local rev = query.reverse;
 	if query.start then
 		local d = dt.date(query.start);
-		for i = 1, #dates do
-			if dates[i] >= d then
+		for i = start_day, last_day, step do
+			if dates[i] < d then
+				start_day = i + 1;
+			elseif dates[i] >= d then
 				start_day = i; break;
 			end
 		end
 	end
 	if query["end"] then
 		local d = dt.date(query["end"]);
-		for i = #dates, 1, -1 do
-			if dates[i] <= d then
+		for i = last_day, start_day, -step do
+			if dates[i] > d then
+				last_day = i - 1;
+			elseif dates[i] <= d then
 				last_day = i; break;
 			end
 		end
