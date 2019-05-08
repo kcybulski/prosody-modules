@@ -80,6 +80,7 @@ lfs.mkdir(storage_path);
 local function expire(username, host)
 	if not max_age then return true; end
 	local uploads, err = datamanager.list_load(username, host, module.name);
+	if err then return false, err; end
 	if not uploads then return true; end
 	uploads = array(uploads);
 	local expiry = os.time() - max_age;
