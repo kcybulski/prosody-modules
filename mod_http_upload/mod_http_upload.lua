@@ -110,6 +110,9 @@ local function check_quota(username, host, does_it_fit)
 	if err then
 		return false;
 	elseif not uploads then
+		if does_it_fit then
+			return does_it_fit < quota;
+		end
 		return true;
 	end
 	local sum = does_it_fit or 0;
