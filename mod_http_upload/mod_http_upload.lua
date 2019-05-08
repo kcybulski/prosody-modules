@@ -107,7 +107,11 @@ end
 local function check_quota(username, host, does_it_fit)
 	if not quota then return true; end
 	local uploads, err = datamanager.list_load(username, host, module.name);
-	if not uploads then return true; end
+	if err then
+		return false;
+	elseif not uploads then
+		return true;
+	end
 	local sum = does_it_fit or 0;
 	for _, item in ipairs(uploads) do
 		sum = sum + item.size;
