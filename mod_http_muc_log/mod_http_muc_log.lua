@@ -96,11 +96,14 @@ local function open_room(room) -- : boolean
 	return true;
 end
 
+-- Can be set to "latest"
+local default_view = module:get_option_string(module.name .. "_default_view", nil);
+
 module:hook("muc-disco#info", function (event)
 	local room = event.room;
 	if open_room(room) then
 		table.insert(event.form, { name = "muc#roominfo_logs", type="text-single" });
-		event.formdata["muc#roominfo_logs"] = get_absolute_link(jid_split(event.room.jid), nil);
+		event.formdata["muc#roominfo_logs"] = get_absolute_link(jid_split(event.room.jid), default_view);
 	end
 end);
 
@@ -371,7 +374,7 @@ local function list_rooms(event)
 		if not (room.get_hidden or room.is_hidden)(room) then
 			room_list[i], i = {
 				jid = room.jid;
-				href = get_link(jid_split(room.jid), nil);
+				href = get_link(jid_split(room.jid), default_view);
 				name = room:get_name();
 				description = room:get_description();
 			}, i + 1;
