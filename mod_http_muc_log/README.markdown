@@ -50,6 +50,15 @@ The module uses [util.interpolation][doc:developers:util:interpolation]
 for rendering templates, with the pattern `"%b{}"` and HTML / XML
 escaping enabled.
 
+## Default view
+
+To link to the latest day instead of calendar from the room listing
+page:
+
+```lua
+http_muc_log_default_view = "latest"
+```
+
 ## Inline images
 
 Inline images can optionally be shown. This is disabled by default for
