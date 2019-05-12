@@ -230,11 +230,11 @@ end
 local function logs_page(event, path)
 	local request, response = event.request, event.response;
 
-	-- FIXME In the year, 105105, if MUC is still alive,
-	-- if Prosody can survive... Enjoy this Y10k bug
-	local room, date = path:match("^(.-)/(%d%d%d%d%-%d%d%-%d%d)/?$");
+	local room, date = path:match("^([^/]+)/([^/]*)/?$");
 	room = nodeprep(room);
 	if not room then
+		return 400;
+	elseif date == "" then
 		return years_page(event, path);
 	end
 	local is_open = open_room(room);
@@ -244,6 +244,10 @@ local function logs_page(event, path)
 		return 403;
 	end
 	local day_start = datetime.parse(date.."T00:00:00Z");
+	if not day_start then
+		module:log("debug", "Invalid date format: %q", date);
+		return 400;
+	end
 
 	local logs, i = {}, 1;
 	local iter, err = archive:find(room, {
