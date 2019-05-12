@@ -243,6 +243,11 @@ local function logs_page(event, path)
 	elseif is_open == false then
 		return 403;
 	end
+	if date == "latest" then
+		local last_day = find_once(room, { reverse = true }, 3);
+		response.headers.location = datetime.date(last_day);
+		return 303;
+	end
 	local day_start = datetime.parse(date.."T00:00:00Z");
 	if not day_start then
 		module:log("debug", "Invalid date format: %q", date);
