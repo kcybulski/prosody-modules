@@ -59,6 +59,22 @@ local get_link do
 	end
 end
 
+local function get_absolute_link(room, date)
+	local link = url.parse(module:http_url());
+	local path = url.parse_path(link.path);
+	if room then
+		table.insert(path, room);
+		if date then
+			table.insert(path, date)
+			path.is_directory = false;
+		else
+			path.is_directory = true;
+		end
+	end
+	link.path = url.build_path(path)
+	return url.build(link)
+end
+
 -- Whether room can be joined by anyone
 local function open_room(room) -- : boolean
 	if type(room) == "string" then
@@ -84,7 +100,7 @@ module:hook("muc-disco#info", function (event)
 	local room = event.room;
 	if open_room(room) then
 		table.insert(event.form, { name = "muc#roominfo_logs", type="text-single" });
-		event.formdata["muc#roominfo_logs"] = module:http_url() .. "/" .. get_link(jid_split(event.room.jid), nil);
+		event.formdata["muc#roominfo_logs"] = get_absolute_link(jid_split(event.room.jid), nil);
 	end
 end);
 
