@@ -262,7 +262,7 @@ local function logs_page(event, path)
 	end
 	if date == "latest" then
 		local last_day = find_once(room, { reverse = true }, 3);
-		response.headers.location = datetime.date(last_day);
+		response.headers.location = url.build({ path = datetime.date(last_day), query = request.url.query });
 		return 303;
 	end
 	local day_start = datetime.parse(date.."T00:00:00Z");
