@@ -238,6 +238,7 @@ local function years_page(event, path)
 		years = years;
 		links = {
 			{ href = "../", rel = "up", text = "Room list" },
+			{ href = "latest", text = "Latest" },
 		};
 	});
 end
