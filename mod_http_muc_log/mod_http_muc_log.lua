@@ -132,7 +132,12 @@ end
 
 local lazy = module:get_option_boolean(module.name .. "_lazy_calendar", true);
 
+local presence_logged = module:get_option_boolean("muc_log_presences", false);
+
 local function hide_presence(request)
+	if not presence_logged then
+		return false;
+	end
 	if request.url.query then
 		local data = httplib.formdecode(request.url.query);
 		if data then
@@ -238,6 +243,7 @@ local function years_page(event, path)
 		title = get_room(room):get_name();
 		jid = get_room(room).jid;
 		hide_presence = hide_presence(request);
+		presence_available = presence_logged;
 		years = years;
 		links = {
 			{ href = "../", rel = "up", text = "Room list" },
@@ -358,6 +364,7 @@ local function logs_page(event, path)
 		title = ("%s - %s"):format(get_room(room):get_name(), date);
 		jid = get_room(room).jid;
 		hide_presence = hide_presence(request);
+		presence_available = presence_logged;
 		lines = logs;
 		links = {
 			{ href = "./", rel = "up", text = "Calendar" },
@@ -390,6 +397,7 @@ local function list_rooms(event)
 		title = module:get_option_string("name", "Prosody Chatrooms");
 		jid = module.host;
 		hide_presence = hide_presence(request);
+		presence_available = presence_logged;
 		rooms = room_list;
 	});
 end
