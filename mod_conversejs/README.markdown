@@ -48,6 +48,21 @@ The module is served on Prosody's default HTTP ports at the path
 `/conversejs`. More details on configuring HTTP modules in Prosody can
 be found in our [HTTP documentation](http://prosody.im/doc/http).
 
+## Templates
+
+The HTML and JS can be customized either by editing the included
+`template.html` and `template.js` files or configuring your own like:
+
+```lua
+conversejs_html_template = "/path/to/my-template.html"
+conversejs_js_template = "/path/to/my-template.js"
+```
+
+The HTML template uses Prosodys
+[`util.interpolation`][doc:developers:util:interpolation] template 
+library while the JS template has `%s` where generated settings are 
+injected.
+
 Other
 -----
 
@@ -119,4 +134,9 @@ The example above uses the `[[` and `]]` syntax simply because it will not confl
 Compatibility
 =============
 
-Should work with Prosody 0.9 and later. Websocket support requires 0.10.
+  Prosody version   state
+  ----------------- ---------------
+  0.9               Does not work
+  0.10              Should work
+  0.11              Should work
+  trunk             Works
