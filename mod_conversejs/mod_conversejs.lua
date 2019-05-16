@@ -93,6 +93,7 @@ module:provides("http", {
 
 			event.response.headers.content_type = "text/html";
 			return render(html_template, {
+					service_name = module:get_option_string("name");
 					header_scripts = { js_url };
 					header_style = { css_url };
 					header_tags = add_tags;
