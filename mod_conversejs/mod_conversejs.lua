@@ -2,6 +2,8 @@
 -- Copyright (C) 2017 Kim Alvefur
 
 local json_encode = require"util.json".encode;
+local xml_escape = require "util.stanza".xml_escape;
+local render = require "util.interpolation".new("%b{}", xml_escape, { json = json_encode });
 
 module:depends"http";
 
@@ -24,50 +26,38 @@ if version ~= "" then version = "/" .. version end
 local js_url = module:get_option_string("conversejs_script", cdn_url..version.."/dist/converse.min.js");
 local css_url = module:get_option_string("conversejs_css", cdn_url..version.."/css/converse.min.css");
 
-local html_template = ([[
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<link rel="stylesheet" type="text/css" media="screen" href="$css_url"/>
-<script charset="utf-8" src="$js_url"></script>
-<title>Prosody IM and Converse.js</title>
-</head>
-<body>
-<noscript>
-<h1>Converse.js</h1>
-<p>I&apos;m sorry, but this XMPP client application won&apos;t work without JavaScript.</p>
-<p>Perhaps you would like to try one of these clients:</p>
-<dl>
-<dt>Desktop</dt>
-<dd><ul>
-<li><a href="https://gajim.org/">Gajim</a></li>
-<li><a href="https://poez.io/">Poezio</a></li>
-<li><a href="https://swift.im/">Swift</a></li>
-</ul></dd>
-<dt>Mobile</dt>
-<dd><ul>
-<li><a href="https://github.com/siacs/Conversations">Conversations</a></li>
-<li><a href="https://yaxim.org/">Yaxim</a></li>
-</ul></dd>
-</dl>
-<p><a href="https://xmpp.org/software/clients.html">More clients...</a></p>
-</noscript>
-<script>%s</script>
-</body>
-</html>
-]]):gsub("$([%w_]+)", { js_url = js_url, css_url = css_url });
+local html_template;
 
-js_template = [[
-if(typeof converse == 'undefined') {
-	var div = document.createElement("div");
-	var noscript = document.getElementsByTagName("noscript")[0];
-	div.innerHTML = noscript.innerText;
-	document.body.appendChild(div);
-} else {
-	converse.initialize(%s);
-}
-]];
+do
+	local template_filename = module:get_option_string(module.name .. "_html_template", "template.html");
+	local template_file, err = module:load_resource(template_filename);
+	if template_file then
+		html_template, err = template_file:read("*a");
+		template_file:close();
+	end
+	if not html_template then
+		module:log("error", "Error loading HTML template: %s", err);
+		html_template = render("<h1>mod_{module} could not read the template</h1>\
+		<p>Tried to open <b>{filename}</b></p>\
+		<pre>{error}</pre>",
+			{ module = module.name, filename = template_filename, error = err });
+	end
+end
+
+local js_template;
+do
+	local template_filename = module:get_option_string(module.name .. "_js_template", "template.js");
+	local template_file, err = module:load_resource(template_filename);
+	if template_file then
+		js_template, err = template_file:read("*a");
+		template_file:close();
+	end
+	if not js_template then
+		module:log("error", "Error loading JS template: %s", err);
+		js_template = render("console.log(\"mod_{module} could not read the JS template: %s\", {error|json})",
+			{ module = module.name, filename = template_filename, error = err });
+	end
+end
 
 local user_options = module:get_option("conversejs_options");
 
@@ -93,15 +83,7 @@ local function get_converse_options()
 	return converse_options;
 end
 
-local add_tags = module:get_option_set("conversejs_tags");
-
-if add_tags then
-	local tags = {};
-	for tag in add_tags do
-		table.insert(tags, tag);
-	end
-	html_template = html_template:gsub("</head>", table.concat(tags, "\n"):gsub("%%", "%%").."\n</head>");
-end
+local add_tags = module:get_option_array("conversejs_tags", {});
 
 module:provides("http", {
 	title = "Converse.js";
@@ -110,7 +92,15 @@ module:provides("http", {
 			local converse_options = get_converse_options();
 
 			event.response.headers.content_type = "text/html";
-			return html_template:format(js_template:format(json_encode(converse_options)));
+			return render(html_template, {
+					header_scripts = { js_url };
+					header_style = { css_url };
+					header_tags = add_tags;
+					conversejs = {
+						options = converse_options;
+						startup = { script = js_template:format(json_encode(converse_options)); }
+					};
+				});
 		end;
 
 		["GET /prosody-converse.js"] = function (event)
