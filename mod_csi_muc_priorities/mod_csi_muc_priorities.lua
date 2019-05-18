@@ -86,8 +86,10 @@ end, function(fields, form_err, data)
 		return { status = "completed", error = { message = "Problem in submitted form" } };
 	end
 	local prioritized_jids = {};
-	for _, jid in ipairs(fields.unimportant) do
-		prioritized_jids[jid] = false;
+	if fields.unimportant then
+		for _, jid in ipairs(fields.unimportant) do
+			prioritized_jids[jid] = false;
+		end
 	end
 
 	local username = jid_split(data.from);
