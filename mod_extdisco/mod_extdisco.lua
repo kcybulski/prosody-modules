@@ -10,7 +10,7 @@ module:hook("iq-get/host/"..xmlns_extdisco..":services", function (event)
 	local origin, stanza = event.origin, event.stanza;
 	local service = stanza:get_child("service", xmlns_extdisco);
 	local service_type = service and service.attr.type;
-	local reply = st.reply(stanza);
+	local reply = st.reply(stanza):tag('services', { xmlns = 'urn:xmpp:extdisco:1' });
 	for host, service_info in pairs(services) do
 		if not(service_type) or service_info.type == service_type then
 			reply:tag("service", {
