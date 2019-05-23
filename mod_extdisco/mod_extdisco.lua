@@ -2,15 +2,17 @@ local st = require "util.stanza";
 
 local services = module:get_option("external_services");
 
-local xmlns_extdisco = "urn:xmpp:extdisco:1";
+local xmlns_extdisco_1 = "urn:xmpp:extdisco:1";
+local xmlns_extdisco_2 = "urn:xmpp:extdisco:2";
 
-module:add_feature(xmlns_extdisco);
+module:add_feature(xmlns_extdisco_1);
+module:add_feature(xmlns_extdisco_2);
 
-module:hook("iq-get/host/"..xmlns_extdisco..":services", function (event)
+local function handle_services(event)
 	local origin, stanza = event.origin, event.stanza;
-	local service = stanza:get_child("service", xmlns_extdisco);
+	local service = stanza.tags[1];
 	local service_type = service and service.attr.type;
-	local reply = st.reply(stanza):tag("services", { xmlns = xmlns_extdisco });
+	local reply = st.reply(stanza):tag("services", { xmlns = service.attr.xmlns });
 	for host, service_info in pairs(services) do
 		if not(service_type) or service_info.type == service_type then
 			reply:tag("service", {
@@ -25,11 +27,13 @@ module:hook("iq-get/host/"..xmlns_extdisco..":services", function (event)
 	end
 	origin.send(reply);
 	return true;
-end);
+end
+module:hook("iq-get/host/"..xmlns_extdisco_1..":services", handle_services);
+module:hook("iq-get/host/"..xmlns_extdisco_2..":services", handle_services);
 
-module:hook("iq-get/host/"..xmlns_extdisco..":credentials", function (event)
+local function handle_credentials(event)
 	local origin, stanza = event.origin, event.stanza;
-	local credentials = stanza:get_child("credentials", xmlns_extdisco);
+	local credentials = stanza.tags[1];
 	local host = credentials and credentials.attr.host;
 	if not host then
 		origin.send(st.error_reply(stanza, "cancel", "bad-request", "No host specified"));
@@ -41,7 +45,7 @@ module:hook("iq-get/host/"..xmlns_extdisco..":credentials", function (event)
 		return true;
 	end
 	local reply = st.reply(stanza)
-		:tag("credentials", { xmlns = xmlns_extdisco })
+		:tag("credentials", { xmlns = credentials.attr.xmlns })
 			:tag("service", {
 				host = host;
 				username = service_info.username;
@@ -49,4 +53,6 @@ module:hook("iq-get/host/"..xmlns_extdisco..":credentials", function (event)
 			}):up();
 	origin.send(reply);
 	return true;
-end);
+end
+module:hook("iq-get/host/"..xmlns_extdisco_1..":credentials", handle_credentials);
+module:hook("iq-get/host/"..xmlns_extdisco_2..":credentials", handle_credentials);
