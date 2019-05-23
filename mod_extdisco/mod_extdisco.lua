@@ -11,7 +11,7 @@ module:add_feature(xmlns_extdisco_2);
 local function handle_services(event)
 	local origin, stanza = event.origin, event.stanza;
 	local service = stanza.tags[1];
-	local service_type = service and service.attr.type;
+	local service_type = service.attr.type;
 	local reply = st.reply(stanza):tag("services", { xmlns = service.attr.xmlns });
 	for host, service_info in pairs(services) do
 		if not(service_type) or service_info.type == service_type then
@@ -34,7 +34,7 @@ module:hook("iq-get/host/"..xmlns_extdisco_2..":services", handle_services);
 local function handle_credentials(event)
 	local origin, stanza = event.origin, event.stanza;
 	local credentials = stanza.tags[1];
-	local host = credentials and credentials.attr.host;
+	local host = credentials.attr.host;
 	if not host then
 		origin.send(st.error_reply(stanza, "cancel", "bad-request", "No host specified"));
 		return true;
