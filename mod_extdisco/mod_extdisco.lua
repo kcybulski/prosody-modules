@@ -41,7 +41,7 @@ module:hook("iq-get/host/"..xmlns_extdisco..":credentials", function (event)
 		return true;
 	end
 	local reply = st.reply(stanza)
-		:tag("credentials")
+		:tag("credentials", { xmlns = xmlns_extdisco })
 			:tag("service", {
 				host = host;
 				username = service_info.username;
