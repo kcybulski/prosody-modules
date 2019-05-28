@@ -30,7 +30,11 @@ stats.s2s = {
 	incoming_connections = {
 		label = "incoming connections";
 		_key = "total_s2sin";
-	}
+	};
+	total_connections = {
+		label = "total connections";
+		_key = "total_s2s";
+	};
 }
 
 stats.mem = {
