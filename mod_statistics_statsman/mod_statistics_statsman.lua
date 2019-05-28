@@ -16,6 +16,7 @@ local sessions = {};
 local name_map = {
 	["start_time"] = "up_since";
 	["cpu.percent:amount"] = "cpu";
+	["cpu.clock:amount"] = "cpu_total"
 	["memory.allocated_mmap:amount"] = "memory_allocated_mmap";
 	["memory.allocated:amount"] = "memory_allocated";
 	["memory.lua:amount"] = "memory_lua";
