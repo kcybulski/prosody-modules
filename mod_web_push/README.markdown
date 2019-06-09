@@ -32,6 +32,7 @@ systems. It is implemented by most browsers vendors except Safari on iOS
 (mobile).
 
 For more information, see:
+
 - https://developer.mozilla.org/en-US/docs/Web/API/Push_API
 - https://developers.google.com/web/ilt/pwa/introduction-to-push-notifications
 
@@ -39,6 +40,7 @@ Compared to [XEP-0357: Push Notifications], Web Push doesn't need an App
 Server.
 
 The general flow for subscription is:
+
 - XMPP server generate ECDH keypair, publishes public key
 - XMPP client generates an ECDH keypair
 - XMPP client fetches server public key
@@ -48,6 +50,7 @@ The general flow for subscription is:
   and its public key
 
 The flow for notifications is as follow:
+
 - XMPP server receives an _important_[^1] message
 - XMPP server generates something something JWT + signature with ECDH key
 - XMPP server can optionally include payload encrypted for the client
