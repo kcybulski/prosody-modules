@@ -104,12 +104,14 @@ end);
 
 local function stoppable_timer(delay, callback)
 	local stopped = false;
+	local timer = module:add_timer(delay, function (t)
+		if stopped then return; end
+		return callback(t);
+	end);
+	if timer.stop then return timer; end		-- new prosody api includes stop() function
 	return {
 		stop = function () stopped = true end;
-		module:add_timer(delay, function (t)
-			if stopped then return; end
-			return callback(t);
-		end);
+		timer;
 	};
 end
 
@@ -207,6 +209,7 @@ local function outgoing_stanza_filter(stanza, session)
 		queue[#queue+1] = cached_stanza;
 		if session.hibernating then
 			session.log("debug", "hibernating, stanza queued");
+			module:fire_event("smacks-hibernation-stanza-queued", {origin = session, queue = queue, stanza = cached_stanza});
 			return nil;
 		end
 		request_ack_if_needed(session, false, "outgoing_stanza_filter");
@@ -326,6 +329,10 @@ function handle_r(origin, stanza, xmlns_sm)
 	module:log("debug", "Received ack request, acking for %d", origin.handled_stanza_count);
 	-- Reply with <a>
 	(origin.sends2s or origin.send)(st.stanza("a", { xmlns = xmlns_sm, h = string.format("%d", origin.handled_stanza_count) }));
+	-- piggyback our own ack request
+	if #origin.outgoing_stanza_queue > 0 and origin.last_queue_count ~= #origin.outgoing_stanza_queue then
+		request_ack_if_needed(origin, true, "piggybacked by handle_r");
+	end
 	return true;
 end
 module:hook_stanza(xmlns_sm2, "r", function (origin, stanza) return handle_r(origin, stanza, xmlns_sm2); end);
