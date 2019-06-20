@@ -21,10 +21,12 @@ Component "conference.example.org" "muc"
                   visitors = { "visitor@example.org" }
          },
          config = {
+                  name = "General Chat",
+                  description = "Public chatroom with no particular topic",
                   allow_member_invites = false,
                   change_subject = false,
                   history_length = 40,
-                  language = "en",
+                  lang = "en",
                   logging = true,
                   members_only = false,
                   moderated = false,
