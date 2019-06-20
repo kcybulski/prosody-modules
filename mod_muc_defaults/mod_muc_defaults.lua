@@ -15,6 +15,12 @@ end
 
 local function configure_room(room, config)
 	local should_save = false;
+	if config.name ~= nil then
+		should_save = room:set_name(config.name) or should_save;
+	end
+	if config.description ~= nil then
+		should_save = room:set_description(config.description) or should_save;
+	end
 	if config.allow_member_invites ~= nil then
 		should_save =
 			room:set_allow_member_invites(config.allow_member_invites)
@@ -31,7 +37,7 @@ local function configure_room(room, config)
 			or should_save;
 	end
 	if config.lang ~= nil then
-		should_save = room:set_language(config.language) or should_save;
+		should_save = room:set_language(config.lang) or should_save;
 	end
 	if config.members_only ~= nil then
 		should_save =
