@@ -52,6 +52,35 @@ end) then
 	http_files = module:depends"http_files";
 end
 
+local mime_map = module:shared("/*/http_files/mime").types;
+if not mime_map then
+	mime_map = {
+		html = "text/html", htm = "text/html",
+		xml = "application/xml",
+		txt = "text/plain",
+		css = "text/css",
+		js = "application/javascript",
+		png = "image/png",
+		gif = "image/gif",
+		jpeg = "image/jpeg", jpg = "image/jpeg",
+		svg = "image/svg+xml",
+	};
+	module:shared("/*/http_files/mime").types = mime_map;
+
+	local mime_types, err = io.open(module:get_option_path("mime_types_file", "/etc/mime.types", "config"), "r");
+	if mime_types then
+		local mime_data = mime_types:read("*a");
+		mime_types:close();
+		setmetatable(mime_map, {
+			__index = function(t, ext)
+				local typ = mime_data:match("\n(%S+)[^\n]*%s"..(ext:lower()).."%s") or "application/octet-stream";
+				t[ext] = typ;
+				return typ;
+			end
+		});
+	end
+end
+
 -- namespaces
 local namespace = "urn:xmpp:http:upload:0";
 local legacy_namespace = "urn:xmpp:http:upload";
@@ -342,7 +371,7 @@ local function send_response_sans_body(response, body)
 	end
 end
 
-local serve_uploaded_files = http_files.serve(storage_path);
+local serve_uploaded_files = http_files.serve({ path = storage_path, mime_map = mime_map });
 
 local function serve_head(event, path)
 	set_cross_domain_headers(event.response);
