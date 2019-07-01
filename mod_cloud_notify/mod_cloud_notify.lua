@@ -582,11 +582,8 @@ module:hook("smacks-ack-delayed", ack_delayed);
 module:hook("archive-message-added", archive_message_added);
 
 local function send_ping(event)
-	local push_services = event.push_services;
-	if not push_services then
-		local user = event.user;
-		push_services = push_store:get(user);
-	end
+	local user = event.user;
+	local push_services = event.push_services || push_store:get(user);
 	handle_notify_request(nil, user, push_services, true);
 end
 -- can be used by other modules to ping one or more (or all) push endpoints
