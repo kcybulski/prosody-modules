@@ -35,6 +35,9 @@ module:hook("csi-is-stanza-important", function (event)
 				-- fallback if no mod_track_muc_joins
 				return true;
 			end
+
+			-- Unimportant and no mention
+			return false;
 		end
 	end
 end);
