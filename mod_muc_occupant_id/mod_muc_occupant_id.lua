@@ -40,8 +40,6 @@ local function handle_stanza(event)
 	-- strip any existing <occupant-id/> tags to avoid forgery
 	stanza:remove_children("occupant-id", xmlns_occupant_id);
 
-	if not occupant then return; end
-
 	local unique_id = occupant.sessions[stanza.attr.from]
 		:get_child("occupant-id", xmlns_occupant_id)
 		:get_text();
