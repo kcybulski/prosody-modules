@@ -8,7 +8,7 @@ Introduction
 ============
 
 This module implements [XEP-XXXX: Anonymous unique occupant identifiers for
-MUCs](https://dino.im/xeps/occupant-id.html).
+MUCs](https://xmpp.org/extensions/inbox/occupant-id.html).
 
 Compatibility
 =============
