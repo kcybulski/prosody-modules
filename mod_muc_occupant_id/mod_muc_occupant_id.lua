@@ -1,5 +1,5 @@
 
--- Implementation of https://dino.im/xeps/occupant-id.html
+-- Implementation of https://xmpp.org/extensions/inbox/occupant-id.html
 -- XEP-XXXX: Anonymous unique occupant identifiers for MUCs
 
 local uuid = require "util.uuid";
