@@ -3,6 +3,7 @@
 --
 
 local filter_muc = module:get_option_boolean("csi_battery_saver_filter_muc", false);
+local queue_size = module:get_option_number("csi_battery_saver_queue_size", 256);
 
 module:depends"csi"
 if filter_muc then module:depends"track_muc_joins"; end		-- only depend on this module if we actually use it
@@ -31,7 +32,7 @@ local function extract_carbon(stanza)
 	return message, direction;
 end
 
-local function new_pump(output, ...)
+local function new_pump(session, output, ...)
 	-- luacheck: ignore 212/self
 	local q = new_queue(...);
 	local flush = true;
@@ -46,6 +47,7 @@ local function new_pump(output, ...)
 	function q:push(item)
 		local ok = push(self, item);
 		if not ok then
+			session.log("debug", "mod_csi_battery_saver(%s): Queue full (%d items), forcing flush...", id, q:count());
 			q:flush();
 			output(item, self);
 		elseif flush then
@@ -115,21 +117,26 @@ local function is_important(stanza, session)
 
 		-- check xep373 pgp (OX) https://xmpp.org/extensions/xep-0373.html
 		if stanza:get_child("openpgp", "urn:xmpp:openpgp:0") then return true; end
+		
+		-- check eme
+		if stanza:get_child("encryption", "urn:xmpp:eme:0") then return true; end
 
 		local body = stanza:get_child_text("body");
 		if st_type == "groupchat" then
 			if stanza:get_child_text("subject") then return true; end
 			if body == nil or body == "" then return false; end
 			-- body contains text, let's see if we want to process it further
-			if filter_muc then
+			if not filter_muc then		-- default case
+				local stanza_important = module:fire_event("csi-is-stanza-important", { stanza = stanza, session = session });
+				if stanza_important ~= nil then return stanza_important; end
+				return true;		-- deemed unknown/high priority by mod_csi_muc_priorities or some other module
+			else
 				if body:find(session.username, 1, true) then return true; end
 				local rooms = session.rooms_joined;
 				if not rooms then return false; end
 				local room_nick = rooms[jid.bare(stanza_direction == "in" and stanza.attr.from or stanza.attr.to)];
 				if room_nick and body:find(room_nick, 1, true) then return true; end
 				return false;
-			else
-				return true;
 			end
 		end
 		return body ~= nil and body ~= "";
@@ -144,7 +151,7 @@ module:hook("csi-client-inactive", function (event)
 		session.pump:pause();
 	else
 		session.log("debug", "mod_csi_battery_saver(%s): Client is inactive the first time, initializing module for this session", id);
-		local pump = new_pump(session.send, 100);
+		local pump = new_pump(session, session.send, queue_size);
 		pump:pause();
 		session.pump = pump;
 		session._pump_orig_send = session.send;
