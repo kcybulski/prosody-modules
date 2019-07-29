@@ -2,6 +2,8 @@
 -- Implementation of https://xmpp.org/extensions/inbox/occupant-id.html
 -- XEP-XXXX: Anonymous unique occupant identifiers for MUCs
 
+module:depends("muc");
+
 local uuid = require "util.uuid";
 local hmac_sha256 = require "util.hashes".hmac_sha256;
 local b64encode = require "util.encodings".base64.encode;
