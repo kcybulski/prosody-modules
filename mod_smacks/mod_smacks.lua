@@ -160,6 +160,10 @@ module:hook("s2s-stream-features",
 local function request_ack_if_needed(session, force, reason)
 	local queue = session.outgoing_stanza_queue;
 	if session.awaiting_ack == nil and not session.hibernating then
+		-- this check of last_queue_count prevents ack-loops if missbehaving clients report wrong
+		-- stanza counts. it is set when an <r> is really sent (e.g. inside timer), preventing any
+		-- further requests until the queue count changes (either by incoming acks or by adding
+		-- more stanzas)
 		if (#queue > max_unacked_stanzas and session.last_queue_count ~= #queue) or force then
 			session.log("debug", "Queuing <r> (in a moment) from %s - #queue=%d", reason, #queue);
 			session.awaiting_ack = false;
@@ -167,8 +171,9 @@ local function request_ack_if_needed(session, force, reason)
 				if not session.awaiting_ack and not session.hibernating then
 					session.log("debug", "Sending <r> (inside timer, before send)");
 					(session.sends2s or session.send)(st.stanza("r", { xmlns = session.smacks }))
-					session.log("debug", "Sending <r> (inside timer, after send)");
 					session.awaiting_ack = true;
+					session.last_queue_count = #queue;
+					session.log("debug", "Sending <r> (inside timer, after send)");
 					if not session.delayed_ack_timer then
 						session.delayed_ack_timer = stoppable_timer(delayed_ack_timeout, function()
 							delayed_ack_function(session);
@@ -187,8 +192,6 @@ local function request_ack_if_needed(session, force, reason)
 		session.log("debug", "Calling delayed_ack_function directly (still waiting for ack)");
 		delayed_ack_function(session);
 	end
-
-	session.last_queue_count = #queue;
 end
 
 local function outgoing_stanza_filter(stanza, session)
@@ -587,7 +590,6 @@ local function handle_read_timeout(event)
 			return false; -- Kick the session
 		end
 		session.log("debug", "Sending <r> (read timeout)");
-		session.awaiting_ack = false;
 		(session.sends2s or session.send)(st.stanza("r", { xmlns = session.smacks }));
 		session.awaiting_ack = true;
 		if not session.delayed_ack_timer then
