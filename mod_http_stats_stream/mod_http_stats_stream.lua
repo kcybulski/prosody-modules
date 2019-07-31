@@ -1,4 +1,5 @@
 local statsman = require "core.statsmanager";
+local http = require "net.http.server";
 local json = require "util.json";
 
 local sessions = {};
@@ -13,16 +14,14 @@ local function get_updates(event)
 
 	response.on_destroy = updates_client_closed;
 
-	response.conn:write(table.concat({
-		"HTTP/1.1 200 OK";
-		"Content-Type: text/event-stream";
-		"X-Accel-Buffering: no"; -- For nginx maybe?
-		"";
-		"event: stats-full";
-		"data: "..json.encode(statsman.get_stats());
-		"";
-		"";
-	}, "\r\n"));
+	response.headers.content_type = "text/event-stream";
+	response.headers.x_accel_buffering = "no"; -- for nginx maybe?
+	local resp = http.prepare_header(response);
+	table.insert(resp, "event: stats-full\r\n");
+	table.insert(resp, "data: ");
+	table.insert(resp, json.encode(statsman.get_stats()));
+	table.insert(resp, "\r\n\r\n");
+	response.conn:write(table.concat(resp));
 
 	sessions[response] = request;
 	return true;
