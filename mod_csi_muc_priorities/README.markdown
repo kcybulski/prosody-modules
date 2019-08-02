@@ -22,3 +22,13 @@ considered important enough to send it to an inactive client, unless it
 is from the current user or mentions of their nickname. **Note** that
 mention support require the separate module [mod_track_muc_joins]
 to also be loaded.
+
+``` {.lua}
+modules_enabled = {
+    -- other modules etc
+
+    "csi_simple",
+    "csi_muc_priorities",
+    "track_muc_joins", -- optional
+}
+```
