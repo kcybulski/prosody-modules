@@ -25,4 +25,4 @@ modules_enabled = {
   -------- -----------------
        0.9 Works
       0.10 Should work
-     trunk *Does not work*
+      0.11 Should work
