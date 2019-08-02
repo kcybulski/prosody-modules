@@ -159,21 +159,25 @@ module:hook("s2s-stream-features",
 
 local function request_ack_if_needed(session, force, reason)
 	local queue = session.outgoing_stanza_queue;
+	local expected_h = session.last_acknowledged_stanza + #queue;
+	-- session.log("debug", "*** SMACKS(1) ***: awaiting_ack=%s, hibernating=%s", tostring(session.awaiting_ack), tostring(session.hibernating));
 	if session.awaiting_ack == nil and not session.hibernating then
-		-- this check of last_queue_count prevents ack-loops if missbehaving clients report wrong
+		-- this check of last_requested_h prevents ack-loops if missbehaving clients report wrong
 		-- stanza counts. it is set when an <r> is really sent (e.g. inside timer), preventing any
-		-- further requests until the queue count changes (either by incoming acks or by adding
-		-- more stanzas)
-		if (#queue > max_unacked_stanzas and session.last_queue_count ~= #queue) or force then
+		-- further requests until a higher h-value would be expected.
+		-- session.log("debug", "*** SMACKS(2) ***: #queue=%s, max_unacked_stanzas=%s, expected_h=%s, last_requested_h=%s", tostring(#queue), tostring(max_unacked_stanzas), tostring(expected_h), tostring(session.last_requested_h));
+		if (#queue > max_unacked_stanzas and expected_h ~= session.last_requested_h) or force then
 			session.log("debug", "Queuing <r> (in a moment) from %s - #queue=%d", reason, #queue);
 			session.awaiting_ack = false;
 			session.awaiting_ack_timer = stoppable_timer(1e-06, function ()
+				-- session.log("debug", "*** SMACKS(3) ***: awaiting_ack=%s, hibernating=%s", tostring(session.awaiting_ack), tostring(session.hibernating));
 				if not session.awaiting_ack and not session.hibernating then
-					session.log("debug", "Sending <r> (inside timer, before send)");
+					session.log("debug", "Sending <r> (inside timer, before send) from %s - #queue=%d", reason, #queue);
 					(session.sends2s or session.send)(st.stanza("r", { xmlns = session.smacks }))
 					session.awaiting_ack = true;
-					session.last_queue_count = #queue;
-					session.log("debug", "Sending <r> (inside timer, after send)");
+					-- expected_h could be lower than this expression e.g. more stanzas added to the queue meanwhile)
+					session.last_requested_h = session.last_acknowledged_stanza + #queue;
+					session.log("debug", "Sending <r> (inside timer, after send) from %s - #queue=%d", reason, #queue);
 					if not session.delayed_ack_timer then
 						session.delayed_ack_timer = stoppable_timer(delayed_ack_timeout, function()
 							delayed_ack_function(session);
@@ -332,8 +336,9 @@ function handle_r(origin, stanza, xmlns_sm)
 	module:log("debug", "Received ack request, acking for %d", origin.handled_stanza_count);
 	-- Reply with <a>
 	(origin.sends2s or origin.send)(st.stanza("a", { xmlns = xmlns_sm, h = string.format("%d", origin.handled_stanza_count) }));
-	-- piggyback our own ack request
-	if #origin.outgoing_stanza_queue > 0 and origin.last_queue_count ~= #origin.outgoing_stanza_queue then
+	-- piggyback our own ack request if needed (see request_ack_if_needed() for explanation of last_requested_h)
+	local expected_h = origin.last_acknowledged_stanza + #origin.outgoing_stanza_queue;
+	if #origin.outgoing_stanza_queue > 0 and expected_h ~= origin.last_requested_h then
 		request_ack_if_needed(origin, true, "piggybacked by handle_r");
 	end
 	return true;
