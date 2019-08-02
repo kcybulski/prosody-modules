@@ -19,4 +19,6 @@ and more important private chats are more common among most users.
 
 A message of type groupchat from an address in this list will not be
 considered important enough to send it to an inactive client, unless it
-is from the current user or mentions their nickname.
+is from the current user or mentions of their nickname. **Note** that
+mention support require the separate module [mod_track_muc_joins]
+to also be loaded.
