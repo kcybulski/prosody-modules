@@ -78,6 +78,12 @@ module:hook("message/host", function (event)
 	else
 		reply:body("Unknown command. `help` to list commands.");
 	end
+	reply:reset();
+
+	if stanza:get_child("request", "urn:xmpp:receipts") then
+		reply:tag("received", { xmlns = "urn:xmpp:receipts", id = stanza.attr.id }):up();
+	end
+
 	module:send(reply);
 	return true;
 end);
