@@ -1,3 +1,5 @@
+module:set_global();
+
 local statsman = require "core.statsmanager";
 local http = require "net.http.server";
 local json = require "util.json";
@@ -28,7 +30,7 @@ local function get_updates(event)
 end
 
 
-module:hook_global("stats-updated", function (event)
+module:hook("stats-updated", function (event)
 	local data = table.concat({
 		"event: stats-updated";
 		"data: "..json.encode(event.changed_stats);
