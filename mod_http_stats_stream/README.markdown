@@ -34,4 +34,6 @@ evtSource.addEventListener("stats-updated", function(e) {
 }, false);
 ```
 
+# Compatibility
 
+Prosody \>= 0.11.0

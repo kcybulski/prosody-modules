@@ -102,7 +102,7 @@ conversejs_cdn = "https://cdn.example.com"
 To select a specific version of Converse.js, you may override the version:
 
 ``` {.lua}
-conversejs_version = "4.0.1"
+conversejs_version = "5.0.0"
 ```
 
 Note that versions other than the default may not have been tested with this module, and may include incompatible changes.
