@@ -85,7 +85,7 @@ form{text-align:right}
 
 <ol class="chat-logs">{lines#
 <li class="{item.st_name} {item.st_type?}" id="{item.key}">
-<a class="time" href="#{item.key}"><time datetime="{item.datetime}">{item.time}</time></a>
+<a class="time" href="#{item.key}"><time id="{item.time}" datetime="{item.datetime}">{item.time}</time></a>
 <b class="nick">{item.nick}</b>
 <em class="verb">{item.verb?}</em>
 <q class="body">{item.body?}</q>
