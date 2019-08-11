@@ -5,7 +5,7 @@
 -- Copyright (C) 2012-2015 Kim Alvefur
 -- Copyright (C) 2012 Thijs Alkemade
 -- Copyright (C) 2014 Florian Zeitz
--- Copyright (C) 2016-2017 Thilo Molitor
+-- Copyright (C) 2016-2019 Thilo Molitor
 --
 -- This project is MIT/X11 licensed. Please see the
 -- COPYING file in the source package for more information.
@@ -116,7 +116,7 @@ local function stoppable_timer(delay, callback)
 end
 
 local function delayed_ack_function(session)
-	-- fire event only if configured to do so and our session is not hibernated or destroyed
+	-- fire event only if configured to do so and our session is not already hibernated or destroyed
 	if delayed_ack_timeout > 0 and session.awaiting_ack
 	and not session.hibernating and not session.destroyed then
 		session.log("debug", "Firing event 'smacks-ack-delayed', queue = %d",
@@ -171,7 +171,8 @@ local function request_ack_if_needed(session, force, reason)
 			session.awaiting_ack = false;
 			session.awaiting_ack_timer = stoppable_timer(1e-06, function ()
 				-- session.log("debug", "*** SMACKS(3) ***: awaiting_ack=%s, hibernating=%s", tostring(session.awaiting_ack), tostring(session.hibernating));
-				if not session.awaiting_ack and not session.hibernating then
+				-- only request ack if needed and our session is not already hibernated or destroyed
+				if not session.awaiting_ack and not session.hibernating and not session.destroyed then
 					session.log("debug", "Sending <r> (inside timer, before send) from %s - #queue=%d", reason, #queue);
 					(session.sends2s or session.send)(st.stanza("r", { xmlns = session.smacks }))
 					session.awaiting_ack = true;
