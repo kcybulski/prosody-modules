@@ -29,4 +29,5 @@ end);
 
 module:hook("muc-disco#info", function(event)
 	event.reply:tag("feature", {var="urn:xmpp:ping"}):up();
+	event.reply:tag("feature", {var = "http://jabber.org/protocol/muc#self-ping-optimization"}):up();
 end);
