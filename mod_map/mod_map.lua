@@ -54,7 +54,7 @@ module:hook("iq-get/self/xmpp:prosody.im/mod_map:summary", function(event)
 
 	local reply = st.reply(stanza);
 	reply:tag("summary", { xmlns = "xmpp:prosody.im/mod_map" });
-	for jid, count in pairs(summary) do
+	for jid, count in pairs(summary.counts) do
 		reply:tag("item", { jid = jid });
 		if type(count) == "number" then
 			reply:text_tag("count", ("%d"):format(count));
