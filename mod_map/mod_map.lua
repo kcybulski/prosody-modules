@@ -3,6 +3,7 @@ local st = require "util.stanza";
 local jid_bare = require "util.jid".bare;
 local rsm = require "util.rsm";
 local dataform = require "util.dataforms".new;
+local datetime = require "util.datetime".datetime;
 
 local archive = module:open_store("archive", "archive");
 
@@ -58,6 +59,12 @@ module:hook("iq-get/self/xmpp:prosody.im/mod_map:summary", function(event)
 		reply:tag("item", { jid = jid });
 		if type(count) == "number" then
 			reply:text_tag("count", ("%d"):format(count));
+		end
+		if summary.earliest and summary.earliest[jid] then
+			reply:text_tag("start", datetime(summary.earliest[jid]));
+		end
+		if summary.latest and summary.latest[jid] then
+			reply:text_tag("end", datetime(summary.latest[jid]));
 		end
 		reply:up();
 	end
