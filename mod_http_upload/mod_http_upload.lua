@@ -93,12 +93,12 @@ module:add_feature(legacy_namespace);
 module:add_extension(dataform {
 	{ name = "FORM_TYPE", type = "hidden", value = namespace },
 	{ name = "max-file-size", type = "text-single" },
-}:form({ ["max-file-size"] = tostring(file_size_limit) }, "result"));
+}:form({ ["max-file-size"] = ("%d"):format(file_size_limit) }, "result"));
 
 module:add_extension(dataform {
 	{ name = "FORM_TYPE", type = "hidden", value = legacy_namespace },
 	{ name = "max-file-size", type = "text-single" },
-}:form({ ["max-file-size"] = tostring(file_size_limit) }, "result"));
+}:form({ ["max-file-size"] = ("%d"):format(file_size_limit) }, "result"));
 
 -- state
 local pending_slots = module:shared("upload_slots");
