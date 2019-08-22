@@ -66,6 +66,9 @@ module:hook("iq-get/self/xmpp:prosody.im/mod_map:summary", function(event)
 		if summary.latest and summary.latest[jid] then
 			reply:text_tag("end", datetime(summary.latest[jid]));
 		end
+		if summary.body and summary.body[jid] then
+			reply:text_tag("body", summary.body[jid]);
+		end
 		reply:up();
 	end
 
