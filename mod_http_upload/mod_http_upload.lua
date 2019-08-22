@@ -179,7 +179,7 @@ local function handle_request(origin, stanza, xmlns, filename, filesize)
 		module:log("debug", "File too large (%d > %d)", filesize, file_size_limit);
 		return nil, st.error_reply(stanza, "modify", "not-acceptable", "File too large")
 			:tag("file-too-large", {xmlns=xmlns})
-				:tag("max-file-size"):text(tostring(file_size_limit));
+				:tag("max-file-size"):text(("%d"):format(file_size_limit));
 	elseif not check_quota(username, host, filesize) then
 		module:log("debug", "Upload of %dB by %s would exceed quota", filesize, origin.full_jid);
 		return nil, st.error_reply(stanza, "wait", "resource-constraint", "Quota reached");
