@@ -24,11 +24,13 @@ A basic query:
 Answered like:
 
 ``` {.xml}
-<?xml version="1.0"?>
 <iq type="result" id="lx7">
   <summary xmlns="xmpp:prosody.im/mod_map">
     <item jid="juliet@capulet.lit">
       <count>3</count>
+      <start>2019-02-25T15:48:00+0100</start>
+      <end>2019-08-23T01:39:50+02:00</end>
+      <body>O Romeo, Romeo! wherefore art thou Romeo?</body>
     </item>
   </summary>
 </iq>
