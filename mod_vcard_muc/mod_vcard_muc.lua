@@ -24,22 +24,25 @@ local get_room_from_jid = rawget(mod_muc, "get_room_from_jid") or
 		return rooms[jid];
 	end
 
-local function broadcast_presence(room_jid, to)
-	local room = get_room_from_jid(room_jid);
-	local room_node = jid_split(room_jid);
+local function get_photo_hash(room)
+	local room_node = jid_split(room.jid);
 	local vcard = st.deserialize(vcards:get(room_node));
-	local photo_hash;
-
 	if vcard then
 		local photo = vcard:get_child("PHOTO");
 
 		if photo then
 			local photo_b64 = photo:get_child_text("BINVAL");
 			local photo_raw = photo_b64 and base64.decode(photo_b64);
-			photo_hash = sha1(photo_raw, true);
+			return sha1(photo_raw, true);
 		end
 	end
 
+end
+
+local function broadcast_presence(room_jid, to)
+	local room = get_room_from_jid(room_jid);
+
+	local photo_hash = get_photo_hash(room)
 	local presence_vcard = st.presence({to = to, from = room_jid})
 		:tag("x", { xmlns = "vcard-temp:x:update" })
 			:tag("photo"):text(photo_hash):up();
