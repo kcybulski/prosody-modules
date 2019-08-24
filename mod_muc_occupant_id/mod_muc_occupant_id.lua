@@ -1,6 +1,6 @@
 
 -- Implementation of https://xmpp.org/extensions/inbox/occupant-id.html
--- XEP-XXXX: Anonymous unique occupant identifiers for MUCs
+-- XEP-0421: Anonymous unique occupant identifiers for MUCs
 
 module:depends("muc");
 
