@@ -42,7 +42,7 @@ end
 local function broadcast_presence(room_jid, to)
 	local room = get_room_from_jid(room_jid);
 
-	local photo_hash = get_photo_hash(room)
+	local photo_hash = get_photo_hash(room);
 	local presence_vcard = st.presence({to = to, from = room_jid})
 		:tag("x", { xmlns = "vcard-temp:x:update" })
 			:tag("photo"):text(photo_hash):up();
@@ -78,6 +78,10 @@ local function handle_vcard(event)
 			if vcards:set(room_node, st.preserialize(stanza.tags[1])) then
 				session.send(st.reply(stanza):tag("vCard", { xmlns = "vcard-temp" }));
 				broadcast_presence(room_jid, nil)
+
+				room:broadcast_message(st.message({ from = room.jid, type = "groupchat" })
+					:tag("x", { xmlns = "http://jabber.org/protocol/muc#user" })
+						:tag("status", { code = "104" }));
 			else
 				-- TODO unable to write file, file may be locked, etc, what's the correct error?
 				session.send(st.error_reply(stanza, "wait", "internal-server-error"));
@@ -95,6 +99,12 @@ module:hook("iq/host/vcard-temp:vCard", handle_vcard);
 
 module:hook("muc-disco#info", function(event)
 	event.reply:tag("feature", { var = "vcard-temp" }):up();
+
+	table.insert(event.form, {
+			name = "{http://modules.prosody.im/mod_vcard_muc}avatar#sha1",
+			type = "text-single",
+		});
+	event.formdata["{http://modules.prosody.im/mod_vcard_muc}avatar#sha1"] = get_photo_hash(event.room);
 end);
 
 module:hook("muc-occupant-session-new", function(event)
