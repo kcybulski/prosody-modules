@@ -7,37 +7,37 @@ module:hook("csi-is-stanza-important", function (event)
 	local stanza, session = event.stanza, event.session;
 	if stanza.name == "message" then
 		if stanza.attr.type == "groupchat" then
-			local body = stanza:get_child_text("body");
-			if not body then return end
-
 			local room_jid = jid_bare(stanza.attr.from);
 
 			local username = session.username;
 			local priorities = user_sessions[username].csi_muc_priorities;
 
-			if not priorities or priorities[room_jid] ~= false then
-				return nil;
+			if priorities then
+				local priority = priorities[room_jid];
+				if priority ~= nil then
+					return priority;
+				end
 			end
 
 			-- Look for mention
 			local rooms = session.rooms_joined;
 			if rooms then
+				local body = stanza:get_child_text("body");
+				if not body then return end
 				local room_nick = rooms[room_jid];
 				if room_nick then
 					if body:find(room_nick, 1, true) then
 						return true;
 					end
+					-- Your own messages
 					if stanza.attr.from == (room_jid .. "/" .. room_nick) then
 						return true;
 					end
 				end
-			elseif session.directed and session.directed[stanza.attr.from] then
-				-- fallback if no mod_track_muc_joins
-				return true;
 			end
 
-			-- Unimportant and no mention
-			return false;
+			-- Standard importance and no mention, leave to other modules to decide for now
+			return nil;
 		end
 	end
 end);
@@ -61,6 +61,12 @@ local priority_settings_form = dataform.new {
 	};
 	{
 		type = "jid-multi";
+		name = "important";
+		label = "Higher priority";
+		desc = "Group chats more important to you";
+	};
+	{
+		type = "jid-multi";
 		name = "unimportant";
 		label = "Lower priority";
 		desc = "E.g. large noisy public channels";
@@ -76,14 +82,23 @@ end);
 local adhoc_command_handler = adhoc_inital_data(priority_settings_form, function (data)
 	local username = jid_split(data.from);
 	local prioritized_jids = user_sessions[username].csi_muc_priorities or store:get(username);
+	local important = {};
 	local unimportant = {};
 	if prioritized_jids then
-		for jid in pairs(prioritized_jids) do
-			table.insert(unimportant, jid);
+		for jid, priority in pairs(prioritized_jids) do
+			if priority then
+				table.insert(important, jid);
+			else
+				table.insert(unimportant, jid);
+			end
 		end
+		table.sort(important);
 		table.sort(unimportant);
 	end
-	return { unimportant = unimportant };
+	return {
+	important = important;
+	unimportant = unimportant;
+};
 end, function(fields, form_err, data)
 	if form_err then
 		return { status = "completed", error = { message = "Problem in submitted form" } };
@@ -92,6 +107,9 @@ end, function(fields, form_err, data)
 	if fields.unimportant then
 		for _, jid in ipairs(fields.unimportant) do
 			prioritized_jids[jid] = false;
+		end
+		for _, jid in ipairs(fields.important) do
+			prioritized_jids[jid] = true;
 		end
 	end
 
