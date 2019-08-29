@@ -119,6 +119,7 @@ local function expire(username, host)
 	uploads = array(uploads);
 	local expiry = os.time() - max_age;
 	local upload_window = os.time() - 900;
+	local before = #uploads;
 	uploads:filter(function (item)
 		local filename = item.filename;
 		if item.dir then
@@ -136,6 +137,8 @@ local function expire(username, host)
 		end
 		return true;
 	end);
+	local after = #uploads;
+	if before == after then return true end -- nothing changed, skip write
 	return datamanager.list_store(username, host, module.name, uploads);
 end
 
