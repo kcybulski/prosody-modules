@@ -405,7 +405,8 @@ module:provides("http", {
 	};
 });
 
-module:log("info", "URL: <%s>; Storage path: %s", module:http_url(), storage_path);
+module:log("info", "URL: <%s> - Ensure this can be reached by users", module:http_url());
+module:log("info", "Storage path: '%s'", storage_path);
 
 function module.command(args)
 	datamanager = require "core.storagemanager".olddm;
