@@ -104,12 +104,7 @@ module:add_extension(dataform {
 local pending_slots = module:shared("upload_slots");
 
 local storage_path = module:get_option_string(module.name .. "_path", join_path(prosody.paths.data, module.name));
-
-do
-	local ok, err, errno = lfs.mkdir(storage_path);
-	-- 17 should be EEXIST, which is fine
-	assert(ok or errno == 17, "Storage path must be writable by Prosody\n"..err);
-end
+lfs.mkdir(storage_path);
 
 local function expire(username, host)
 	if not max_age then return true; end
