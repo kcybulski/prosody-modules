@@ -30,6 +30,7 @@ assert(not host:find(":"), "Invalid hostname");
 
 
 if not blocking then
+	assert(server.event, "External auth non-blocking mode requires libevent installed and enabled");
 	log("debug", "External auth in non-blocking mode, yay!")
 	waiter, guard = async.waiter, async.guarder();
 elseif auth_processes > 1 then
