@@ -1,5 +1,6 @@
 ---
 labels:
+- 'Stage-Merged'
 - 'Type-Auth'
 summary: Authentication module that accepts any username and password
 ...
