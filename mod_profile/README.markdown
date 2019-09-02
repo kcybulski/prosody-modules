@@ -4,9 +4,15 @@ labels:
 summary: 'Replacement for mod\_vcard with vcard4 support and PEP integration'
 ---
 
+::: {.alert .alert-warning}
+[mod\_vcard\_legacy][doc:modules:mod_vcard_legacy] and
+[mod\_vcard4][doc:modules:mod_vcard4] included with Prosody 0.11.x
+provide equivalent functionality.
+:::
+
 # Introduction
 
-This module provides a replacement for [mod\_vcard]. In addition to
+This module was an experimental replacement for [mod\_vcard]. In addition to
 the ageing protocol defined by [XEP-0054], it also supports the [new
 vCard 4 based protocol][xep0292] and integrates with [Personal
 Eventing Protocol][xep0163].
