@@ -1,6 +1,6 @@
 ---
 labels:
-- 'Stage-Alpha'
+- 'Stage-Merged'
 summary: 'XEP-0313: Message Archive Management for MUC'
 ...
 
