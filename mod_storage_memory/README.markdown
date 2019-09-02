@@ -1,6 +1,6 @@
 ---
 labels:
-- 'Stage-Beta'
+- 'Stage-Merged'
 - 'Type-Storage'
 - ArchiveStorage
 summary: 'Simple memory-only storage module'
