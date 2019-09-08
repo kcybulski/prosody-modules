@@ -1,14 +1,14 @@
 ---
 labels:
 - 'Stage-Alpha'
-summary: 'Implement XEP-xxxx: JID prep for clients'
+summary: 'Implement XEP-0328: JID Prep for clients'
 ...
 
 Introduction
 ============
 
 This is a plugin that implements the JID prep protocol defined in
-<http://xmpp.org/extensions/inbox/jidprep.html>
+<https://xmpp.org/extensions/xep-0328.html>
 
 Details
 =======
