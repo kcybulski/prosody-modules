@@ -39,6 +39,8 @@ local function handle_stanza(event)
 		return;
 	end
 
+	-- TODO: Handle MAM.
+
 	-- strip any existing <occupant-id/> tags to avoid forgery
 	stanza:remove_children("occupant-id", xmlns_occupant_id);
 
