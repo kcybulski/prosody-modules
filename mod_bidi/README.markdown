@@ -18,7 +18,7 @@ Compatibility
 =============
 
   ------- --------------------------
-  trunk   Works
+  trunk   Bidi available natively with [mod_s2s_bidi][doc:modules:mod_s2s_bidi]
   0.11    Works
   0.10    Works
   0.9     Works
