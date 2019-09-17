@@ -3,11 +3,7 @@ module:depends"muc";
 
 local webchat_baseurl = module:get_option_string("muc_webchat_baseurl", nil);
 
-local function get_webchat_url(room)
-	local webchat_url = room._data.webchat_url;
-	if webchat_url then -- explicitly configured
-		return webchat_url;
-	end
+local function get_default_url(room)
 	if not webchat_baseurl then
 		-- no template
 		return nil;
@@ -23,6 +19,13 @@ local function get_webchat_url(room)
 		}));
 end
 
+local function get_webchat_url(room)
+	local webchat_url = room._data.webchat_url;
+	if webchat_url then -- explicitly configured
+		return webchat_url;
+	end
+end
+
 module:hook("muc-config-form", function(event)
 	local room, form = event.room, event.form;
 	table.insert(form, {
@@ -36,8 +39,12 @@ end);
 module:hook("muc-config-submitted", function(event)
 	local room, fields, changed = event.room, event.fields, event.changed;
 	local new = fields["muc#roomconfig_webchat_url"];
-	if new ~= room._data.webchat_url then
-		room._data.webchat_url = new;
+	if new ~= get_webchat_url(room) then
+		if new == get_default_url(room) then
+			room._data.webchat_url = nil;
+		else
+			room._data.webchat_url = new;
+		end
 		if type(changed) == "table" then
 			changed["muc#roomconfig_webchat_url"] = true;
 		else
