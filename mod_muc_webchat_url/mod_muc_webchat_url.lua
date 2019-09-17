@@ -24,6 +24,7 @@ local function get_webchat_url(room)
 	if webchat_url then -- explicitly configured
 		return webchat_url;
 	end
+	return get_default_url(room);
 end
 
 module:hook("muc-config-form", function(event)
