@@ -25,7 +25,7 @@ members-only, hidden or password protected) rooms gain a default value
 based on a template:
 
 ``` {.lua}
-muc_webchat_url = "https://chat.example.com/join?room={node}"
+muc_webchat_baseurl = "https://chat.example.com/join?room={node}"
 ```
 
 The following variables will be subsituted with room address details:
