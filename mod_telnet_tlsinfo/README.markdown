@@ -1,6 +1,8 @@
 ---
+labels:
+- 'Stage-Obsolete'
 summary: Telnet command for showing TLS info
-...
+---
 
 Introduction
 ============
@@ -53,6 +55,7 @@ also take a JID for limiting output to matching users or servers.
 Compatibility
 =============
 
-  --------------------- -------
+  --------------------- ------------------
   0.9 with LuaSec 0.5   Works
-  --------------------- -------
+  0.10                  Merged into core
+  --------------------- ------------------
