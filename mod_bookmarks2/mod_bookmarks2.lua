@@ -1,3 +1,8 @@
+local mm = require "core.modulemanager";
+if mm.get_modules_for_host(module.host):contains("bookmarks") then
+	error("mod_bookmarks2 and mod_bookmarks are conflicting, please disable one of them.", 0);
+end
+
 local st = require "util.stanza";
 local jid_split = require "util.jid".split;
 
@@ -9,6 +14,7 @@ local ns = "urn:xmpp:bookmarks:0";
 
 local default_options = {
 	["persist_items"] = true;
+	-- This should be much higher, the XEP recommends 10000 but mod_pep rejects that.
 	["max_items"] = 255;
 	["send_last_published_item"] = "never";
 	["access_model"] = "whitelist";
