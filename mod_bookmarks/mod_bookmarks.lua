@@ -1,3 +1,8 @@
+local mm = require "core.modulemanager";
+if mm.get_modules_for_host(module.host):contains("bookmarks2") then
+	error("mod_bookmarks and mod_bookmarks2 are conflicting, please disable one of them.", 0);
+end
+
 local st = require "util.stanza";
 local jid_split = require "util.jid".split;
 
