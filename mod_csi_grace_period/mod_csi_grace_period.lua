@@ -18,11 +18,11 @@ module:hook("csi-is-stanza-important", function (event)
 	local user_session = user_sessions[session.username];
 	if not user_session then return; end
 
-	if user_sessions.grace_time_start then
-		if user_sessions.last_active == session.resource then
+	if user_session.grace_time_start then
+		if user_session.last_active == session.resource then
 			return;
 		end
-		if (os.time() - user_sessions.grace_time_start) < grace_period then
+		if (os.time() - user_session.grace_time_start) < grace_period then
 			session.log("debug", "Within grace period, probably seen");
 			return false;
 		end
@@ -35,8 +35,8 @@ local function on_activity(event)
 	if not user_session then return; end
 
 	if stanza:get_child("body") or stanza:get_child("active", "http://jabber.org/protocol/chatstates") then
-		user_sessions.last_active = origin.resource;
-		user_sessions.grace_time_start = os.time();
+		user_session.last_active = origin.resource;
+		user_session.grace_time_start = os.time();
 	end
 end
 module:hook("pre-message/full", on_activity);
