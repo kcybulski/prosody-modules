@@ -101,7 +101,7 @@ else
 		};
 	end
 	function verify_captcha(request, form, callback)
-		if hmac_sha1(secret, form.captcha_reply, true) == form.captcha_challenge then
+		if hmac_sha1(secret, form.captcha_reply or "", true) == form.captcha_challenge then
 			callback(true);
 		else
 			callback(false, "Captcha verification failed");
