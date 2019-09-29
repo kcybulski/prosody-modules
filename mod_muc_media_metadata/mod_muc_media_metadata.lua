@@ -57,5 +57,5 @@ module:hook("muc-occupant-groupchat", function (event)
 
 	if not promises then return; end
 
-	async.await(promise.all(promises));
+	async.wait(promise.all(promises));
 end);
