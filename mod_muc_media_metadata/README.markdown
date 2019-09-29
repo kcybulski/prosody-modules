@@ -11,7 +11,7 @@ size without needing to make external network requests.
 ``` {.lua}
 Component "rooms.example.net" "muc"
 modules_enabled = {
-    "muc_hide_media";
+    "muc_media_metadata";
 }
 ```
 
