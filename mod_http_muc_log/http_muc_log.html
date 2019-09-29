@@ -45,8 +45,10 @@ form{text-align:right}
 <header>
 <h1 title="xmpp:{jid?}">{title}</h1>
 <nav>
-<a href="xmpp:{jid?}?join">Join using a client</a>{links#
-<a class="{item.rel?}" href="{item.href}{hide_presence&?p=h}" rel="{item.rel?}">{item.text}</a>}
+<ul>
+<li><a href="xmpp:{jid?}?join">Join using a client</a></li>{links#
+<li><a class="{item.rel?}" href="{item.href}{hide_presence&?p=h}" rel="{item.rel?}">{item.text}</a></li>}
+</ul>
 </nav>
 </header>
 <hr>
@@ -95,8 +97,10 @@ form{text-align:right}
 </div>
 <hr>
 <footer>
-<nav>{links#
-<a class="{item.rel?}" href="{item.href}{hide_presence&?p=h}" rel="{item.rel?}">{item.text}</a>}
+<nav>
+<ul>{links#
+<li><a class="{item.rel?}" href="{item.href}{hide_presence&?p=h}" rel="{item.rel?}">{item.text}</a></li>}
+</ul>
 </nav>
 <br>
 <div class="powered-by">Prosody</div>
