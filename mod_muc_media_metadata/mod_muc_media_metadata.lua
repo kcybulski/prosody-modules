@@ -3,7 +3,7 @@ local promise = require "util.promise";
 local http = require "net.http";
 local st = require "util.stanza";
 
-local xmlns_metadata = "https://prosody.im/protocol/media-metadata#0"
+local xmlns_metadata = "xmpp:prosody.im/protocol/media-metadata#0"
 
 local fetch_headers = {
 	bytes = "content-length";

@@ -28,7 +28,7 @@ Example stanza:
   <body>https://matthewwild.co.uk/share.php/70334772-ff74-439b-8173-a71e40ca28db/mam-flow.png</body>
   <x xmlns="jabber:x:oob">
     <url>https://matthewwild.co.uk/share.php/70334772-ff74-439b-8173-a71e40ca28db/mam-flow.png</url>
-    <metadata xmlns="https://prosody.im/protocol/media-metadata#0">
+    <metadata xmlns="xmpp:prosody.im/protocol/media-metadata#0">
       <bytes>15690</bytes>
       <type>image/png</type>
       <blurhash>LEHV6nWB2yk8pyo0adR*.7kCMdnj</blurhash>
