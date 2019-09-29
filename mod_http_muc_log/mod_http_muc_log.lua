@@ -359,6 +359,16 @@ local function logs_page(event, path)
 		end
 	end
 
+	local links = {
+		{ href = "./", rel = "up", text = "Calendar" },
+	};
+	if prev_when ~= "" then
+		table.insert(links, { href = prev_when, rel = "prev", text = prev_when});
+	end
+	if next_when ~= "" then
+		table.insert(links, { href = next_when, rel = "next", text = next_when});
+	end
+
 	response.headers.content_type = "text/html; charset=utf-8";
 	return render(template, {
 		title = ("%s - %s"):format(get_room(room):get_name(), date);
@@ -366,11 +376,7 @@ local function logs_page(event, path)
 		hide_presence = hide_presence(request);
 		presence_available = presence_logged;
 		lines = logs;
-		links = {
-			{ href = "./", rel = "up", text = "Calendar" },
-			{ href = prev_when, rel = "prev", text = prev_when},
-			{ href = next_when, rel = "next", text = next_when},
-		};
+		links = links;
 	});
 end
 
