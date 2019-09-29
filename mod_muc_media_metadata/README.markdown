@@ -21,7 +21,20 @@ There are no configuration options for this module.
 
 # Developers
 
-Example stanza:
+## Example stanzas
+
+A normal message in a chatroom containing an image:
+
+```
+<message from="test@rooms.example.com/matthew" id="9f45a784-5e5b-4db5-a9b3-8ea1d7c1162d" type="groupchat">
+  <body>https://matthewwild.co.uk/share.php/70334772-ff74-439b-8173-a71e40ca28db/mam-flow.png</body>
+  <x xmlns="jabber:x:oob">
+    <url>https://matthewwild.co.uk/share.php/70334772-ff74-439b-8173-a71e40ca28db/mam-flow.png</url>
+  </x>
+</message>
+```
+
+The same stanza with this module loaded now contains additional metadata added by the server:
 
 ```
 <message from="test@rooms.example.com/matthew" id="9f45a784-5e5b-4db5-a9b3-8ea1d7c1162d" type="groupchat">
