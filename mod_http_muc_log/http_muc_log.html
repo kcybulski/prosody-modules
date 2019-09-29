@@ -38,6 +38,8 @@ li:hover .time{opacity:1;}
 .body::before,.body::after{content:"";}
 .presence .verb{font-style:normal;color:#30c030;}
 .unavailable .verb{color:#c03030;}
+.button{display:inline-block}
+.button>a{color:white;background-color:orange;border-radius:4px}
 form{text-align:right}
 </style>
 </head>
@@ -46,7 +48,7 @@ form{text-align:right}
 <h1 title="xmpp:{jid?}">{title}</h1>
 <nav>
 <ul>
-<li><a href="xmpp:{jid?}?join">Join using a client</a></li>{links#
+<li class="button"><a href="xmpp:{jid?}?join">Join using a client</a></li>{links#
 <li><a class="{item.rel?}" href="{item.href}{hide_presence&?p=h}" rel="{item.rel?}">{item.text}</a></li>}
 </ul>
 </nav>
