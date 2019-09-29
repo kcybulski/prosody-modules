@@ -242,6 +242,7 @@ local function years_page(event, path)
 	return render(template, {
 		title = get_room(room):get_name();
 		jid = get_room(room).jid;
+		jid_node = jid_split(get_room(room).jid);
 		hide_presence = hide_presence(request);
 		presence_available = presence_logged;
 		years = years;
@@ -373,6 +374,7 @@ local function logs_page(event, path)
 	return render(template, {
 		title = ("%s - %s"):format(get_room(room):get_name(), date);
 		jid = get_room(room).jid;
+		jid_node = jid_split(get_room(room).jid);
 		hide_presence = hide_presence(request);
 		presence_available = presence_logged;
 		lines = logs;

@@ -48,7 +48,10 @@ form{text-align:right}
 <h1 title="xmpp:{jid?}">{title}</h1>
 <nav>
 <ul>
-<li class="button"><a href="xmpp:{jid?}?join">Join using a client</a></li>{links#
+{jid_node&
+<li class="button"><a href="xmpp:{jid?}?join">Join using a client</a></li>
+}
+{links#
 <li><a class="{item.rel?}" href="{item.href}{hide_presence&?p=h}" rel="{item.rel?}">{item.text}</a></li>}
 </ul>
 </nav>
