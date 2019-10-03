@@ -120,6 +120,8 @@ local function handle_mam_query(event)
 	local query = stanza.tags[1];
 	local qid = query.attr.queryid;
 
+	origin.mam_requested = true;
+
 	schedule_cleanup(origin.username);
 
 	-- Search query parameters
