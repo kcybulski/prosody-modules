@@ -6,17 +6,17 @@
 local host = module.host;
 local log = module._log;
 local new_sasl = require "util.sasl".new;
+local usermanager = require "core.usermanager";
 local verify_token = module:require "token_auth_utils".verify_token;
 
 local provider = {};
 
 
-function provider.test_password(username, password, realm)
+function provider.test_password(username, password)
 	log("debug", "Testing signed OTP for user %s at host %s", username, host);
 	return verify_token(
 		username,
 		password,
-		realm,
 		module:get_option_string("otp_seed"),
 		module:get_option_string("token_secret"),
 		log
@@ -50,7 +50,7 @@ function provider.get_sasl_handler()
 	supported_mechanisms["X-TOKEN"] = true;
 	return new_sasl(host, {
 		token = function(sasl, username, password, realm)
-			return provider.test_password(username, password, realm), true;
+			return usermanager.test_password(username, realm, password), true;
 		end,
         mechanisms = supported_mechanisms
 	});
