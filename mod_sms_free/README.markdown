@@ -32,7 +32,7 @@ they are unavailable or xa.
 Compatibility
 =============
 
-  ----- -----------
+  ----- ------------------------------------
   trunk Works
-  0.11  Should work
-  ----- -----------
+  0.11  Does not work (SNI support required)
+  ----- ------------------------------------
