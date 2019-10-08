@@ -5,7 +5,7 @@ local assert = assert;
 local st = require "util.stanza";
 local url = require "socket.url";
 
-local no_styles = module:get_option_boolean("strip_xhtml_style", false);
+local no_styles = module:get_option_boolean("strip_xhtml_style", true);
 
 -- Tables from XEP-0071
 local xeptables = [[
