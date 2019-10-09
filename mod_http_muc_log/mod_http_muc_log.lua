@@ -377,6 +377,7 @@ local function logs_page(event, path)
 		jid_node = jid_split(get_room(room).jid);
 		hide_presence = hide_presence(request);
 		presence_available = presence_logged;
+		lang = get_room(room).get_language and get_room(room):get_language();
 		lines = logs;
 		links = links;
 	});
@@ -391,6 +392,7 @@ local function list_rooms(event)
 				jid = room.jid;
 				href = get_link(jid_split(room.jid), default_view);
 				name = room:get_name();
+				lang = room.get_language and room:get_language();
 				description = room:get_description();
 			}, i + 1;
 		end
