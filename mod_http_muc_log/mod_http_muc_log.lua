@@ -294,9 +294,11 @@ local function logs_page(event, path)
 
 	local first, last;
 	for key, item, when in iter do
-		local body = item:get_child_text("body");
+		local body_tag = item:get_child("body");
+		local body = body_tag and body_tag:get_text();
 		local subject = item:get_child_text("subject");
 		local verb = nil;
+		local lang = body_tag and body_tag.attr["xml:lang"] or item.attr["xml:lang"];
 		if subject then
 			verb, body = "set the topic to", subject;
 		elseif body and body:sub(1,4) == "/me " then
@@ -304,6 +306,7 @@ local function logs_page(event, path)
 		elseif item.name == "presence" then
 			-- TODO Distinguish between join and presence update
 			verb = item.attr.type == "unavailable" and "has left" or "has joined";
+			lang = "en";
 		end
 		local oob = use_oob and item:get_child("x", "jabber:x:oob");
 		if body or verb or oob then
@@ -313,6 +316,7 @@ local function logs_page(event, path)
 				time = datetime.time(when);
 				verb = verb;
 				body = body;
+				lang = lang;
 				nick = select(3, jid_split(item.attr.from));
 				st_name = item.name;
 				st_type = item.attr.type;
