@@ -45,7 +45,7 @@ form{text-align:right}
 </head>
 <body>
 <header>
-<h1 title="xmpp:{jid?}">{title}</h1>
+<h1 {lang&lang="{lang}"} title="xmpp:{jid?}">{title}</h1>
 <nav>
 <ul>
 {jid_node&
@@ -57,12 +57,12 @@ form{text-align:right}
 </nav>
 </header>
 <hr>
-<main class="content">
+<main {lang&lang="{lang}"} class="content">
 <nav>
 <dl class="room-list">
 {rooms#
-<dt class="name"><a href="{item.href}{hide_presence&?p=h}">{item.name}</a></dt>
-<dd class="description">{item.description?}</dd>}
+<dt {item.lang&lang="{item.lang}"} class="name"><a href="{item.href}{hide_presence&?p=h}">{item.name}</a></dt>
+<dd {item.lang&lang="{item.lang}"} class="description">{item.description?}</dd>}
 </dl>
 {years#
 <h2 id="{item.year}">{item.year}</h2>
