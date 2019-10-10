@@ -37,15 +37,21 @@ if half_year_users == 0 and month_users == 0 and week_users == 0 then
 	week_users = nil;
 end
 
+local message_count_store = module:open_store("message_count");
+local message_count = message_count_store:get("message_count");
+
 module:provides("http", {
 	default_path = "/.well-known/x-nodeinfo2";
 	route = {
 		GET = function (event)
 			local stats, changed_only, extras = get_stats();
-			local message_count = nil;
 			for stat, _ in pairs(stats) do
 				if stat == "/*/mod_measure_message_e2ee/message:rate" then
-					message_count = extras[stat].total;
+					local new_message_count = extras[stat].total;
+					if new_message_count ~= message_count then
+						message_count = new_message_count;
+						message_count_store:set("message_count", message_count);
+					end
 				end
 			end
 
