@@ -1,7 +1,9 @@
 local json = require "util.json";
 local array = require "util.array";
+local get_stats = require "core.statsmanager".get_stats;
 
 module:depends("http");
+module:depends("measure_message_e2ee");
 
 local total_users = 0;
 for _ in require "core.usermanager".users(module.host) do -- TODO refresh at some interval?
@@ -12,6 +14,14 @@ module:provides("http", {
 	default_path = "/.well-known/x-nodeinfo2";
 	route = {
 		GET = function (event)
+			local stats, changed_only, extras = get_stats();
+			local message_count = nil;
+			for stat, value in pairs(stats) do
+				if stat == "/*/mod_measure_message_e2ee/message:rate" then
+					message_count = extras[stat].total;
+				end
+			end
+
 			event.response.headers.content_type = "application/json";
 			return json.encode({
 				version = "1.0";
@@ -49,8 +59,8 @@ module:provides("http", {
 						-- activeMonth = 1;
 						-- activeWeek = 1;
 					};
-					-- localPosts = 0;
-					-- localComments = 0;
+					localPosts = message_count;
+					localComments = message_count;
 				};
 			});
 		end;
