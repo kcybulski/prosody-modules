@@ -4,7 +4,7 @@ local array = require "util.array";
 module:depends("http");
 
 local total_users = 0;
-for _ in require "core.usermanager".users(module.host) do
+for _ in require "core.usermanager".users(module.host) do -- TODO refresh at some interval?
 	total_users = total_users + 1;
 end
 
@@ -21,7 +21,7 @@ module:provides("http", {
 					software = "Prosody";
 					version = prosody.version;
 				};
-				--[[
+				--[[ TODO re-use data from mod_server_contact_info ?
 				organization = {
 					name = "";
 					contact = "";
@@ -31,7 +31,7 @@ module:provides("http", {
 				protocols = array {
 					"xmpp",
 				};
-				--[[
+				--[[ TODO would be cool to identify local transports
 				services = {
 					inbound = array {
 						"irc";
@@ -44,6 +44,7 @@ module:provides("http", {
 				usage = {
 					users = {
 						total = total_users;
+						-- TODO how would one calculate these?
 						-- activeHalfyear = 1;
 						-- activeMonth = 1;
 						-- activeWeek = 1;
