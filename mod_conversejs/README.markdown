@@ -138,5 +138,5 @@ Compatibility
   ----------------- ---------------
   0.9               Does not work
   0.10              Should work
-  0.11              Should work
+  0.11              Works
   trunk             Works
