@@ -17,6 +17,7 @@ local array = require "util.array";
 local t_concat = table.concat;
 local t_insert = table.insert;
 local s_upper = string.upper;
+local httpserver = require "net.http.server";
 local have_id, id = pcall(require, "util.id"); -- Only available in 0.10+
 local uuid = require"util.uuid".generate;
 if have_id then
@@ -381,6 +382,11 @@ local function serve_head(event, path)
 	event.response.send = send_response_sans_body;
 	event.response.send_file = send_response_sans_body;
 	return serve_uploaded_files(event, path);
+end
+
+if httpserver.send_head_response then
+	-- Prosody will take care of HEAD requests since hg:3f4c25425589
+	serve_head = nil
 end
 
 local function serve_hello(event)
