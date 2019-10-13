@@ -240,7 +240,7 @@ local function years_page(event, path)
 
 	response.headers.content_type = "text/html; charset=utf-8";
 	return render(template, {
-		title = get_room(room):get_name();
+		room = get_room(room)._data;
 		jid = get_room(room).jid;
 		jid_node = jid_split(get_room(room).jid);
 		hide_presence = hide_presence(request);
@@ -376,8 +376,8 @@ local function logs_page(event, path)
 
 	response.headers.content_type = "text/html; charset=utf-8";
 	return render(template, {
-		title = ("%s - %s"):format(get_room(room):get_name(), date);
 		date = date;
+		room = get_room(room)._data;
 		jid = get_room(room).jid;
 		jid_node = jid_split(get_room(room).jid);
 		hide_presence = hide_presence(request);
