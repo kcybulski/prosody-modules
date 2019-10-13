@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {date&<meta name="dcterms.date" content="{date}">}
-<title>{title}</title>
+<title>{title?{room.name?{jid_node}}{date& - {date}}}</title>
 <style>
 :link,:visited{color:#3465a4;text-decoration:none;}
 :link:hover,:visited:hover{color:#6197df;}
@@ -46,7 +46,7 @@ form{text-align:right}
 </head>
 <body>
 <header>
-<h1 {lang&lang="{lang}"} title="xmpp:{jid?}">{title}</h1>
+<h1 {lang&lang="{lang}"} title="xmpp:{jid?}">{title?{room.name?{jid_node}}{date& - {date}}}</h1>
 <nav>
 <ul>
 {jid_node&
