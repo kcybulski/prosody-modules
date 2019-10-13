@@ -11,16 +11,28 @@ publish data to PubSub using a HTTP POST request. The payload can be
 Atom feeds, arbitrary XML, or arbitrary JSON. The type should be
 indicated via the `Content-Type` header.
 
+-   JSON data is wrapped in a [XEP-0335] container.
+-   An Atom feed may have many `<entry>` and each one is published as
+    its own PubSub item.
+-   Other XML is simply published to a randomly named item as-is.
+
+## JSON example
+
 ``` {.bash}
 curl http://localhost:5280/pubsub_post/princely_musings \
     -H "Content-Type: application/json" \
     --data-binary '{"musing":"To be, or not to be: that is the question"}'
 ```
 
--   JSON data is wrapped in a [XEP-0335] container.
--   An Atom feed may have many `<entry>` and each one is published as
-    its own PubSub item.
--   Other XML is simply published to a randomly named item as-is.
+## Atom example
+
+``` {.bash}
+curl http://localhost:5280/pubsub_post/princely_musings \
+    -H "Content-Type: application/xml" \
+    --data-binary '<feed xmlns="http://www.w3.org/2005/Atom">
+        <entry><title>Hello</title></entry></feed>'
+
+```
 
 # Configuration
 
