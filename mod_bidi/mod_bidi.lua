@@ -36,9 +36,11 @@ local function new_bidi(origin)
 		end
 		bidi_sessions[origin.from_host] = origin;
 		origin.is_bidi = true;
+		origin.outgoing = true;
 	elseif origin.type == "s2sout" then -- handle incoming stanzas correctly
 		local bidi_session = {
 			type = "s2sin"; direction = "incoming";
+			incoming = true;
 			is_bidi = true; orig_session = origin;
 			to_host = origin.from_host;
 			from_host = origin.to_host;
