@@ -75,6 +75,9 @@ module:hook("s2s-stream-features", function(event)
 	and not disable_bidi_for:contains(origin.from_host)
 	and (not secure_only or (origin.cert_chain_status == "valid"
 	and origin.cert_identity_status == "valid")) then
+		if origin.incoming == true then
+			module:log("warn", "This module can now be replaced by mod_s2s_bidi which is included with Prosody");
+		end
 		module:log("debug", "Announcing support for bidirectional streams");
 		features:tag("bidi", { xmlns = xmlns_bidi_feature }):up();
 	end
@@ -100,6 +103,9 @@ module:hook("stanza/http://etherx.jabber.org/streams:features", function(event)
 	and event.stanza:get_child("bidi", xmlns_bidi_feature)
 	and (not secure_only or origin.cert_chain_status == "valid"
 	and origin.cert_identity_status == "valid") then
+		if origin.outgoing == true then
+			module:log("warn", "This module can now be replaced by mod_s2s_bidi which is included with Prosody");
+		end
 		module:log("debug", "%s supports bidirectional streams", origin.to_host);
 		origin.sends2s(st.stanza("bidi", { xmlns = xmlns_bidi }));
 		origin.do_bidi = true;
