@@ -421,6 +421,10 @@ module:provides("http", {
 	route = {
 		["GET /"] = list_rooms;
 		["GET /*"] = logs_page;
+		-- mod_http only supports one wildcard so logs_page will dispatch to years_page if the path contains no date
+		-- thus:
+		-- GET /room --> years_page (via logs_page)
+		-- GET /room/yyyy-mm-dd --> logs_page (for real)
 	};
 });
 
