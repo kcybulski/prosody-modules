@@ -26,17 +26,4 @@ local function send_pings()
 	return keepalive_interval;
 end
 
-if module.add_timer then -- 0.9
-	module:add_timer(keepalive_interval, send_pings);
-else -- 0.8
-	local timer = require "util.timer";
-	local unloaded;
-	timer.add_task(keepalive_interval, function()
-		if not unloaded then
-			return send_pings()
-		end
-	end);
-	function module.unload()
-		unloaded = true
-	end
-end
+module:add_timer(keepalive_interval, send_pings);
