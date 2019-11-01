@@ -39,6 +39,8 @@ end
 local register_tpl = get_template "register";
 local success_tpl = get_template "success";
 
+-- COMPAT `or request.conn:ip()`
+
 if next(captcha_options) ~= nil then
 	local recaptcha_tpl = get_template "recaptcha";
 
@@ -57,7 +59,7 @@ if next(captcha_options) ~= nil then
 		http.request("https://www.google.com/recaptcha/api/siteverify", {
 			body = http.formencode {
 				secret = captcha_options.recaptcha_private_key;
-				remoteip = request.conn:ip();
+				remoteip = request.ip or request.conn:ip();
 				response = form["g-recaptcha-response"];
 			};
 		}, function (verify_result, code)
@@ -137,7 +139,7 @@ function register_user(form, origin)
 	if usermanager.user_exists(prepped_username, module.host) then
 		return nil, "Username already taken";
 	end
-	local registering = { username = prepped_username , host = module.host, additional = form, ip = origin.conn:ip(), allowed = true }
+	local registering = { username = prepped_username , host = module.host, additional = form, ip = origin.ip or origin.conn:ip(), allowed = true }
 	module:fire_event("user-registering", registering);
 	if not registering.allowed then
 		return nil, registering.reason or "Registration not allowed";
@@ -162,7 +164,7 @@ function register_user(form, origin)
 			username = prepped_username,
 			host = module.host,
 			source = module.name,
-			ip = origin.conn:ip(),
+			ip = origin.ip or origin.conn:ip(),
 		});
 	end
 	return jid, err;
