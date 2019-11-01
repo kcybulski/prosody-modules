@@ -129,7 +129,7 @@ function register_user(form, origin)
 	local jid = nil;
 	form.username, form.password, form.confirm_password = nil, nil, nil;
 
-	local prepped_username = nodeprep(username);
+	local prepped_username = nodeprep(username, true);
 	if not prepped_username then
 		return nil, "Username contains forbidden characters";
 	end
