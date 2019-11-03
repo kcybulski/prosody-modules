@@ -1,0 +1,44 @@
+---
+summary: JSON Log Sink
+---
+
+Conifiguration
+==============
+
+``` {.lua}
+log = {
+  -- your other log sinks
+  info = "/var/log/prosody/prosody.log"
+  -- add this:
+  { to = "json", filename = "/var/log/prosody/prosody.json" };
+}
+```
+
+Format
+======
+
+JSON log files consist of a series of `\n`-separated JSON objects,
+suitable for mangling with tools like
+[`jq`](https://stedolan.github.io/jq/).
+
+``` {.json}
+{"message":"Client connected","source":"c2s55f267f5b9d0","datetime":"2019-11-03T13:38:28Z","level":"info","args":[]}
+{"message":"load_roster: asked for: %s","source":"rostermanager","datetime":"2019-11-03T13:38:28Z","level":"debug","args":["user@example.net"]}
+```
+
+`datetime`
+:   [XEP-0082]-formatted timestamp.
+
+`source`
+:   Log source, usually a module or a connected session.
+
+`level`
+:   `debug`, `info`, `warn` or `error`
+
+`message`
+:   The log message in `printf` format. Combine with `args` to get the
+    final message.
+
+`args`
+:   Array of extra arguments, corresponding to `printf`-style `%s`
+    formatting in the `message`.
