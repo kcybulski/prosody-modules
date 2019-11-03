@@ -1,7 +1,8 @@
 local st = require"util.stanza";
 local host = module.host;
 
-local warning_message = module:get_option_string("sslv3_warning", "Your connection is encrypted using the SSL 3.0 protocol, which has been demonstrated to be insecure and will be disabled soon.  Please upgrade your client.");
+local deprecated_protocols = module:get_option_set("legacy_tls_versions", { "SSLv3", "TLSv1", "TLSv1.1" });
+local warning_message = module:get_option_string("legacy_tls_warning", "Your connection is encrypted using the %s protocol, which has known problems and will be disabled soon.  Please upgrade your client.");
 
 module:hook("resource-bind", function (event)
 	local session = event.session;
@@ -11,11 +12,11 @@ module:hook("resource-bind", function (event)
 		return session.conn:socket():info"protocol";
 	end, session);
 	if not ok then
-		module:log("debug", protocol);
-	elseif protocol == "SSLv3" then
+		module:log("debug", "Could not determine TLS version: %s", protocol);
+	elseif deprecated_protocols:contains(protocol) then
 		module:add_timer(15, function ()
 			if session.type == "c2s" and session.resource then
-				session.send(st.message({ from = host, type = "headline", to = session.full_jid }, warning_message));
+				session.send(st.message({ from = host, type = "headline", to = session.full_jid }, warning_message:format(protocol)));
 			end
 		end);
 	end
