@@ -21,9 +21,25 @@ JSON log files consist of a series of `\n`-separated JSON objects,
 suitable for mangling with tools like
 [`jq`](https://stedolan.github.io/jq/).
 
+Example (with whitespace and indentation for readability):
+
 ``` {.json}
-{"message":"Client connected","source":"c2s55f267f5b9d0","datetime":"2019-11-03T13:38:28Z","level":"info","args":[]}
-{"message":"load_roster: asked for: %s","source":"rostermanager","datetime":"2019-11-03T13:38:28Z","level":"debug","args":["user@example.net"]}
+{
+   "args" : [],
+   "datetime" : "2019-11-03T13:38:28Z",
+   "level" : "info",
+   "message" : "Client connected",
+   "source" : "c2s55f267f5b9d0"
+}
+{
+   "args" : [
+      "user@example.net"
+   ],
+   "datetime" : "2019-11-03T13:38:28Z",
+   "level" : "debug",
+   "message" : "load_roster: asked for: %s",
+   "source" : "rostermanager"
+}
 ```
 
 `datetime`
