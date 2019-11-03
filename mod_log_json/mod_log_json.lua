@@ -6,7 +6,7 @@ local datetime = require "util.datetime".datetime;
 module:set_global();
 
 local function sink_maker(config)
-	local logfile = io.open(config.filename, "a");
+	local logfile = io.open(config.filename, "a+");
 	logfile:setvbuf("no");
 	return function (source, level, message, ...)
 		local args = pack(...);
