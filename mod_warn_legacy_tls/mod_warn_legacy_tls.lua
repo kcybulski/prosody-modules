@@ -20,5 +20,7 @@ module:hook("resource-bind", function (event)
 				session.send(st.message({ from = host, type = "headline", to = session.full_jid }, warning_message:format(protocol)));
 			end
 		end);
+	else
+		module:log("debug", "Using acceptable TLS version: %s", protocol);
 	end
 end);
