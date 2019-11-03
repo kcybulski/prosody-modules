@@ -14,6 +14,7 @@ module:hook("resource-bind", function (event)
 	if not ok then
 		module:log("debug", "Could not determine TLS version: %s", protocol);
 	elseif deprecated_protocols:contains(protocol) then
+		session.log("warn", "Uses %s", protocol);
 		module:add_timer(15, function ()
 			if session.type == "c2s" and session.resource then
 				session.send(st.message({ from = host, type = "headline", to = session.full_jid }, warning_message:format(protocol)));
