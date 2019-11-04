@@ -72,6 +72,7 @@ local function get_converse_options()
 		domain_placeholder = module.host;
 		allow_registration = allow_registration;
 		registration_domain = allow_registration and module.host or nil;
+		view_mode = "fullscreen";
 	};
 
 	if type(user_options) == "table" then
