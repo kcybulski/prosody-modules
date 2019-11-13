@@ -276,26 +276,13 @@ local function on_node_created(event)
 	if node ~= "storage:bookmarks" then
 		return;
 	end
-	local ok, node_config = service:get_node_config(node, actor);
+
+	module:log("debug", "Something tried to create legacy PEP bookmarks for %s.", actor);
+	local ok, err = service:delete("storage:bookmarks", actor);
 	if not ok then
-		module:log("error", "Failed to get node config of %s: %s", node, node_config);
-		return;
+		module:log("error", "Failed to delete legacy PEP bookmarks for %s: %s", actor, err);
 	end
-	local changed = false;
-	for config_field, value in pairs(default_options) do
-		if node_config[config_field] ~= value then
-			node_config[config_field] = value;
-			changed = true;
-		end
-	end
-	if not changed then
-		return;
-	end
-	local ok, err = service:set_node_config(node, actor, node_config);
-	if not ok then
-		module:log("error", "Failed to set node config of %s: %s", node, err);
-		return;
-	end
+	module:log("debug", "Legacy PEP bookmarks node of %s deleted.", actor);
 end
 
 module:hook("iq/bare/jabber:iq:private:query", function (event)
