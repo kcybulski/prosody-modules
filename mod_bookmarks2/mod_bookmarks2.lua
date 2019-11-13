@@ -9,9 +9,6 @@ local jid_split = require "util.jid".split;
 local mod_pep = module:depends "pep";
 local private_storage = module:open_store("private", "map");
 
-local legacy_ns = "storage:bookmarks";
-local ns = "urn:xmpp:bookmarks:0";
-
 local default_options = {
 	["persist_items"] = true;
 	-- This should be much higher, the XEP recommends 10000 but mod_pep rejects that.
@@ -193,7 +190,7 @@ local function on_publish_private_xml(event)
 		return;
 	end
 
-	local bookmarks = query:get_child("storage", legacy_ns);
+	local bookmarks = query:get_child("storage", "storage:bookmarks");
 	if bookmarks == nil then
 		return;
 	end
