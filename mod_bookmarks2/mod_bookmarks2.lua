@@ -55,8 +55,8 @@ local function on_retrieve_private_xml(event)
 	end
 
 	local storage = st.stanza("storage", { xmlns = "storage:bookmarks" });
-	for i in ipairs(ret) do
-		local item = ret[ret[i]];
+	for _, item_id in ipairs(ret) do
+		local item = ret[item_id];
 		local conference = st.stanza("conference");
 		conference.attr.jid = item.attr.id;
 		local bookmark = item:get_child("conference", "urn:xmpp:bookmarks:0");
