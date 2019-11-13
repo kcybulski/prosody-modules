@@ -5,6 +5,8 @@ summary: JSON Log Sink
 Conifiguration
 ==============
 
+Here we log to `/var/log/prosody/prosody.json`:
+
 ``` {.lua}
 log = {
   -- your other log sinks
