@@ -217,6 +217,34 @@ local function migrate_legacy_bookmarks(event)
 	local service = mod_pep.get_pep_service(username);
 	local jid = username.."@"..session.host;
 
+	local ok, ret = service:get_items("storage:bookmarks", session.full_jid);
+	if ok then
+		module:log("debug", "Legacy PEP bookmarks found for %s, migrating.", jid);
+		local failed = false;
+		for _, item_id in ipairs(ret) do
+			local item = ret[item_id];
+			if item.attr.id ~= "current" then
+				module:log("warn", "Legacy PEP bookmarks for %s isn’t using 'current' as its id: %s", jid, item.attr.id);
+			end
+			local bookmarks = item:get_child("storage", "storage:bookmarks");
+			module:log("debug", "Got legacy PEP bookmarks of %s: %s", jid, bookmarks);
+
+			local ok, err = publish_to_pep(session.full_jid, bookmarks, false);
+			if not ok then
+				module:log("error", "Failed to store legacy PEP bookmarks to bookmarks 2 for %s, aborting migration: %s", jid, err);
+				failed = true;
+				break;
+			end
+		end
+		if not failed then
+			module:log("debug", "Successfully migrated legacy PEP bookmarks of %s to bookmarks 2, attempting deletion of the node.", jid);
+			local ok, err = service:delete("storage:bookmarks", jid);
+			if not ok then
+				module:log("error", "Failed to delete legacy PEP bookmarks for %s: %s", jid, err);
+			end
+		end
+	end
+
 	local data, err = private_storage:get(username, "storage:storage:bookmarks");
 	if not data then
 		module:log("debug", "No existing legacy bookmarks for %s, migration already done: %s", jid, err);
@@ -230,20 +258,20 @@ local function migrate_legacy_bookmarks(event)
 	local bookmarks = st.deserialize(data);
 	module:log("debug", "Got legacy bookmarks of %s: %s", jid, bookmarks);
 
-	module:log("debug", "Going to store PEP item for %s.", jid);
+	module:log("debug", "Going to store legacy bookmarks to bookmarks 2 %s.", jid);
 	local ok, err = publish_to_pep(session.full_jid, bookmarks, false);
 	if not ok then
-		module:log("error", "Failed to store bookmarks to PEP for %s, aborting migration: %s", jid, err);
+		module:log("error", "Failed to store legacy bookmarks to bookmarks 2 for %s, aborting migration: %s", jid, err);
 		return;
 	end
-	module:log("debug", "Stored bookmarks to PEP for %s.", jid);
+	module:log("debug", "Stored legacy bookmarks to bookmarks 2 for %s.", jid);
 
 	local ok, err = private_storage:set(username, "storage:storage:bookmarks", nil);
 	if not ok then
-		module:log("error", "Failed to remove private bookmarks of %s: %s", jid, err);
+		module:log("error", "Failed to remove legacy bookmarks of %s: %s", jid, err);
 		return;
 	end
-	module:log("debug", "Removed private bookmarks of %s, migration done!", jid);
+	module:log("debug", "Removed legacy bookmarks of %s, migration done!", jid);
 end
 
 local function on_node_created(event)
