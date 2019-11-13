@@ -16,7 +16,7 @@ local function sink_maker(config)
 		end
 	elseif config.udp_host and config.udp_port then
 		local conn = socket.udp();
-		conn:connect(config.udp_host, config.udp_port);
+		conn:setpeername(config.udp_host, config.udp_port);
 		function send(payload)
 			conn:send(payload);
 		end
