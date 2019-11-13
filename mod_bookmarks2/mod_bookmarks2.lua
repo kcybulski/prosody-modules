@@ -95,13 +95,17 @@ local function compare_bookmark2(a, b)
 	        a_password == b_password);
 end
 
-local function publish_to_pep(jid, bookmarks)
+local function publish_to_pep(jid, bookmarks, synchronise)
 	local service = mod_pep.get_pep_service(jid_split(jid));
 
-	-- If we set zero legacy bookmarks, purge the bookmarks 2 node.
 	if #bookmarks.tags == 0 then
-		module:log("debug", "No bookmark in the set, purging instead.");
-		return service:purge("urn:xmpp:bookmarks:0", jid, true);
+		if synchronise then
+			-- If we set zero legacy bookmarks, purge the bookmarks 2 node.
+			module:log("debug", "No bookmark in the set, purging instead.");
+			return service:purge("urn:xmpp:bookmarks:0", jid, true);
+		else
+			return true;
+		end
 	end
 
 	-- Retrieve the current bookmarks2.
@@ -168,12 +172,14 @@ local function publish_to_pep(jid, bookmarks)
 	end
 
 	-- Now handle retracting items that have been removed.
-	for id in pairs(to_remove) do
-		module:log("debug", "Item %s removed from bookmarks.", id);
-		local ok, err = service:retract("urn:xmpp:bookmarks:0", jid, id, st.stanza("retract", { id = id }));
-		if not ok then
-			module:log("error", "Retracting item %s failed: %s", id, err);
-			return ok, err;
+	if synchronise then
+		for id in pairs(to_remove) do
+			module:log("debug", "Item %s removed from bookmarks.", id);
+			local ok, err = service:retract("urn:xmpp:bookmarks:0", jid, id, st.stanza("retract", { id = id }));
+			if not ok then
+				module:log("error", "Retracting item %s failed: %s", id, err);
+				return ok, err;
+			end
 		end
 	end
 	return true;
@@ -194,7 +200,7 @@ local function on_publish_private_xml(event)
 
 	module:log("debug", "Private bookmarks set by client, publishing to pep.");
 
-	local ok, err = publish_to_pep(session.full_jid, bookmarks);
+	local ok, err = publish_to_pep(session.full_jid, bookmarks, true);
 	if not ok then
 		module:log("error", "Failed to publish to PEP bookmarks for %s@%s: %s", session.username, session.host, err);
 		session.send(st.error_reply(stanza, "cancel", "internal-server-error", "Failed to store bookmarks to PEP"));
@@ -224,12 +230,8 @@ local function migrate_legacy_bookmarks(event)
 	local bookmarks = st.deserialize(data);
 	module:log("debug", "Got legacy bookmarks of %s: %s", jid, bookmarks);
 
-	-- We don’t care if deleting succeeds or not, we only want to start with a non-existent node.
-	module:log("debug", "Deleting possibly existing PEP item for %s.", jid);
-	service:delete("urn:xmpp:bookmarks:0", jid);
-
 	module:log("debug", "Going to store PEP item for %s.", jid);
-	local ok, err = publish_to_pep(session.full_jid, bookmarks);
+	local ok, err = publish_to_pep(session.full_jid, bookmarks, false);
 	if not ok then
 		module:log("error", "Failed to store bookmarks to PEP for %s, aborting migration: %s", jid, err);
 		return;
