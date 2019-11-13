@@ -1,0 +1,253 @@
+# Pubsub: Bookmarks 2.0
+
+[Client] Juliet-old
+	jid: admin@localhost
+	password: password
+
+[Client] Juliet-new
+	jid: admin@localhost
+	password: password
+
+// admin@localhost is assumed to have node creation privileges
+
+---------
+
+Juliet-new connects
+
+-- Generated with https://gitlab.com/xmpp-rs/xmpp-parsers:
+-- cargo run --example=generate-caps https://code.matthewwild.co.uk/scansion/ <<< "<query xmlns='http://jabber.org/protocol/disco#info'><identity category='client' name='scansion' type='bot'/><feature var='http://jabber.org/protocol/disco#info'/><feature var='urn:xmpp:bookmarks:0+notify'/></query>"
+Juliet-new sends:
+	<presence id='presence0'>
+		<c xmlns='http://jabber.org/protocol/caps'
+		   hash='sha-1'
+		   node='https://code.matthewwild.co.uk/scansion/'
+		   ver='Tg9qGTn5+LdKR6TTdjCUMVohBMc='/>
+		<c xmlns='urn:xmpp:caps'>
+			<hash xmlns='urn:xmpp:hashes:2' algo='sha-256'>5a5oTk21S9EmWQGIyuMwPKuSkPwqmXv6aKO5ftqCw/Q=</hash>
+			<hash xmlns='urn:xmpp:hashes:2' algo='sha3-256'>f3ziwT4vDK+VxuWrhhPEEgI3HJcEw7Zg4MggYE6vjZ0=</hash>
+		</c>
+	</presence>
+
+Juliet-new receives:
+	<iq from="${Juliet-new's JID}" id='disco' type='get'>
+		<query xmlns='http://jabber.org/protocol/disco#info' node='https://code.matthewwild.co.uk/scansion/#Tg9qGTn5+LdKR6TTdjCUMVohBMc='/>
+	</iq>
+
+Juliet-new sends:
+	<iq to="${Juliet-new's JID}" id='disco' type='result'>
+		<query xmlns='http://jabber.org/protocol/disco#info' node='https://code.matthewwild.co.uk/scansion/#Tg9qGTn5+LdKR6TTdjCUMVohBMc='>
+			<identity category='client' name='scansion' type='bot'/>
+			<feature var='http://jabber.org/protocol/disco#info'/>
+			<feature var='urn:xmpp:bookmarks:0+notify'/>
+		</query>
+	</iq>
+
+Juliet-old connects
+
+Juliet-old sends:
+	<iq type='get' id='get0'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'/>
+		</query>
+	</iq>
+
+Juliet-old receives:
+	<iq type='result' id='get0'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'/>
+		</query>
+	</iq>
+
+Juliet-old sends:
+	<iq type='set' id='pub0'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'>
+				<conference name='The Play&apos;s the Thing'
+					    autojoin='true'
+					    jid='theplay@conference.shakespeare.lit'>
+					<nick>JC</nick>
+				</conference>
+			</storage>
+		</query>
+	</iq>
+
+Juliet-new receives:
+	<message type='headline' from="${Juliet-new's JID}">
+		<event xmlns='http://jabber.org/protocol/pubsub#event'>
+			<items node='urn:xmpp:bookmarks:0'>
+				<item id='theplay@conference.shakespeare.lit'>
+					<conference xmlns='urn:xmpp:bookmarks:0'
+					            name='The Play&apos;s the Thing'
+					            autojoin='true'>
+						<nick>JC</nick>
+					</conference>
+				</item>
+			</items>
+		</event>
+	</message>
+
+Juliet-old receives:
+	<iq type='result' id='pub0'/>
+
+Juliet-old sends:
+	<iq type='get' id='get1'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'/>
+		</query>
+	</iq>
+
+Juliet-old receives:
+	<iq type='result' id='get1'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'>
+				<conference name='The Play&apos;s the Thing'
+					    autojoin='true'
+					    jid='theplay@conference.shakespeare.lit'>
+					<nick>JC</nick>
+				</conference>
+			</storage>
+		</query>
+	</iq>
+
+Juliet-old sends:
+	<iq type='set' id='pub1'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'>
+				<conference name='The Play&apos;s the Thing'
+					    autojoin='true'
+					    jid='theplay@conference.shakespeare.lit'>
+					<nick>JC</nick>
+				</conference>
+				<conference name='The Orchard'
+					    autojoin='true'
+					    jid='orchard@conference.shakespeare.lit'>
+					<nick>JC</nick>
+				</conference>
+			</storage>
+		</query>
+	</iq>
+
+Juliet-new receives:
+	<message type='headline' from="${Juliet-new's JID}">
+		<event xmlns='http://jabber.org/protocol/pubsub#event'>
+			<items node='urn:xmpp:bookmarks:0'>
+				<item id='orchard@conference.shakespeare.lit'>
+					<conference xmlns='urn:xmpp:bookmarks:0'
+					            name='The Orchard'
+					            autojoin='true'>
+						<nick>JC</nick>
+					</conference>
+				</item>
+			</items>
+		</event>
+	</message>
+
+Juliet-old receives:
+	<iq type='result' id='pub1'/>
+
+Juliet-old sends:
+	<iq type='get' id='get2'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'/>
+		</query>
+	</iq>
+
+Juliet-old receives:
+	<iq type='result' id='get2'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'>
+				<conference name='The Play&apos;s the Thing'
+					    autojoin='true'
+					    jid='theplay@conference.shakespeare.lit'>
+					<nick>JC</nick>
+				</conference>
+				<conference name='The Orchard'
+					    autojoin='true'
+					    jid='orchard@conference.shakespeare.lit'>
+					<nick>JC</nick>
+				</conference>
+			</storage>
+		</query>
+	</iq>
+
+Juliet-old sends:
+	<iq type='set' id='retract0'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'>
+				<conference name='The Orchard'
+					    autojoin='true'
+					    jid='orchard@conference.shakespeare.lit'>
+					<nick>JC</nick>
+				</conference>
+			</storage>
+		</query>
+	</iq>
+
+Juliet-new receives:
+	<message type='headline' from="${Juliet-new's JID}">
+		<event xmlns='http://jabber.org/protocol/pubsub#event'>
+			<items node='urn:xmpp:bookmarks:0'>
+				<retract id='theplay@conference.shakespeare.lit'/>
+			</items>
+		</event>
+	</message>
+
+Juliet-old receives:
+	<iq type='result' id='retract0'/>
+
+Juliet-old sends:
+	<iq type='get' id='get3'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'/>
+		</query>
+	</iq>
+
+Juliet-old receives:
+	<iq type='result' id='get3'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'>
+				<conference name='The Orchard'
+					    autojoin='true'
+					    jid='orchard@conference.shakespeare.lit'>
+					<nick>JC</nick>
+				</conference>
+			</storage>
+		</query>
+	</iq>
+
+Juliet-old sends:
+	<iq type='set' id='purge0'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'/>
+		</query>
+	</iq>
+
+Juliet-new receives:
+	<message type='headline' from="${Juliet-new's JID}">
+		<event xmlns='http://jabber.org/protocol/pubsub#event'>
+			<purge node='urn:xmpp:bookmarks:0'/>
+		</event>
+	</message>
+
+Juliet-old receives:
+	<iq type='result' id='purge0'/>
+
+Juliet-old sends:
+	<iq type='get' id='get4'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'/>
+		</query>
+	</iq>
+
+Juliet-old receives:
+	<iq type='result' id='get4'>
+		<query xmlns='jabber:iq:private'>
+			<storage xmlns='storage:bookmarks'/>
+		</query>
+	</iq>
+
+Juliet-old disconnects
+
+Juliet-new disconnects
+
+// vim: syntax=xml:
