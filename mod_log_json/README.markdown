@@ -16,6 +16,16 @@ log = {
 }
 ```
 
+## UDP
+
+Alternatively, it can send logs via UDP:
+
+```lua
+log = {
+  { to = "json", udp_host = "10.1.2.3", udp_port = "9999" };
+}
+```
+
 Format
 ======
 
