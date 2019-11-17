@@ -198,6 +198,7 @@ function handle_form(event)
 end
 
 module:provides("http", {
+	title = module:get_option_string("register_web_title", "Account Registration");
 	route = {
 		GET = generate_page;
 		["GET /"] = generate_page;
