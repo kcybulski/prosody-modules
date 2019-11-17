@@ -232,7 +232,7 @@ local function years_page(event, path)
 				current_day = current_day+1;
 			end
 		end
-		table.sort(year, sort_m);
+		table.sort(months, sort_m);
 	end
 	table.sort(years, sort_Y);
 
