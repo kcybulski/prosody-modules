@@ -70,7 +70,7 @@ form{text-align:right}
 <dt {item.lang&lang="{item.lang}"} class="name"><a href="{item.href}{hide_presence&?p=h}">{item.name}</a></dt>
 <dd {item.lang&lang="{item.lang}"} class="description">{item.description?}</dd>}
 </dl>
-{years#
+{dates|calendarize#
 <h2 id="{item.year}">{item.year}</h2>
 {item.months#
 <table id="{item.month}-{item.year}">

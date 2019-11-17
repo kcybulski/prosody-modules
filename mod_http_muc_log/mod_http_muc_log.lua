@@ -6,7 +6,8 @@ local it = require"util.iterators";
 local url = require"socket.url";
 local os_time, os_date = os.time, os.date;
 local httplib = require "util.http";
-local render = require"util.interpolation".new("%b{}", require"util.stanza".xml_escape);
+local render_funcs = {};
+local render = require"util.interpolation".new("%b{}", require"util.stanza".xml_escape, render_funcs);
 
 local archive = module:open_store("muc_log", "archive");
 
@@ -147,58 +148,54 @@ local function hide_presence(request)
 	return false;
 end
 
--- Produce the calendar view
-local function years_page(event, path)
-	local request, response = event.request, event.response;
-
-	local room = nodeprep(path:match("^(.*)/$"));
-	local is_open = open_room(room);
-	if is_open == nil then
-		return -- implicit 404
-	elseif is_open == false then
-		return 403;
+local function get_dates(room) --> { integer, ... }
+	local date_list = archive.dates and archive:dates(room);
+	if date_list then
+		for i = 1, #date_list do
+			date_list[i] = datetime.parse(date_list[i].."T00:00:00Z");
+		end
+		return date_list;
 	end
 
-	-- Collect each date that has messages
-	-- convert it to a year / month / day tree
-	local date_list = archive.dates and archive:dates(room);
-	local dates = mt.new();
-	if date_list then
-		for _, date in ipairs(date_list) do
-			local when = datetime.parse(date.."T00:00:00Z");
-			local t = os_date("!*t", when);
-			dates:set(t.year, t.month, t.day, when);
-		end
-	elseif lazy then
+	if lazy then
 		-- Lazy with many false positives
+		date_list = {};
 		local first_day = find_once(room, nil, 3);
 		local last_day = find_once(room, { reverse = true }, 3);
 		if first_day and last_day then
 			first_day = date_floor(first_day);
 			last_day = date_floor(last_day);
 			for when = first_day, last_day, 86400 do
-				local t = os_date("!*t", when);
-				dates:set(t.year, t.month, t.day, when);
+				table.insert(date_list, when);
 			end
 		else
 			return; -- 404
 		end
-	else
-		-- Collect date the hard way
-		module:log("debug", "Find all dates with messages");
-		local next_day;
-		repeat
-			local when = find_once(room, { start = next_day; }, 3);
-			if not when then break; end
-			local t = os_date("!*t", when);
-			dates:set(t.year, t.month, t.day, when );
-			next_day = date_floor(when) + 86400;
-		until not next_day;
+		return date_list;
 	end
 
-	local years = {};
+	-- Collect date the hard way
+	module:log("debug", "Find all dates with messages");
+	date_list = {};
+	local next_day;
+	repeat
+		local when = find_once(room, { start = next_day; }, 3);
+		if not when then break; end
+		table.insert(date_list, when);
+		next_day = date_floor(when) + 86400;
+	until not next_day;
+	return date_list;
+end
 
+function render_funcs.calendarize(date_list)
+	-- convert array of timestamps to a year / month / day tree
+	local dates = mt.new();
+	for _, when in ipairs(date_list) do
+		local t = os_date("!*t", when);
+		dates:set(t.year, t.month, t.day, when);
+	end
 	-- Wrangle Y/m/d tree into year / month / week / day tree for calendar view
+	local years = {};
 	for current_year, months_t in pairs(dates.data) do
 		local t = { year = current_year, month = 1, day = 1 };
 		local months = { };
@@ -235,6 +232,25 @@ local function years_page(event, path)
 		table.sort(months, sort_m);
 	end
 	table.sort(years, sort_Y);
+	return years;
+end
+
+-- Produce the calendar view
+local function years_page(event, path)
+	local request, response = event.request, event.response;
+
+	local room = nodeprep(path:match("^(.*)/$"));
+	local is_open = open_room(room);
+	if is_open == nil then
+		return -- implicit 404
+	elseif is_open == false then
+		return 403;
+	end
+
+	local date_list = get_dates(room);
+	if not date_list then
+		return; -- 404
+	end
 
 	-- Phew, all wrangled, all that's left is rendering it with the template
 
@@ -245,7 +261,7 @@ local function years_page(event, path)
 		jid_node = jid_split(get_room(room).jid);
 		hide_presence = hide_presence(request);
 		presence_available = presence_logged;
-		years = years;
+		dates = date_list;
 		links = {
 			{ href = "../", rel = "up", text = "Room list" },
 			{ href = "latest", rel = "last", text = "Latest" },
@@ -385,6 +401,7 @@ local function logs_page(event, path)
 		lang = get_room(room).get_language and get_room(room):get_language();
 		lines = logs;
 		links = links;
+		dates = {}; -- COMPAT util.interpolation {nil|func#...} bug
 	});
 end
 
@@ -414,6 +431,7 @@ local function list_rooms(event)
 		hide_presence = hide_presence(request);
 		presence_available = presence_logged;
 		rooms = room_list;
+		dates = {}; -- COMPAT util.interpolation {nil|func#...} bug
 	});
 end
 
