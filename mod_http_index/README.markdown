@@ -18,7 +18,15 @@ modules_enabled = {
   -- other modules
   "http_index";
 }
+```
 
--- optional, defaults to a file next to the module
+# Advanced
+
+## Template
+
+The template can be customized by copying the included `http_index.html`
+and pointing to it with the `http_index_template` setting:
+
+``` lua
 http_index_template = "/path/to/template.html"
 ```
