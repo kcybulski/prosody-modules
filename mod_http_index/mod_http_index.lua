@@ -3,6 +3,8 @@ local render = require"util.interpolation".new("%b{}", require"util.stanza".xml_
 
 module:depends"http";
 
+local show_all = module:get_option_boolean(module.name .. "_show_all", true);
+
 local base_template;
 do
 	local template_file = module:get_option_string(module.name .. "_template", module.name .. ".html");
@@ -28,7 +30,7 @@ local function handler(event)
 	local host_items = module:get_host_items("http-provider");
 	local http_apps = {}
 	for _, item in ipairs(host_items) do
-		if module.name ~= item._provided_by then
+		if module.name ~= item._provided_by and (show_all or item.title) then
 			table.insert(http_apps, {
 				title = item.title or item.name;
 				name = item.name;
