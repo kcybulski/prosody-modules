@@ -22,6 +22,15 @@ modules_enabled = {
 
 # Advanced
 
+## Listing all items
+
+By default only HTTP apps that include a human-readable title are
+listed. This filtering can be disabled by setting:
+
+```lua
+http_index_list_all = true
+```
+
 ## Template
 
 The template can be customized by copying the included `http_index.html`
