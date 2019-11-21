@@ -36,6 +36,9 @@ function archive:append(username, _, data, when, with)
 	local day = dt.date(when);
 	local ok, err = dm.append_raw(username.."@"..day, self.host, self.store, "xml", data);
 	if not ok then
+		-- append_raw, unlike list_append, does not log anything on failure atm, so we do so here
+		module:log("error", "Unable to write to %s storage ('%s') for user: %s@%s",
+			self.store, err, username, module.host)
 		return nil, err;
 	end
 
