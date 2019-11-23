@@ -3,7 +3,7 @@ local render = require"util.interpolation".new("%b{}", require"util.stanza".xml_
 
 module:depends"http";
 
-local show_all = module:get_option_boolean(module.name .. "_show_all", true);
+local show_all = module:get_option_boolean(module.name .. "_show_all", false);
 
 local base_template;
 do
