@@ -436,6 +436,7 @@ local function list_rooms(event)
 end
 
 module:provides("http", {
+	title = module:get_option_string("name", "Chatroom logs");
 	route = {
 		["GET /"] = list_rooms;
 		["GET /*"] = logs_page;
