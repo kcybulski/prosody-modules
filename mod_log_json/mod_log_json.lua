@@ -42,4 +42,9 @@ local function sink_maker(config)
 	end
 end
 
+function module.unload()
+	-- deregister
+	require"core.loggingmanager".register_sink_type("json", nil);
+end
+
 require"core.loggingmanager".register_sink_type("json", sink_maker);
