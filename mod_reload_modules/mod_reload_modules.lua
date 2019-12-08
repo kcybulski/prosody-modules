@@ -28,6 +28,12 @@ function reload_all()
 		module:log("debug", "Reloading %s", module_name);
 		mm.reload(module.host, module_name);
 	end
+
+	local global_modules = module:get_option_set("reload_global_modules", {});
+	for module_name in global_modules do
+		module:log("debug", "Global reload of mod_%s", module_name);
+		mm.reload("*", module_name);
+	end
 end
 
 
