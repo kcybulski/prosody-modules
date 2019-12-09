@@ -103,7 +103,7 @@ module:hook("pre-presence/bare", answer_probe_from_cache, 10);
 
 local function clear_cache_from_s2s(remote, reason)
 	if not remote then return end
-	if reason and reason:find("timeout") then return end -- Ignore connections closed for being idle
+	-- FIXME Ignore if connection closed for being idle
 
 	module:log("debug", "Dropping cached presence from host %s", remote);
 
