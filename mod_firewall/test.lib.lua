@@ -66,7 +66,7 @@ return function (arg)
 	stderr("");
 	stderr(stats_dropped + stats_passed, "processed");
 	stderr(stats_passed, "passed");
-	stderr(stats_dropped, "droppped");
+	stderr(stats_dropped, "dropped");
 	stderr(line_count, "input lines");
 	stderr("");
 end
