@@ -85,7 +85,7 @@ local function connect(host, port, ssl_params)
 	log("debug", "imap greeting: '%s'", line);
 	local caps = line:match("^%*%s+OK%s+(%b[])");
 	if not caps or not caps:match("^%[CAPABILITY ") then
-		conn:send("A CAPABILITY\n");
+		conn:send("A CAPABILITY\r\n");
 		line = conn:receive("*l");
 		log("debug", "imap capabilities response: '%s'", line);
 		caps = line:match("^%*%s+CAPABILITY%s+(.*)$");
@@ -158,7 +158,7 @@ function method:select(mechanism)
 		self.selected = mechanism;
 		local selectmsg = t_concat({ self.tag, "AUTHENTICATE", mechanism }, " ");
 		log("debug", "Sending %d bytes: %q", #selectmsg, selectmsg);
-		local ok, err = self.conn:send(selectmsg.."\n");
+		local ok, err = self.conn:send(selectmsg.."\r\n");
 		if not ok then
 			log("error", "Could not write to socket: %s", err);
 			return "failure", "internal-server-error", err
@@ -181,7 +181,7 @@ function method:process(message)
 		message = message:gsub("^([^%z]*%z[^%z]+)(%z[^%z]+)$", "%1@"..self.realm.."%2");
 	end
 	log("debug", "method:process(%d bytes): %q", #message, message:gsub("%z", "."));
-	local ok, err = self.conn:send(b64(message).."\n");
+	local ok, err = self.conn:send(b64(message).."\r\n");
 	if not ok then
 		log("error", "Could not write to socket: %s", err);
 		return "failure", "internal-server-error", err
