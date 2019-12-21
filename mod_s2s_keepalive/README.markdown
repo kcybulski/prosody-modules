@@ -17,6 +17,9 @@ periodically. To ping only a subset of servers, list these in
 `keepalive_servers`. The ping interval can be set using
 `keepalive_interval`.
 
+If no response to the ping has been received in about 10 minutes (or
+`keepalive_timeout` seconds) the s2s connections are closed.
+
 ``` lua
 modules_enabled = {
     ...
@@ -25,6 +28,7 @@ modules_enabled = {
 
 keepalive_servers = { "conference.prosody.im"; "rooms.swift.im" }
 keepalive_interval = 90 -- (in seconds, default is 60 )
+keepalive_timeout = 300 -- (in seconds, default is 593 )
 ```
 
 Compatibility
