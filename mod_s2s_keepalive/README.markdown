@@ -24,7 +24,7 @@ modules_enabled = {
 }
 
 keepalive_servers = { "conference.prosody.im"; "rooms.swift.im" }
-keepalive_interval = "300" -- (in seconds, default is 60 )
+keepalive_interval = 90 -- (in seconds, default is 60 )
 ```
 
 Compatibility
