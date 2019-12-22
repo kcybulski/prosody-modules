@@ -65,6 +65,7 @@ module:hook("iq-result/host/keepalive", function (event)
 	if s2sout[origin.from_host] and s2sout[origin.from_host].watchdog_keepalive then
 		s2sout[origin.from_host].watchdog_keepalive:reset();
 	end
+	return true;
 end);
 
 module:hook("iq-error/host/keepalive", function (event)
