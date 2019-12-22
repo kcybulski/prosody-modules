@@ -74,7 +74,7 @@ module:hook("iq-error/host/keepalive", function (event)
 	if origin.type == "s2sin" or origin.type == "s2sout" then
 		-- An error from the remote means connectivity is ok,
 		-- so treat it the same as a result
-		return module:fire_event("iq-result/host/keepalive");
+		return module:fire_event("iq-result/host/keepalive", event);
 	end
 end);
 
