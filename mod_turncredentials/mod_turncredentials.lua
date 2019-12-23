@@ -23,8 +23,8 @@ module:hook("iq-get/host/urn:xmpp:extdisco:1:services", function(event)
     if origin.type ~= "c2s" then
         return;
     end
-    local now = os_time() + ttl;
-    local userpart = tostring(now);
+    local expires_at = os_time() + ttl;
+    local userpart = tostring(expires_at);
     local nonce = base64.encode(hmac_sha1(secret, tostring(userpart), false));
     origin.send(st.reply(stanza):tag("services", {xmlns = "urn:xmpp:extdisco:1"})
         :tag("service", { type = "stun", host = host, port = ("%d"):format(port) }):up()
@@ -40,8 +40,8 @@ module:hook("iq-get/host/urn:xmpp:extdisco:2:services", function(event)
     if origin.type ~= "c2s" then
         return;
     end
-    local now = os_time() + ttl;
-    local userpart = tostring(now);
+    local expires_at = os_time() + ttl;
+    local userpart = tostring(expires_at);
     local nonce = base64.encode(hmac_sha1(secret, tostring(userpart), false));
     origin.send(st.reply(stanza):tag("services", {xmlns = "urn:xmpp:extdisco:2"})
         :tag("service", { type = "stun", host = host, port = ("%d"):format(port) }):up()
