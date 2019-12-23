@@ -22,6 +22,7 @@ local function send_pings()
 
 	for session in pairs(prosody.incoming_s2s) do
 		if session.type ~= "s2sin_unauthed"
+		and session.to_host == host
 		and (not(keepalive_servers) or keepalive_servers:contains(session.from_host)) then
 			if not s2sout[session.from_host] then ping_hosts[session.from_host] = true; end
 			session.sends2s " ";
