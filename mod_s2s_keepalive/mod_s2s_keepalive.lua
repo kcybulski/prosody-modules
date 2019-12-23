@@ -12,7 +12,7 @@ local function send_pings()
 	local ping_hosts = {};
 
 	for remote_domain, session in pairs(s2sout) do
-		if session.type == "s2sout" -- as opposed to _unauthed
+		if session.type ~= "s2sout_unauthed"
 		and (not(keepalive_servers) or keepalive_servers:contains(remote_domain)) then
 			session.sends2s(st.iq({ to = remote_domain, type = "get", from = host, id = "keepalive" })
 				:tag("ping", { xmlns = "urn:xmpp:ping" })
@@ -21,7 +21,7 @@ local function send_pings()
 	end
 
 	for session in pairs(prosody.incoming_s2s) do
-		if session.type == "s2sin" -- as opposed to _unauthed
+		if session.type ~= "s2sin_unauthed"
 		and (not(keepalive_servers) or keepalive_servers:contains(session.from_host)) then
 			if not s2sout[session.from_host] then ping_hosts[session.from_host] = true; end
 			session.sends2s " ";
