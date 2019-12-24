@@ -35,10 +35,6 @@ end
 local function handle_stanza(event)
 	local stanza, occupant = event.stanza, event.occupant;
 
-	if stanza.name == "presence" and stanza.attr.type == "unavailable" then -- not required here
-		return;
-	end
-
 	-- TODO: Handle MAM.
 
 	-- strip any existing <occupant-id/> tags to avoid forgery
