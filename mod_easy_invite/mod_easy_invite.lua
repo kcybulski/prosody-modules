@@ -16,7 +16,10 @@ local new_adhoc = module:require("adhoc").new;
 -- Whether local users can invite other users to create an account on this server
 local allow_user_invites = module:get_option_boolean("allow_user_invites", true);
 
-local invites = module:depends("invites");
+local invites;
+if prosody.shutdown then -- COMPAT hack to detect prosodyctl
+	invites = module:depends("invites");
+end
 
 local invite_result_form = dataforms.new({
 		title = "Your Invite",
@@ -180,3 +183,21 @@ module:hook("user-registered", function (event)
 	module:log("debug", "Creating mutual subscription between %s and %s", inviter_username, contact_username);
 	subscribe_both(module.host, inviter_username, contact_username);
 end);
+
+
+local sm = require "core.storagemanager";
+function module.command(arg)
+	if #arg < 2 then
+		print("usage: prosodyctl mod_easy_invite example.net register");
+		return;
+	end
+
+	local host = arg[1];
+	assert(hosts[host], "Host "..tostring(host).." does not exist");
+	sm.initialize_host(host);
+
+	invites = module:context(host):depends("invites");
+	local invite = invites.create_account();
+	print(invite.uri);
+end
+

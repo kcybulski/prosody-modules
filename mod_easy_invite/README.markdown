@@ -26,6 +26,16 @@ server, set `allow_user_invites = false`. They will still be able to send
 contact invites, but new contacts will be required to register an account
 on a different server.
 
+# Usage
+
+Users can use the "New Invite" ad-hoc command through their client.
+
+Admins can create registration links using prosodyctl, e.g.
+
+```
+prosodyctl mod_easy_invite example.com register
+```
+
 # Compatibility
 
 0.11 and later.
