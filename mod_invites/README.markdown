@@ -9,7 +9,7 @@ can be used to e.g. register accounts or create automatic subscription approvals
 
 # Configuration
 
-`` {.lua}
+``` {.lua}
 -- Configure the number of seconds a token is valid for (default 7 days)
 invite_expiry = 86400 * 7
 ```
