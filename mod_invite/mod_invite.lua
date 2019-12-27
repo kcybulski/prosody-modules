@@ -156,6 +156,6 @@ function invite_command_handler(_, data)
 	return { info = module:http_url() .. "/" .. uuid, status = "completed" };
 end
 
-local adhoc_invite = adhoc_new("Invite user", "invite", invite_command_handler, "user")
+local adhoc_invite = adhoc_new("Invite user", "invite", invite_command_handler, "local_user")
 
 module:add_item("adhoc", adhoc_invite);
