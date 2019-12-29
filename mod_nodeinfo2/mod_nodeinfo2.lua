@@ -48,8 +48,8 @@ module:provides("http", {
 			for stat, _ in pairs(stats) do
 				if stat == "/*/mod_measure_message_e2ee/message:rate" then
 					local new_message_count = extras[stat].total;
-					if new_message_count ~= message_count then
-						message_count = new_message_count;
+					if new_message_count ~= message_count[1] then
+						message_count = { new_message_count };
 						message_count_store:set("message_count", message_count);
 					end
 				end
