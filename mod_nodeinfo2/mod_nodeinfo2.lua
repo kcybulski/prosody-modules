@@ -92,7 +92,8 @@ module:provides("http", {
 						activeWeek = week_users;
 					};
 					localPosts = message_count;
-					localComments = message_count;
+					-- TODO: also count PubSub replies here.
+					localComments = 0;
 				};
 			});
 		end;
