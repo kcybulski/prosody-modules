@@ -1,5 +1,3 @@
-module:set_global();
-
 local count_message = module:measure("message", "rate");
 local count_plain = module:measure("plain", "rate");
 local count_openpgp = module:measure("openpgp", "rate");
@@ -45,9 +43,6 @@ local function message_handler(event)
 	end
 end
 
-function module.add_host(host_module)
-	module:log("debug", "Loaded on host %s", host_module);
-	host_module:hook("pre-message/host", message_handler, 2);
-	host_module:hook("pre-message/bare", message_handler, 2);
-	host_module:hook("pre-message/full", message_handler, 2);
-end
+module:hook("pre-message/host", message_handler, 2);
+module:hook("pre-message/bare", message_handler, 2);
+module:hook("pre-message/full", message_handler, 2);
