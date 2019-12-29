@@ -7,7 +7,8 @@ module:depends("http");
 module:depends("lastlog");
 module:depends("measure_message_e2ee");
 
-local store = module:open_store("lastlog");
+local main_store = module:open_store();
+local lastlog_store = module:open_store("lastlog");
 
 local total_users = 0;
 local half_year_users = 0;
@@ -15,7 +16,7 @@ local month_users = 0;
 local week_users = 0;
 for user in require "core.usermanager".users(module.host) do -- TODO refresh at some interval?
 	total_users = total_users + 1;
-	local lastlog = store:get(user);
+	local lastlog = lastlog_store:get(user);
 	if lastlog and lastlog.timestamp then
 		local delta = os_time() - lastlog.timestamp;
 		if delta < 6 * 30 * 24 * 60 * 60 then
@@ -37,8 +38,7 @@ if half_year_users == 0 and month_users == 0 and week_users == 0 then
 	week_users = nil;
 end
 
-local message_count_store = module:open_store("message_count");
-local message_count = message_count_store:get("message_count");
+local data = main_store:get("nodeinfo2");
 
 module:provides("http", {
 	default_path = "/.well-known/x-nodeinfo2";
@@ -46,11 +46,11 @@ module:provides("http", {
 		GET = function (event)
 			local stats, changed_only, extras = get_stats();
 			for stat, _ in pairs(stats) do
-				if stat == "/*/mod_measure_message_e2ee/message:rate" then
+				if stat == "/"..module.host.."/mod_measure_message_e2ee/message:rate" then
 					local new_message_count = extras[stat].total;
-					if new_message_count ~= message_count[1] then
-						message_count = { new_message_count };
-						message_count_store:set("message_count", message_count);
+					if not data or new_message_count ~= data.message_count then
+						data = { message_count = new_message_count };
+						main_store:set("nodeinfo2", data);
 					end
 				end
 			end
@@ -91,7 +91,7 @@ module:provides("http", {
 						activeMonth = month_users;
 						activeWeek = week_users;
 					};
-					localPosts = message_count;
+					localPosts = data.message_count;
 					-- TODO: also count PubSub replies here.
 					localComments = 0;
 				};
