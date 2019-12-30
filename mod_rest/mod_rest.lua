@@ -127,8 +127,13 @@ if rest_url then
 			receipt = st.stanza("received", { xmlns = "urn:xmpp:receipts", id = stanza.id });
 		end
 
+		local request_body = tostring(stanza);
+
+		-- Keep only the top level element and let the rest be GC'd
+		stanza = st.clone(stanza, true);
+
 		http.request(rest_url, {
-				body = tostring(stanza),
+				body = request_body,
 				headers = {
 					["Content-Type"] = "application/xmpp+xml",
 					["Content-Language"] = stanza.attr["xml:lang"],
