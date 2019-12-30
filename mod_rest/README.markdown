@@ -97,6 +97,18 @@ Content-Type: application/xmpp+xml
 </message>
 ```
 
+## Payload format
+
+``` {.xml}
+<message type="" id="" to="" from="" xml:lang="">
+...
+</message>
+```
+
+An XML declaration (`<?xml?>`) **MUST NOT** be included.
+
+The payload MUST contain one (1) `message`, `presence` or `iq` stanza.
+
 # Compatibility
 
 Requires Prosody trunk / 0.12
