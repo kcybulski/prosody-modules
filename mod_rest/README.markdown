@@ -82,6 +82,9 @@ Content-Length: 52
 To accept the stanza without returning a reply, respond with HTTP status
 code `202` or `204`.
 
+HTTP status codes in the `4xx` and `5xx` range are mapped to an
+appropriate stanza error.
+
 For full control over the response, set the `Content-Type` header to
 `application/xmpp+xml` and return an XMPP stanza as an XML snippet.
 

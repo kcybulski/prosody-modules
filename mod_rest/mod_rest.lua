@@ -91,6 +91,32 @@ module:provides("http", {
 local rest_url = module:get_option_string("rest_callback_url", nil);
 if rest_url then
 
+	local code2err = {
+		[400] = { condition = "bad-request"; type = "modify" };
+		[401] = { condition = "not-authorized"; type = "auth" };
+		[402] = { condition = "not-authorized"; type = "auth" };
+		[403] = { condition = "forbidden"; type = "auth" };
+		[404] = { condition = "item-not-found"; type = "cancel" };
+		[406] = { condition = "not-acceptable"; type = "modify" };
+		[408] = { condition = "remote-server-timeout"; type = "wait" };
+		[409] = { condition = "conflict"; type = "cancel" };
+		[410] = { condition = "gone"; type = "cancel" };
+		[411] = { condition = "bad-request"; type = "modify" };
+		[412] = { condition = "bad-request"; type = "modify" };
+		[413] = { condition = "resource-constraint"; type = "modify" };
+		[414] = { condition = "resource-constraint"; type = "modify" };
+		[415] = { condition = "bad-request"; type = "modify" };
+		[429] = { condition = "resource-constraint"; type = "wait" };
+		[431] = { condition = "resource-constraint"; type = "wait" };
+
+		[500] = { condition = "internal-server-error"; type = "cancel" };
+		[501] = { condition = "feature-not-implemented"; type = "modify" };
+		[502] = { condition = "remote-server-timeout"; type = "wait" };
+		[503] = { condition = "service-unavailable"; type = "cancel" };
+		[504] = { condition = "remote-server-timeout"; type = "wait" };
+		[507] = { condition = "resource-constraint"; type = "wait" };
+	};
+
 	local function handle_stanza(event)
 		local stanza, origin = event.stanza, event.origin;
 		local reply_needed = stanza.name == "iq";
@@ -142,6 +168,8 @@ if rest_url then
 							reply:body(reply_text, { ["xml:lang"] = response.headers["content-language"] });
 						end
 						-- TODO presence/status=body ?
+					elseif code2err[code] then
+						reply = st.error_reply(stanza, errors.new(code, nil, code2err));
 					elseif code_hundreds == 400 then
 						reply = st.error_reply(stanza, "modify", "bad-request", reply_text);
 					elseif code_hundreds == 500 then
