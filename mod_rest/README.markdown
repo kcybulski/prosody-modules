@@ -109,6 +109,9 @@ An XML declaration (`<?xml?>`) **MUST NOT** be included.
 
 The payload MUST contain one (1) `message`, `presence` or `iq` stanza.
 
+The stanzas MUST NOT have an `xmlns` attribute, and the default/empty
+namespace is treated as `jabber:client`.
+
 # Compatibility
 
 Requires Prosody trunk / 0.12

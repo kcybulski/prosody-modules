@@ -24,6 +24,9 @@ local function handle_post(event)
 		-- parse fail
 		return errors.new({ code = 400, text = err });
 	end
+	if payload.attr.xmlns then
+		return errors.new({ code = 400, text = "'xmlns' attribute must be empty" });
+	end
 	local to = jid.prep(payload.attr.to);
 	if not to then
 		return errors.new({ code = 400, text = "Invalid destination JID" });
