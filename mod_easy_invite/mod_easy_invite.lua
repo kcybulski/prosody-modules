@@ -187,8 +187,8 @@ end);
 
 local sm = require "core.storagemanager";
 function module.command(arg)
-	if #arg < 2 then
-		print("usage: prosodyctl mod_easy_invite example.net register");
+	if #arg < 2 or arg[2] ~= "generate" then
+		print("usage: prosodyctl mod_easy_invite example.net generate");
 		return;
 	end
 
