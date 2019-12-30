@@ -6,7 +6,9 @@ summary: RESTful XMPP API
 
 # Introduction
 
-This is yet another RESTful API for sending stanzas via Prosody.
+This is yet another RESTful API for sending and receiving stanzas via
+Prosody. It can be used to build bots and components implemented as HTTP
+services.
 
 # Usage
 
@@ -47,6 +49,44 @@ curl https://prosody.example:5281/rest \
     --data-binary '<iq type="get" to="example.net">
             <ping xmlns="urn:xmpp:ping"/>
         </iq>'
+```
+
+## Receiving stanzas
+
+TL;DR: Set this webhook callback URL, get XML `POST`-ed there.
+
+``` {.lua}
+Component "rest.example.net" "rest"
+rest_callback_url = "http://my-api.example:9999/stanzas"
+```
+
+Example callback looks like:
+
+``` {.xml}
+POST /stanzas HTTP/1.1
+Content-Type: application/xmpp+xml
+Content-Length: 52
+
+<message to="bot@rest.example.net" from="user@example.com" type="chat">
+<body>Hello</body>
+</message>
+```
+
+### Replying
+
+To accept the stanza without returning a reply, respond with HTTP status
+code `202` or `204`.
+
+For full control over the response, set the `Content-Type` header to
+`application/xmpp+xml` and return an XMPP stanza as an XML snippet.
+
+``` {.xml}
+HTTP/1.1 200 Ok
+Content-Type: application/xmpp+xml
+
+<message type="chat">
+<body>Yes, this is bot</body>
+</message>
 ```
 
 # Compatibility

@@ -5,8 +5,10 @@
 -- This file is MIT/X11 licensed.
 
 local errors = require "util.error";
+local http = require "net.http";
 local id = require "util.id";
 local jid = require "util.jid";
+local st = require "util.stanza";
 local xml = require "util.xml";
 
 local allow_any_source = module:get_host_type() == "component";
@@ -78,3 +80,91 @@ module:provides("http", {
 			POST = handle_post;
 		};
 	});
+
+-- Forward stanzas from XMPP to HTTP and return any reply
+local rest_url = module:get_option_string("rest_callback_url", nil);
+if rest_url then
+
+	local function handle_stanza(event)
+		local stanza, origin = event.stanza, event.origin;
+		local reply_needed = stanza.name == "iq";
+
+		http.request(rest_url, {
+				body = tostring(stanza),
+				headers = {
+					["Content-Type"] = "application/xmpp+xml",
+					["Content-Language"] = stanza.attr["xml:lang"],
+					Accept = "application/xmpp+xml, text/plain",
+				},
+			}, function (body, code, response)
+				if (code == 202 or code == 204) and not reply_needed then
+					-- Delivered, no reply
+					return;
+				end
+				local reply, reply_text;
+
+				if response.headers["content-type"] == "application/xmpp+xml" then
+					local parsed, err = xml.parse(body);
+					if not parsed then
+						module:log("warn", "REST callback responded with invalid XML: %s, %q", err, body);
+					elseif parsed.name ~= stanza.name then
+						module:log("warn", "REST callback responded with the wrong stanza type, got %s but expected %s", parsed.name, stanza.name);
+					else
+						parsed.attr.to, parsed.attr.from = stanza.attr.from, stanza.attr.to;
+						if parsed.name == "iq" then
+							parsed.attr.id = stanza.attr.id;
+						end
+						reply = parsed;
+					end
+				elseif response.headers["content-type"] == "text/plain" then
+					reply = st.reply(stanza);
+					if body ~= "" then
+						reply_text = body;
+					end
+				elseif body ~= "" then -- ignore empty body
+					module:log("debug", "Callback returned response of unhandled type %q", response.headers["content-type"]);
+				end
+
+				if not reply then
+					local code_hundreds = code - (code % 100);
+					if code_hundreds == 200 then
+						reply = st.reply(stanza);
+						if stanza.name ~= "iq" then
+							reply.attr.id = id.medium();
+						end
+						if reply_text and reply.name == "message" then
+							reply:body(reply_text, { ["xml:lang"] = response.headers["content-language"] });
+						end
+						-- TODO presence/status=body ?
+					elseif code_hundreds == 400 then
+						reply = st.error_reply(stanza, "modify", "bad-request", reply_text);
+					elseif code_hundreds == 500 then
+						reply = st.error_reply(stanza, "cancel", "internal-server-error", reply_text);
+					else
+						reply = st.error_reply(stanza, "cancel", "undefined-condition", reply_text);
+					end
+				end
+
+				origin.send(reply);
+			end);
+
+		return true;
+	end
+
+	if module:get_host_type() == "component" then
+		module:hook("iq/bare", handle_stanza, -1);
+		module:hook("message/bare", handle_stanza, -1);
+		module:hook("presence/bare", handle_stanza, -1);
+		module:hook("iq/full", handle_stanza, -1);
+		module:hook("message/full", handle_stanza, -1);
+		module:hook("presence/full", handle_stanza, -1);
+		module:hook("iq/host", handle_stanza, -1);
+		module:hook("message/host", handle_stanza, -1);
+		module:hook("presence/host", handle_stanza, -1);
+	else
+		-- Don't override everything on normal VirtualHosts
+		module:hook("iq/host", handle_stanza, -1);
+		module:hook("message/host", handle_stanza, -1);
+		module:hook("presence/host", handle_stanza, -1);
+	end
+end
