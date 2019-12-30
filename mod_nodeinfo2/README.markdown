@@ -22,7 +22,13 @@ modules_enabled = {
 }
 ```
 
-This module depends on [mod\_http](https://prosody.im/doc/http), all of its
+Set the `nodeinfo2_expose_posts` option to false if you don’t want to expose
+statistics about the amount of messages being exchanged by your users:
+```
+nodeinfo2_expose_posts = false
+```
+
+This module depends on [mod\_http](https://prosody.im/doc/http), most of its
 configuration actually happens in this module.
 
 Compatibility
