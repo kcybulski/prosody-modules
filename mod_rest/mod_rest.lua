@@ -120,6 +120,12 @@ if rest_url then
 	local function handle_stanza(event)
 		local stanza, origin = event.stanza, event.origin;
 		local reply_needed = stanza.name == "iq";
+		local receipt;
+
+		if stanza.name == "message" and stanza.attr.id and stanza:get_child("urn:xmpp:receipts", "request") then
+			reply_needed = true;
+			receipt = st.stanza("received", { xmlns = "urn:xmpp:receipts", id = stanza.id });
+		end
 
 		http.request(rest_url, {
 				body = tostring(stanza),
@@ -177,6 +183,10 @@ if rest_url then
 					else
 						reply = st.error_reply(stanza, "cancel", "undefined-condition", reply_text);
 					end
+				end
+
+				if receipt then
+					reply:add_direct_child(receipt);
 				end
 
 				origin.send(reply);
