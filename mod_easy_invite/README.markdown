@@ -13,10 +13,29 @@ To allow users to join your server through invitations, you must
 enable mod_register_ibr and set allow_registration = true, and then
 also set `registration_invite_only = true` to restrict registration.
 
+| Name                     | Description                                                                       | Default |
+|--------------------------|-----------------------------------------------------------------------------------|---------|
+| registration_invite_only | Whether registration attempts without an invite token should be blocked           | true    |
+| allow_user_invites       | Whether existing users should be allowed to invite new users to register accounts | true    |
+
+## Example: Invite-only registration
 ``` {.lua}
 -- To allow invitation through a token, mod_register
+allow_registration = true
 registration_invite_only = true
 ```
+
+## Example: Open registration
+
+This setup allows completely open registration, even without
+an invite token.
+
+``` {.lua}
+allow_registration = true
+registration_invite_only = false
+```
+
+## Invite creation permissions
 
 To allow existing users of your server to send invitation links that
 allow new people to join your server, you can set `allow_user_invites = true`.
