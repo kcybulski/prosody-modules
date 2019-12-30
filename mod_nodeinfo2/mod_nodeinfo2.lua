@@ -103,15 +103,14 @@ module:provides("http", {
 				protocols = array {
 					"xmpp",
 				};
-				--[[ TODO would be cool to identify local transports
 				services = {
 					inbound = array {
-						"irc";
+						"xmpp";
 					};
 					outbound = array {
+						"xmpp";
 					};
 				};
-				--]]
 				openRegistrations = module:get_option_boolean("allow_registration", false);
 				usage = usage;
 			});
