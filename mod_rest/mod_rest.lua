@@ -63,7 +63,13 @@ local function handle_post(event)
 				end
 			end);
 	elseif payload.name == "message" or payload.name == "presence" then
-		if module:send(payload) then
+		local origin = {};
+		function origin.send(stanza)
+			response:send(tostring(stanza));
+			return true;
+		end
+		response.headers.content_type = "application/xmpp+xml";
+		if module:send(payload, origin) then
 			return 202;
 		else
 			return 500;
