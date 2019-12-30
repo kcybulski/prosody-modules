@@ -52,7 +52,7 @@ Users can use the "New Invite" ad-hoc command through their client.
 Admins can create registration links using prosodyctl, e.g.
 
 ```
-prosodyctl mod_easy_invite example.com register
+prosodyctl mod_easy_invite example.com generate
 ```
 
 # Compatibility
