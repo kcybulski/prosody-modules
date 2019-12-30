@@ -6,7 +6,11 @@ local list_users = require "core.usermanager".users;
 local os_time = os.time;
 
 module:depends("http");
-module:depends("lastlog");
+
+local expose_users = module:get_option_boolean("nodeinfo2_expose_users", true);
+if expose_users then
+	module:depends("lastlog");
+end
 
 local expose_posts = module:get_option_boolean("nodeinfo2_expose_posts", true);
 if expose_posts then
@@ -52,21 +56,24 @@ local function update_user_list()
 	end
 end
 
-add_task(86400, update_user_list);
-update_user_list();
+if expose_users then
+	add_task(86400, update_user_list);
+	update_user_list();
+end
 
 module:provides("http", {
 	default_path = "/.well-known/x-nodeinfo2";
 	route = {
 		GET = function (event)
-			local usage = {
-				users = {
+			local usage = {};
+			if expose_users then
+				usage.users = {
 					total = total_users;
 					activeWeek = week_users;
 					activeMonth = month_users;
 					activeHalfyear = half_year_users;
 				};
-			};
+			end
 
 			if expose_posts then
 				local stats, changed_only, extras = get_stats();

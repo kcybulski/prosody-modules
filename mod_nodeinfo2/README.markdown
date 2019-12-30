@@ -22,6 +22,12 @@ modules_enabled = {
 }
 ```
 
+Set the `nodeinfo2_expose_users` option to false if you don’t want to expose
+statistics about the amount of users you host:
+```
+nodeinfo2_expose_users = false
+```
+
 Set the `nodeinfo2_expose_posts` option to false if you don’t want to expose
 statistics about the amount of messages being exchanged by your users:
 ```
