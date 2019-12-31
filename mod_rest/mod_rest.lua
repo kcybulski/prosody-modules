@@ -13,9 +13,23 @@ local xml = require "util.xml";
 
 local allow_any_source = module:get_host_type() == "component";
 local validate_from_addresses = module:get_option_boolean("validate_from_addresses", true);
+local secret = assert(module:get_option_string("rest_credentials"), "rest_credentials is a required setting");
+local auth_type = assert(secret:match("^%S+"), "Format of rest_credentials MUST be like 'Bearer secret'");
+assert(auth_type == "Bearer", "Only 'Bearer' is supported in rest_credentials");
+
+-- Bearer token
+local function check_credentials(request)
+	return request.headers.authorization == secret;
+end
 
 local function handle_post(event)
 	local request, response = event.request, event.response;
+	if not request.headers.authorization then
+		response.headers.www_authenticate = ("%s realm=%q"):format(auth_type, module.host.."/"..module.name);
+		return 401;
+	elseif not check_credentials(request) then
+		return 401;
+	end
 	if request.headers.content_type ~= "application/xmpp+xml" then
 		return errors.new({ code = 415, text = "'application/xmpp+xml' expected"  });
 	end

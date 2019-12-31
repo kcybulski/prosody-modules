@@ -12,13 +12,11 @@ services.
 
 # Usage
 
-Note that there is currently **no authentication**, so be careful with
-exposing the API endpoint to the Internet.
-
 ## Enabling
 
 ``` {.lua}
 Component "rest.example.net" "rest"
+rest_credentials = "Bearer dmVyeSBzZWNyZXQgdG9rZW4K"
 ```
 
 ## Sending stanzas
@@ -30,6 +28,7 @@ To try it, simply `curl` an XML stanza payload:
 
 ``` {.sh}
 curl https://prosody.example:5281/rest \
+    --oauth2-bearer dmVyeSBzZWNyZXQgdG9rZW4K \
     -H 'Content-Type: application/xmpp+xml' \
     --data-binary '<message type="chat" to="user@example.org">
             <body>Hello!</body>
@@ -45,6 +44,7 @@ long-polling style.
 
 ``` {.sh}
 curl https://prosody.example:5281/rest \
+    --oauth2-bearer dmVyeSBzZWNyZXQgdG9rZW4K \
     -H 'Content-Type: application/xmpp+xml' \
     --data-binary '<iq type="get" to="example.net">
             <ping xmlns="urn:xmpp:ping"/>
@@ -62,6 +62,7 @@ TL;DR: Set this webhook callback URL, get XML `POST`-ed there.
 
 ``` {.lua}
 Component "rest.example.net" "rest"
+rest_credentials = "Bearer dmVyeSBzZWNyZXQgdG9rZW4K"
 rest_callback_url = "http://my-api.example:9999/stanzas"
 ```
 
