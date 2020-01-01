@@ -43,7 +43,7 @@ local function handle_json(node, actor, data)
 		return { status_code = 400; body = "object or array expected"; };
 	end
 	local wrapper = st.stanza("json", { xmlns="urn:xmpp:json:0" }):text(data);
-	return publish_payload(node, actor, data.id or "current", wrapper);
+	return publish_payload(node, actor, type(parsed.id) == "string" and parsed.id or "current", wrapper);
 end
 
 local function publish_atom(node, actor, feed)
