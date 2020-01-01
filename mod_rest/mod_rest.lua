@@ -39,17 +39,17 @@ local function handle_post(event)
 		return errors.new({ code = 400, text = err });
 	end
 	if payload.attr.xmlns then
-		return errors.new({ code = 400, text = "'xmlns' attribute must be empty" });
+		return errors.new({ code = 422, text = "'xmlns' attribute must be empty" });
 	end
 	local to = jid.prep(payload.attr.to);
 	if not to then
-		return errors.new({ code = 400, text = "Invalid destination JID" });
+		return errors.new({ code = 422, text = "Invalid destination JID" });
 	end
 	local from = module.host;
 	if allow_any_source and payload.attr.from then
 		from = jid.prep(payload.attr.from);
 		if not from then
-			return errors.new({ code = 400, text = "Invalid source JID" });
+			return errors.new({ code = 422, text = "Invalid source JID" });
 		end
 		if validate_from_addresses and not jid.compare(from, module.host) then
 			return errors.new({ code = 403, text = "Source JID must belong to current host" });
@@ -65,7 +65,7 @@ local function handle_post(event)
 	module:log("debug", "Received[rest]: %s", payload:top_tag());
 	if payload.name == "iq" then
 		if payload.attr.type ~= "get" and payload.attr.type ~= "set" then
-			return errors.new({ code = 400, text = "'iq' stanza must be of type 'get' or 'set'" });
+			return errors.new({ code = 422, text = "'iq' stanza must be of type 'get' or 'set'" });
 		end
 		return module:send_iq(payload):next(
 			function (result)
