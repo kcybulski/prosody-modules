@@ -36,6 +36,10 @@ local function decide_type()
 	return "application/xmpp+xml";
 end
 
+local function encode(type, s)
+	return tostring(s);
+end
+
 local function handle_post(event)
 	local request, response = event.request, event.response;
 	if not request.headers.authorization then
@@ -85,13 +89,13 @@ local function handle_post(event)
 			function (result)
 				module:log("debug", "Sending[rest]: %s", result.stanza:top_tag());
 				response.headers.content_type = send_type;
-				return tostring(result.stanza);
+				return encode(send_type, result.stanza);
 			end,
 			function (error)
 				if error.context.stanza then
 					response.headers.content_type = send_type;
 					module:log("debug", "Sending[rest]: %s", error.context.stanza:top_tag());
-					return tostring(error.context.stanza);
+					return encode(send_type, error.context.stanza);
 				else
 					return error;
 				end
@@ -101,7 +105,7 @@ local function handle_post(event)
 		function origin.send(stanza)
 			module:log("debug", "Sending[rest]: %s", stanza:top_tag());
 			response.headers.content_type = send_type;
-			response:send(tostring(stanza));
+			response:send(encode(send_type, stanza));
 			return true;
 		end
 		if module:send(payload, origin) then
@@ -161,7 +165,7 @@ if rest_url then
 			receipt = st.stanza("received", { xmlns = "urn:xmpp:receipts", id = stanza.id });
 		end
 
-		local request_body = tostring(stanza);
+		local request_body = encode(send_type, stanza);
 
 		-- Keep only the top level element and let the rest be GC'd
 		stanza = st.clone(stanza, true);
