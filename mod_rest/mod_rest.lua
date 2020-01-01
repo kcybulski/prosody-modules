@@ -45,9 +45,6 @@ local supported_types = { "application/xmpp+xml", "application/json" };
 local function decide_type(accept)
 	-- assumes the accept header is sorted
 	local ret = supported_types[1];
-	if not accept then
-		return ret;
-	end
 	for i = 2, #supported_types do
 		if (accept:find(supported_types[i], 1, true) or 1000) < (accept:find(ret, 1, true) or 1000) then
 			ret = supported_types[i];
