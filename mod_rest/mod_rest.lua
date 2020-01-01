@@ -102,7 +102,7 @@ local function handle_post(event)
 		["xml:lang"] = payload.attr["xml:lang"],
 	};
 	module:log("debug", "Received[rest]: %s", payload:top_tag());
-	local send_type = decide_type(request.headers.accept)
+	local send_type = decide_type((request.headers.accept or "") ..",".. request.headers.content_type)
 	if payload.name == "iq" then
 		if payload.attr.type ~= "get" and payload.attr.type ~= "set" then
 			return errors.new({ code = 422, text = "'iq' stanza must be of type 'get' or 'set'" });
