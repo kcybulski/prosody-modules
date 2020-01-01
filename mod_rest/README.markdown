@@ -113,6 +113,33 @@ The payload MUST contain one (1) `message`, `presence` or `iq` stanza.
 The stanzas MUST NOT have an `xmlns` attribute, and the default/empty
 namespace is treated as `jabber:client`.
 
+# Examples
+
+## Python / Flask
+
+Simple echo bot that responds to messages:
+
+```python
+from flask import Flask, Response, request
+import xml.etree.ElementTree as ET
+
+app = Flask('echobot')
+
+@app.before_request
+def parse():
+    request.stanza = ET.fromstring(request.data)
+
+@app.route('/', methods = ['POST'])
+def hello():
+    if request.stanza.tag == 'message':
+        return Response('<message><body>Yes this is bot</body></message>', content_type='application/xmpp+xml')
+
+    return Response(status = 501)
+
+if __name__ == '__main__':
+    app.run()
+```
+
 # Compatibility
 
 Requires Prosody trunk / 0.12
