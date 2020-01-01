@@ -22,6 +22,16 @@ local function check_credentials(request)
 	return request.headers.authorization == secret;
 end
 
+local function parse(mimetype, data)
+	mimetype = mimetype:match("^[^; ]*");
+	if mimetype == "application/xmpp+xml" then
+		return xml.parse(data);
+	elseif mimetype == "text/plain" then
+		return st.message({ type = "chat" }, data);
+	end
+	return nil, "unknown-payload-type";
+end
+
 local function handle_post(event)
 	local request, response = event.request, event.response;
 	if not request.headers.authorization then
@@ -30,10 +40,7 @@ local function handle_post(event)
 	elseif not check_credentials(request) then
 		return 401;
 	end
-	if request.headers.content_type ~= "application/xmpp+xml" then
-		return errors.new({ code = 415, text = "'application/xmpp+xml' expected"  });
-	end
-	local payload, err = xml.parse(request.body);
+	local payload, err = parse(request.headers.content_type, request.body);
 	if not payload then
 		-- parse fail
 		return errors.new({ code = 400, text = err });
@@ -166,34 +173,25 @@ if rest_url then
 					-- Delivered, no reply
 					return;
 				end
-				local reply, reply_text;
+				local reply;
 
-				if response.headers["content-type"] == "application/xmpp+xml" then
-					local parsed, err = xml.parse(body);
-					if not parsed then
-						module:log("warn", "REST callback responded with invalid XML: %s, %q", err, body);
-					elseif parsed.name ~= stanza.name then
-						module:log("warn", "REST callback responded with the wrong stanza type, got %s but expected %s", parsed.name, stanza.name);
-					else
-						parsed.attr = {
-							from = stanza.attr.to,
-							to = stanza.attr.from,
-							id = parsed.attr.id or id.medium();
-							type = parsed.attr.type,
-							["xml:lang"] = parsed.attr["xml:lang"],
-						};
-						if parsed.name == "iq" or parsed.attr.type == "error" then
-							parsed.attr.id = stanza.attr.id;
-						end
-						reply = parsed;
+				local parsed, err = parse(response.headers["content-type"], body);
+				if not parsed then
+					module:log("warn", "Failed parsing data from REST callback: %s, %q", err, body);
+				elseif parsed.name ~= stanza.name then
+					module:log("warn", "REST callback responded with the wrong stanza type, got %s but expected %s", parsed.name, stanza.name);
+				else
+					parsed.attr = {
+						from = stanza.attr.to,
+						to = stanza.attr.from,
+						id = parsed.attr.id or id.medium();
+						type = parsed.attr.type,
+						["xml:lang"] = parsed.attr["xml:lang"],
+					};
+					if parsed.name == "iq" or parsed.attr.type == "error" then
+						parsed.attr.id = stanza.attr.id;
 					end
-				elseif response.headers["content-type"] == "text/plain" then
-					reply = st.reply(stanza);
-					if body ~= "" then
-						reply_text = body;
-					end
-				elseif body ~= "" then -- ignore empty body
-					module:log("debug", "Callback returned response of unhandled type %q", response.headers["content-type"]);
+					reply = parsed;
 				end
 
 				if not reply then
@@ -203,18 +201,15 @@ if rest_url then
 						if stanza.name ~= "iq" then
 							reply.attr.id = id.medium();
 						end
-						if reply_text and reply.name == "message" then
-							reply:body(reply_text, { ["xml:lang"] = response.headers["content-language"] });
-						end
 						-- TODO presence/status=body ?
 					elseif code2err[code] then
 						reply = st.error_reply(stanza, errors.new(code, nil, code2err));
 					elseif code_hundreds == 400 then
-						reply = st.error_reply(stanza, "modify", "bad-request", reply_text);
+						reply = st.error_reply(stanza, "modify", "bad-request", body);
 					elseif code_hundreds == 500 then
-						reply = st.error_reply(stanza, "cancel", "internal-server-error", reply_text);
+						reply = st.error_reply(stanza, "cancel", "internal-server-error", body);
 					else
-						reply = st.error_reply(stanza, "cancel", "undefined-condition", reply_text);
+						reply = st.error_reply(stanza, "cancel", "undefined-condition", body);
 					end
 				end
 
