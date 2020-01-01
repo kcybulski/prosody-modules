@@ -32,6 +32,10 @@ local function parse(mimetype, data)
 	return nil, "unknown-payload-type";
 end
 
+local function decide_type()
+	return "application/xmpp+xml";
+end
+
 local function handle_post(event)
 	local request, response = event.request, event.response;
 	if not request.headers.authorization then
@@ -72,19 +76,20 @@ local function handle_post(event)
 		["xml:lang"] = payload.attr["xml:lang"],
 	};
 	module:log("debug", "Received[rest]: %s", payload:top_tag());
+	local send_type = decide_type(request.headers.accept)
 	if payload.name == "iq" then
 		if payload.attr.type ~= "get" and payload.attr.type ~= "set" then
 			return errors.new({ code = 422, text = "'iq' stanza must be of type 'get' or 'set'" });
 		end
 		return module:send_iq(payload):next(
 			function (result)
-				response.headers.content_type = "application/xmpp+xml";
 				module:log("debug", "Sending[rest]: %s", result.stanza:top_tag());
+				response.headers.content_type = send_type;
 				return tostring(result.stanza);
 			end,
 			function (error)
 				if error.context.stanza then
-					response.headers.content_type = "application/xmpp+xml";
+					response.headers.content_type = send_type;
 					module:log("debug", "Sending[rest]: %s", error.context.stanza:top_tag());
 					return tostring(error.context.stanza);
 				else
@@ -95,10 +100,10 @@ local function handle_post(event)
 		local origin = {};
 		function origin.send(stanza)
 			module:log("debug", "Sending[rest]: %s", stanza:top_tag());
+			response.headers.content_type = send_type;
 			response:send(tostring(stanza));
 			return true;
 		end
-		response.headers.content_type = "application/xmpp+xml";
 		if module:send(payload, origin) then
 			return 202;
 		else
@@ -118,6 +123,7 @@ module:provides("http", {
 -- Forward stanzas from XMPP to HTTP and return any reply
 local rest_url = module:get_option_string("rest_callback_url", nil);
 if rest_url then
+	local send_type = module:get_option_string("rest_callback_content_type", "application/xmpp+xml");
 
 	local code2err = {
 		[400] = { condition = "bad-request"; type = "modify" };
@@ -164,7 +170,7 @@ if rest_url then
 		http.request(rest_url, {
 				body = request_body,
 				headers = {
-					["Content-Type"] = "application/xmpp+xml",
+					["Content-Type"] = send_type,
 					["Content-Language"] = stanza.attr["xml:lang"],
 					Accept = "application/xmpp+xml, text/plain",
 				},
