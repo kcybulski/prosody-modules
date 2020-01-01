@@ -123,20 +123,26 @@ Simple echo bot that responds to messages:
 from flask import Flask, Response, request
 import xml.etree.ElementTree as ET
 
-app = Flask('echobot')
+app = Flask("echobot")
+
 
 @app.before_request
 def parse():
     request.stanza = ET.fromstring(request.data)
 
-@app.route('/', methods = ['POST'])
+
+@app.route("/", methods=["POST"])
 def hello():
-    if request.stanza.tag == 'message':
-        return Response('<message><body>Yes this is bot</body></message>', content_type='application/xmpp+xml')
+    if request.stanza.tag == "message":
+        return Response(
+            "<message><body>Yes this is bot</body></message>",
+            content_type="application/xmpp+xml",
+        )
 
-    return Response(status = 501)
+    return Response(status=501)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run()
 ```
 
