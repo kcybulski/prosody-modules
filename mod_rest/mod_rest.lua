@@ -1,6 +1,6 @@
 -- RESTful API
 --
--- Copyright (c) 2019 Kim Alvefur
+-- Copyright (c) 2019-2020 Kim Alvefur
 --
 -- This file is MIT/X11 licensed.
 
@@ -62,6 +62,7 @@ local function handle_post(event)
 		type = payload.attr.type,
 		["xml:lang"] = payload.attr["xml:lang"],
 	};
+	module:log("debug", "Received[rest]: %s", payload:top_tag());
 	if payload.name == "iq" then
 		if payload.attr.type ~= "get" and payload.attr.type ~= "set" then
 			return errors.new({ code = 400, text = "'iq' stanza must be of type 'get' or 'set'" });
@@ -69,11 +70,13 @@ local function handle_post(event)
 		return module:send_iq(payload):next(
 			function (result)
 				response.headers.content_type = "application/xmpp+xml";
+				module:log("debug", "Sending[rest]: %s", result.stanza:top_tag());
 				return tostring(result.stanza);
 			end,
 			function (error)
 				if error.context.stanza then
 					response.headers.content_type = "application/xmpp+xml";
+					module:log("debug", "Sending[rest]: %s", error.context.stanza:top_tag());
 					return tostring(error.context.stanza);
 				else
 					return error;
@@ -82,6 +85,7 @@ local function handle_post(event)
 	elseif payload.name == "message" or payload.name == "presence" then
 		local origin = {};
 		function origin.send(stanza)
+			module:log("debug", "Sending[rest]: %s", stanza:top_tag());
 			response:send(tostring(stanza));
 			return true;
 		end
@@ -149,6 +153,7 @@ if rest_url then
 		-- Keep only the top level element and let the rest be GC'd
 		stanza = st.clone(stanza, true);
 
+		module:log("debug", "Sending[rest]: %s", stanza:top_tag());
 		http.request(rest_url, {
 				body = request_body,
 				headers = {
@@ -210,6 +215,8 @@ if rest_url then
 				if receipt then
 					reply:add_direct_child(receipt);
 				end
+
+				module:log("debug", "Received[rest]: %s", reply:top_tag());
 
 				origin.send(reply);
 			end);
