@@ -220,6 +220,9 @@ if rest_url then
 						type = parsed.attr.type,
 						["xml:lang"] = parsed.attr["xml:lang"],
 					};
+					if parsed.name == "message" and parsed.attr.type == "groupchat" then
+						parsed.attr.to = jid.bare(stanza.attr.from);
+					end
 					if parsed.name == "iq" or parsed.attr.type == "error" then
 						parsed.attr.id = stanza.attr.id;
 					end
