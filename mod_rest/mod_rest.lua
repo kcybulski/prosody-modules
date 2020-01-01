@@ -175,7 +175,13 @@ if rest_url then
 					elseif parsed.name ~= stanza.name then
 						module:log("warn", "REST callback responded with the wrong stanza type, got %s but expected %s", parsed.name, stanza.name);
 					else
-						parsed.attr.to, parsed.attr.from = stanza.attr.from, stanza.attr.to;
+						parsed.attr = {
+							from = stanza.attr.to,
+							to = stanza.attr.from,
+							id = parsed.attr.id or id.medium();
+							type = parsed.attr.type,
+							["xml:lang"] = parsed.attr["xml:lang"],
+						};
 						if parsed.name == "iq" or parsed.attr.type == "error" then
 							parsed.attr.id = stanza.attr.id;
 						end
