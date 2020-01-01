@@ -35,7 +35,21 @@ curl https://prosody.example:5281/rest \
         </body>'
 ```
 
-The `Content-Type` **MUST** be `application/xmpp+xml`.
+or a JSON payload:
+
+``` {.sh}
+curl https://prosody.example:5281/rest \
+    --oauth2-bearer dmVyeSBzZWNyZXQgdG9rZW4K \
+    -H 'Content-Type: application/json' \
+    --data-binary '{
+           "body" : "Hello!",
+           "kind" : "message",
+           "to" : "user@example.org",
+           "type" : "chat"
+        }'
+```
+
+The `Content-Type` header is important!
 
 ### Replies
 
@@ -66,16 +80,38 @@ rest_credentials = "Bearer dmVyeSBzZWNyZXQgdG9rZW4K"
 rest_callback_url = "http://my-api.example:9999/stanzas"
 ```
 
+To enable JSON payloads set
+
+``` {.lua}
+rest_callback_content_type = "application/json"
+```
+
 Example callback looks like:
 
 ``` {.xml}
 POST /stanzas HTTP/1.1
 Content-Type: application/xmpp+xml
-Content-Length: 52
+Content-Length: 102
 
 <message to="bot@rest.example.net" from="user@example.com" type="chat">
 <body>Hello</body>
 </message>
+```
+
+or as JSON:
+
+``` {.json}
+POST /stanzas HTTP/1.1
+Content-Type: application/json
+Content-Length: 133
+
+{
+   "body" : "Hello",
+   "from" : "user@example.com",
+   "kind" : "message",
+   "to" : "bot@rest.example.net",
+   "type" : "chat"
+}
 ```
 
 ### Replying
@@ -100,6 +136,20 @@ Content-Type: application/xmpp+xml
 
 ## Payload format
 
+### JSON
+
+``` {.json}
+{
+   "body" : "Hello!",
+   "kind" : "message",
+   "type" : "chat"
+}
+```
+
+Mapping of various XMPP stanza payloads to JSON.
+
+### XML
+
 ``` {.xml}
 <message type="" id="" to="" from="" xml:lang="">
 ...
@@ -119,7 +169,7 @@ namespace is treated as `jabber:client`.
 
 Simple echo bot that responds to messages:
 
-```python
+``` {.python}
 from flask import Flask, Response, request
 import xml.etree.ElementTree as ET
 

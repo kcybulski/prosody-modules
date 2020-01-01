@@ -8,6 +8,7 @@ local errors = require "util.error";
 local http = require "net.http";
 local id = require "util.id";
 local jid = require "util.jid";
+local json = require "util.json";
 local st = require "util.stanza";
 local xml = require "util.xml";
 
@@ -17,6 +18,7 @@ local secret = assert(module:get_option_string("rest_credentials"), "rest_creden
 local auth_type = assert(secret:match("^%S+"), "Format of rest_credentials MUST be like 'Bearer secret'");
 assert(auth_type == "Bearer", "Only 'Bearer' is supported in rest_credentials");
 
+local jsonmap = module:require"jsonmap";
 -- Bearer token
 local function check_credentials(request)
 	return request.headers.authorization == secret;
@@ -26,17 +28,40 @@ local function parse(mimetype, data)
 	mimetype = mimetype:match("^[^; ]*");
 	if mimetype == "application/xmpp+xml" then
 		return xml.parse(data);
+	elseif mimetype == "application/json" then
+		local parsed, err = json.decode(data);
+		if not parsed then
+			return parsed, err;
+		end
+		return jsonmap.json2st(parsed);
 	elseif mimetype == "text/plain" then
 		return st.message({ type = "chat" }, data);
 	end
 	return nil, "unknown-payload-type";
 end
 
-local function decide_type()
-	return "application/xmpp+xml";
+local supported_types = { "application/xmpp+xml", "application/json" };
+
+local function decide_type(accept)
+	-- assumes the accept header is sorted
+	local ret = supported_types[1];
+	if not accept then
+		return ret;
+	end
+	for i = 2, #supported_types do
+		if (accept:find(supported_types[i], 1, true) or 1000) < (accept:find(ret, 1, true) or 1000) then
+			ret = supported_types[i];
+		end
+	end
+	return ret;
 end
 
 local function encode(type, s)
+	if type == "application/json" then
+		return json.encode(jsonmap.st2json(s));
+	elseif type == "text/plain" then
+		return s:get_child_text("body") or "";
+	end
 	return tostring(s);
 end
 
@@ -128,6 +153,9 @@ module:provides("http", {
 local rest_url = module:get_option_string("rest_callback_url", nil);
 if rest_url then
 	local send_type = module:get_option_string("rest_callback_content_type", "application/xmpp+xml");
+	if send_type == "json" then
+		send_type = "application/json";
+	end
 
 	local code2err = {
 		[400] = { condition = "bad-request"; type = "modify" };
@@ -176,7 +204,7 @@ if rest_url then
 				headers = {
 					["Content-Type"] = send_type,
 					["Content-Language"] = stanza.attr["xml:lang"],
-					Accept = "application/xmpp+xml, text/plain",
+					Accept = table.concat(supported_types, ", ");
 				},
 			}, function (body, code, response)
 				if (code == 202 or code == 204) and not reply_needed then
