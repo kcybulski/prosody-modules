@@ -31,7 +31,9 @@ local simple_types = {
 			return tostring(s:get_child("body", "http://www.w3.org/1999/xhtml"));
 		end;
 		function (s) --> xml
-			return xml.parse([[<html xmlns='http://jabber.org/protocol/xhtml-im'>]]..s..[[</html>]]);
+			if type(s) == "string" then
+				return xml.parse([[<html xmlns='http://jabber.org/protocol/xhtml-im'>]]..s..[[</html>]]);
+			end
 		end;
 	};
 
@@ -95,7 +97,9 @@ local simple_types = {
 			return s:get_child_text("url");
 		end;
 		function (s)
-			return st.stanza("query", { xmlns = "jabber:iq:oob" }):text_tag("url", s);
+			if type(s) == "string" then
+				return st.stanza("query", { xmlns = "jabber:iq:oob" }):text_tag("url", s);
+			end
 		end;
 	};
 };
@@ -188,8 +192,17 @@ local function st2json(s)
 	return t;
 end
 
+local function str(s)
+	if type(s) == "string" then
+		return s;
+	end
+end
+
 local function json2st(t)
-	local kind = t.kind or kind_by_type[t.type];
+	if type(t) ~= "table" or not str(next(t)) then
+		return nil, "invalid-json";
+	end
+	local kind = str(t.kind) or kind_by_type[str(t.type)];
 	if not kind then
 		for k, implied in pairs(implied_kinds) do
 			if t[k] then
@@ -200,10 +213,10 @@ local function json2st(t)
 	end
 
 	local s = st.stanza(kind or "message", {
-		type = t.type ~= "available" and t.type or nil,
-		to = jid.prep(t.to);
-		from = jid.prep(t.from);
-		id = t.id,
+		type = t.type ~= "available" and str(t.type) or nil,
+		to = str(t.to) and jid.prep(t.to);
+		from = str(t.to) and jid.prep(t.from);
+		id = str(t.id),
 	});
 
 	if t.to and not s.attr.to then
@@ -213,8 +226,8 @@ local function json2st(t)
 		return nil, "invalid-jid-from";
 	end
 
-	if t.error then
-		return st.error_reply(st.reply(s), t.error.type, t.error.condition, t.error.text);
+	if type(t.error) == "table" then
+		return st.error_reply(st.reply(s), str(t.error.type), str(t.error.condition), str(t.error.text));
 	elseif t.type == "error" then
 		s:text_tag("error", t.body, { code = t.error_code and tostring(t.error_code) });
 		return s;
