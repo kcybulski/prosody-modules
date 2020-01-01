@@ -225,6 +225,9 @@ local function json2st(t)
 	if t.from and not s.attr.from then
 		return nil, "invalid-jid-from";
 	end
+	if kind == "iq" and not t.type then
+		t.type = "get";
+	end
 
 	if type(t.error) == "table" then
 		return st.error_reply(st.reply(s), str(t.error.type), str(t.error.condition), str(t.error.text));
