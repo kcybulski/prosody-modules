@@ -40,6 +40,8 @@ local function handle_post(event)
 	end
 	if payload.attr.xmlns then
 		return errors.new({ code = 422, text = "'xmlns' attribute must be empty" });
+	elseif payload.name ~= "message" and payload.name ~= "presence" and payload.name ~= "iq" then
+		return errors.new({ code = 422, text = "Invalid stanza, must be 'message', 'presence' or 'iq'." });
 	end
 	local to = jid.prep(payload.attr.to);
 	if not to then
@@ -82,7 +84,7 @@ local function handle_post(event)
 					return error;
 				end
 			end);
-	elseif payload.name == "message" or payload.name == "presence" then
+	else
 		local origin = {};
 		function origin.send(stanza)
 			module:log("debug", "Sending[rest]: %s", stanza:top_tag());
@@ -95,8 +97,6 @@ local function handle_post(event)
 		else
 			return 500;
 		end
-	else
-		return errors.new({ code = 400, text = "Invalid stanza, must be 'message', 'presence' or 'iq'." });
 	end
 end
 
