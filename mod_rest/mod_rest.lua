@@ -133,11 +133,8 @@ local function handle_post(event)
 			response:send(encode(send_type, stanza));
 			return true;
 		end
-		if module:send(payload, origin) then
-			return 202;
-		else
-			return 500;
-		end
+		module:send(payload, origin);
+		return 202;
 	end
 end
 
