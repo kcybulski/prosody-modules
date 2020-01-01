@@ -176,7 +176,7 @@ if rest_url then
 						module:log("warn", "REST callback responded with the wrong stanza type, got %s but expected %s", parsed.name, stanza.name);
 					else
 						parsed.attr.to, parsed.attr.from = stanza.attr.from, stanza.attr.to;
-						if parsed.name == "iq" then
+						if parsed.name == "iq" or parsed.attr.type == "error" then
 							parsed.attr.id = stanza.attr.id;
 						end
 						reply = parsed;
