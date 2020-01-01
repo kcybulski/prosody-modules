@@ -167,7 +167,7 @@ namespace is treated as `jabber:client`.
 
 ## Python / Flask
 
-Simple echo bot that responds to messages:
+Simple echo bot that responds to messages as XML:
 
 ``` {.python}
 from flask import Flask, Response, request
@@ -195,6 +195,32 @@ def hello():
 if __name__ == "__main__":
     app.run()
 ```
+
+And a JSON variant:
+
+``` {.python}
+from flask import Flask, Response, request, jsonify
+
+app = Flask("echobot")
+
+
+@app.route("/", methods=["POST"])
+def hello():
+    print(request.data)
+    if request.is_json:
+        data = request.get_json()
+        if data["kind"] == "message":
+            return jsonify({"body": "hello"})
+
+    return Response(status=501)
+
+
+if __name__ == "__main__":
+    app.run()
+```
+
+Remember to set `rest_callback_content_type = "application/json"` for
+this to work.
 
 # Compatibility
 
