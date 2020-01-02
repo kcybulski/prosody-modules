@@ -182,6 +182,10 @@ if rest_url then
 		local reply_needed = stanza.name == "iq";
 		local receipt;
 
+		if stanza.attr.type == "error" then
+			reply_needed = false;
+		end
+
 		if stanza.name == "message" and stanza.attr.id and stanza:get_child("urn:xmpp:receipts", "request") then
 			reply_needed = true;
 			receipt = st.stanza("received", { xmlns = "urn:xmpp:receipts", id = stanza.id });
