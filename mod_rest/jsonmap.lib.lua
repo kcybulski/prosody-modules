@@ -52,11 +52,12 @@ local simple_types = {
 					features:push(tag.attr.var);
 				end
 			end
-			return { identities = identities, features = features, };
+			return { node = s.attr.node, identities = identities, features = features, };
 		end;
 		function  (s)
 			local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#info" });
 			if type(s) == "table" then
+				disco.attr.node = tostring(s.node);
 				if s.identities then
 					for identity in ipairs(s.identities) do
 						disco:tag("identity", { category = identity[1], type = identity[2] }):up();
