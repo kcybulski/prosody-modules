@@ -150,6 +150,14 @@ Further JSON object keys as follows:
 
 #### Messages
 
+`kind`
+:   `"message"`
+
+`type`
+:   Commonly `"chat"` for 1-to-1 messages and `"groupchat"` for group
+    chat messages. Others include `"normal"`, `"headline"` and
+    `"error"`.
+
 `body`
 :   Human-readable message text.
 
@@ -163,6 +171,12 @@ Further JSON object keys as follows:
 :   URL of an out-of-band resource, often used for images.
 
 #### Presence
+
+`kind`
+:   `"presence"`
+
+`type`
+:   Empty for online or `"unavailable"` for offline.
 
 `show`
 :   [Online
@@ -178,6 +192,13 @@ Further JSON object keys as follows:
 #### Info-Queries
 
 Only one type of payload can be included in an `iq`.
+
+`kind`
+:   `"iq"`
+
+`type`
+:   `"get"` or `"set"` for queries, `"response"` or `"error"` for
+    replies.
 
 `ping`
 :   Send a ping. Get a pong. Maybe.
