@@ -206,6 +206,9 @@ Only one type of payload can be included in an `iq`.
 `disco`
 :   Retrieve service discovery information about an entity.
 
+`items`
+:   Discover list of items (other services, groupchats etc).
+
 ### XML
 
 ``` {.xml}
