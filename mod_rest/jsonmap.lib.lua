@@ -1,5 +1,6 @@
 local array = require "util.array";
 local jid = require "util.jid";
+local json = require "util.json";
 local st = require "util.stanza";
 local xml = require "util.xml";
 
@@ -103,6 +104,27 @@ local simple_types = {
 			end
 		end;
 	};
+
+	-- XEP-XXXX: User-defined Data Transfer
+	payload = {"func", "urn:xmpp:udt:0", "payload",
+		function (s)
+			local rawjson = s:get_child_text("json", "urn:xmpp:json:0");
+			if not rawjson then return nil, "missing-json-payload"; end
+			local parsed, err = json.decode(rawjson);
+			if not parsed then return nil, err; end
+			return {
+				datatype = s.attr.datatype;
+				data = parsed;
+			};
+		end;
+		function (s)
+			if type(s) == "table" then
+				return st.stanza("payload", { xmlns = "urn:xmpp:udt:0", datatype = s.datatype })
+					:tag("json", { xmlns = "urn:xmpp:json:0" }):text(json.encode(s.data));
+			end;
+		end
+	};
+
 };
 
 local implied_kinds = {
