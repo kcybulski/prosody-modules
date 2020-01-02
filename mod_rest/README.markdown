@@ -146,7 +146,44 @@ Content-Type: application/xmpp+xml
 }
 ```
 
-Mapping of various XMPP stanza payloads to JSON.
+Further JSON object keys as follows:
+
+#### Messages
+
+`body`
+:   Human-readable message text.
+
+`subject`
+:   Message subject or MUC topic.
+
+`html`
+:   HTML.
+
+`oob_url`
+:   URL of an out-of-band resource, often used for images.
+
+#### Presence
+
+`show`
+:   [Online
+    status](https://xmpp.org/rfcs/rfc6121.html#presence-syntax-children-show),
+    `away`, `dnd` etc.
+
+`status`
+:   Human-readable status message.
+
+`join`
+:   Boolean. Join a group chat.
+
+#### Info-Queries
+
+Only one type of payload can be included in an `iq`.
+
+`ping`
+:   Send a ping. Get a pong. Maybe.
+
+`disco`
+:   Retrieve service discovery information about an entity.
 
 ### XML
 
