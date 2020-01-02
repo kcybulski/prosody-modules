@@ -25,7 +25,7 @@ local function check_credentials(request)
 end
 
 local function parse(mimetype, data)
-	mimetype = mimetype:match("^[^; ]*");
+	mimetype = mimetype and mimetype:match("^[^; ]*");
 	if mimetype == "application/xmpp+xml" then
 		return xml.parse(data);
 	elseif mimetype == "application/json" then
