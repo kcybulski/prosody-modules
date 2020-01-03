@@ -44,7 +44,7 @@ local function handle_stanza(event)
 	local occupant_tag = occupant.sessions[stanza.attr.from]
 		:get_child("occupant-id", xmlns_occupant_id);
 
-	local unique_id = nil;
+	local unique_id;
 	if occupant_tag == nil then
 		unique_id = generate_id(occupant, room);
 	else
