@@ -106,6 +106,8 @@ local function handle_post(event)
 	if payload.name == "iq" then
 		if payload.attr.type ~= "get" and payload.attr.type ~= "set" then
 			return errors.new({ code = 422, text = "'iq' stanza must be of type 'get' or 'set'" });
+		elseif #payload.tags ~= 1 then
+			return errors.new({ code = 422, text = "'iq' stanza must have exactly one child tag" });
 		end
 		return module:send_iq(payload):next(
 			function (result)
