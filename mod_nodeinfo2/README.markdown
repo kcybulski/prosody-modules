@@ -34,8 +34,10 @@ statistics about the amount of messages being exchanged by your users:
 nodeinfo2_expose_posts = false
 ```
 
-This module depends on [mod\_http](https://prosody.im/doc/http), most of its
-configuration actually happens in this module.
+This module depends on
+[mod\_lastlog](https://modules.prosody.im/mod_lastlog.html) to calculate user
+activity, and [mod\_http](https://prosody.im/doc/http). Most of its
+configuration actually happens in this dependency.
 
 Compatibility
 =============
