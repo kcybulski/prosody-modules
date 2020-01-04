@@ -43,6 +43,7 @@ end
 module:hook("s2sin-established", function (event)
 	local session = event.session;
 	if session.watchdog_keepalive then return end -- in case mod_bidi fires this twice
+	if keepalive_servers and not keepalive_servers:contains(session.from_host) then return end
 	session.watchdog_keepalive = watchdog.new(keepalive_timeout, function ()
 		session.log("info", "Keepalive ping timed out, closing connection");
 		session:close("connection-timeout");
@@ -52,6 +53,7 @@ end);
 module:hook("s2sout-established", function (event)
 	local session = event.session;
 	if session.watchdog_keepalive then return end -- in case mod_bidi fires this twice
+	if keepalive_servers and not keepalive_servers:contains(session.from_host) then return end
 	session.watchdog_keepalive = watchdog.new(keepalive_timeout, function ()
 		session.log("info", "Keepalive ping timed out, closing connection");
 		session:close("connection-timeout");
