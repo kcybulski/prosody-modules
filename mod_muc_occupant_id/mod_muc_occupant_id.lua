@@ -46,5 +46,6 @@ module:hook("muc-disco#info", function (event)
 	event.reply:tag("feature", { var = xmlns_occupant_id }):up();
 end);
 
+module:hook("muc-broadcast-presence", update_occupant);
 module:hook("muc-occupant-pre-join", update_occupant);
 module:hook("muc-occupant-groupchat", update_occupant);
