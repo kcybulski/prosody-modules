@@ -14,7 +14,9 @@ local function send_email(to, headers, content)
 		};
 	end
 	headers.To = to;
-	headers["Content-Type"] = 'text/plain; charset="utf-8"';
+	if not headers["Content-Type"] then
+		headers["Content-Type"] = 'text/plain; charset="utf-8"';
+	end
 	local message = smtp.message{
 		headers = headers;
 		body = content;
