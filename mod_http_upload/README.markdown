@@ -22,7 +22,7 @@ The module can be added as a new Component definition:
 Component "upload.example.org" "http_upload"
 ```
 
-Alternatively it can be added to `modules_enabled` like other modules.
+It should **not** be added to modules_enabled.
 
 Limits
 ------
