@@ -5,7 +5,7 @@
 -- Copyright (C) 2012-2015 Kim Alvefur
 -- Copyright (C) 2012 Thijs Alkemade
 -- Copyright (C) 2014 Florian Zeitz
--- Copyright (C) 2016-2019 Thilo Molitor
+-- Copyright (C) 2016-2020 Thilo Molitor
 --
 -- This project is MIT/X11 licensed. Please see the
 -- COPYING file in the source package for more information.
@@ -558,12 +558,14 @@ function handle_resume(session, stanza, xmlns_sm)
 
 		-- Ok, we need to re-send any stanzas that the client didn't see
 		-- ...they are what is now left in the outgoing stanza queue
+		-- We have to use the send of "session" because we don't want to add our resent stanzas
+		-- to the outgoing queue again
 		local queue = original_session.outgoing_stanza_queue;
-		original_session.log("debug", "#queue = %d", #queue);
+		session.log("debug", "resending all unacked stanzas that are still queued after resume, #queue = %d", #queue);
 		for i=1,#queue do
-			original_session.send(queue[i]);
+			session.send(queue[i]);
 		end
-		original_session.log("debug", "#queue = %d -- after send", #queue);
+		session.log("debug", "all stanzas resent, now disabling send() in this session, #queue = %d", #queue);
 		function session.send(stanza)
 			session.log("warn", "Tried to send stanza on old session migrated by smacks resume (maybe there is a bug?): %s", tostring(stanza));
 			return false;
