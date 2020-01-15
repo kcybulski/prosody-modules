@@ -73,7 +73,7 @@ local function handle_post(event)
 	local payload, err = parse(request.headers.content_type, request.body);
 	if not payload then
 		-- parse fail
-		return errors.new({ code = 400, text = err });
+		return errors.new({ code = 400, text = "Failed to parse payload" }, { error = err, type = request.headers.content_type, data = request.body });
 	end
 	if payload.attr.xmlns then
 		return errors.new({ code = 422, text = "'xmlns' attribute must be empty" });
