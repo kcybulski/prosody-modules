@@ -36,6 +36,22 @@ C:
 S:
 <iq type="result" to="example.com" id="dTMERjt5">
   <query xmlns="http://jabber.org/protocol/stats">
+    <stat name="cpu.clock:amount" value="0.212131"/>
+    <stat name="cpu.percent:amount" value="0"/>
+    <stat name="memory.allocated:amount" value="8.30259e+06"/>
+    <stat name="memory.allocated_mmap:amount" value="401408"/>
+    <stat name="memory.lua:amount" value="6.21347e+06"/>
+    <stat name="memory.returnable:amount" value="13872"/>
+    <stat name="memory.rss:amount" value="2.03858e+07"/>
+    <stat name="memory.total:amount" value="6.53885e+07"/>
+    <stat name="memory.unused:amount" value="14864"/>
+    <stat name="memory.used:amount" value="8.28773e+06"/>
+    <stat name="/*/mod_c2s/connections:amount" value="0"/>
+    <stat name="/*/mod_c2s/ipv6:amount" value="0"/>
+    <stat name="/*/mod_s2s/connections:amount" value="0"/>
+    <stat name="/*/mod_s2s/ipv6:amount" value="0"/>
+    <stat name="stats.collection:duration" unit="seconds" value="0.000125647"/>
+    <stat name="stats.processing:duration" unit="seconds" value="0"/>
   </query>
 </iq>
 ```
