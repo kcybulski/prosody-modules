@@ -1,5 +1,6 @@
 local statsman = require "core.statsmanager";
 local st = require "util.stanza";
+local s_format = string.format;
 
 module:hook("iq/host/http://jabber.org/protocol/stats:query", function (event)
 	local origin, stanza = event.origin, event.stanza;
@@ -8,7 +9,7 @@ module:hook("iq/host/http://jabber.org/protocol/stats:query", function (event)
 	reply:tag("query", { xmlns = "http://jabber.org/protocol/stats" });
 	for stat, value in pairs(stats) do
 		local unit = extra[stat] and extra[stat].units;
-		reply:tag("stat", { name = stat, unit = unit, value = tostring(value) }):up();
+		reply:tag("stat", { name = stat, unit = unit, value = s_format("%.12g", value) }):up();
 	end
 	origin.send(reply);
 	return true;
