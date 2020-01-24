@@ -44,6 +44,9 @@ def hello():
                     {"items": [{"jid": "example.org", "name": "Example Dot Org"}]}
                 )
 
+            elif "version" in data:
+                return jsonify({"version": {"name": "app.py", "version": "0"}})
+
     return Response(status=501)
 
 

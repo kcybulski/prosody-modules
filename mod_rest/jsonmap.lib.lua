@@ -41,6 +41,28 @@ local simple_types = {
 	-- XEP-0199
 	ping = {"bool_tag", "urn:xmpp:ping", "ping"},
 
+	-- XEP-0092: Software Version
+	version = {"func", "jabber:iq:version", "query",
+		function (s)
+			return {
+				name = s:get_child_text("name");
+				version = s:get_child_text("version");
+				os = s:get_child_text("os");
+			}
+		end,
+		function (s)
+			local v = st.stanza("query", { xmlns = "jabber:iq:version" });
+			if type(s) == "table" then
+				v:text_tag("name", s.name);
+				v:text_tag("version", s.version);
+				if s.os then
+					v:text_tag("os", s.os);
+				end
+			end
+			return v;
+		end
+	};
+
 	-- XEP-0030
 	disco = {
 		"func", "http://jabber.org/protocol/disco#info", "query",
@@ -135,6 +157,7 @@ local implied_kinds = {
 	disco = "iq",
 	items = "iq",
 	ping = "iq",
+	version = "iq",
 
 	body = "message",
 	html = "message",
