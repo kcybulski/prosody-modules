@@ -25,15 +25,14 @@ local simple_types = {
 	join = {"bool_tag", "http://jabber.org/protocol/muc", "x"},
 
 	-- XEP-0071
-	-- FIXME xmlns is awkward
 	html = {
 		"func", "http://jabber.org/protocol/xhtml-im", "html",
 		function (s) --> json string
-			return tostring(s:get_child("body", "http://www.w3.org/1999/xhtml"));
+			return (tostring(s:get_child("body", "http://www.w3.org/1999/xhtml")):gsub(" xmlns='[^']*'","", 1));
 		end;
 		function (s) --> xml
 			if type(s) == "string" then
-				return xml.parse([[<html xmlns='http://jabber.org/protocol/xhtml-im'>]]..s..[[</html>]]);
+				return assert(xml.parse([[<x:html xmlns:x='http://jabber.org/protocol/xhtml-im' xmlns='http://www.w3.org/1999/xhtml'>]]..s..[[</x:html>]]));
 			end
 		end;
 	};
