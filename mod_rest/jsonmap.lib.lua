@@ -87,7 +87,11 @@ local simple_types = {
 			local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#items" });
 			if type(s) == "table" then
 				for _, item in ipairs(s) do
-					disco:tag("item", { jid = item.jid, node = item.node, name = item.name });
+					if type(item) == "string" then
+						disco:tag("item", { jid = item });
+					elseif type(item) == "table" then
+						disco:tag("item", { jid = item.jid, node = item.node, name = item.name });
+					end
 				end
 			end
 			return disco;
