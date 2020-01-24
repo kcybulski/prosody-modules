@@ -38,7 +38,7 @@ local simple_types = {
 		end;
 	};
 
-	-- XEP-0199
+	-- XEP-0199: XMPP Ping
 	ping = {"bool_tag", "urn:xmpp:ping", "ping"},
 
 	-- XEP-0092: Software Version
@@ -120,6 +120,7 @@ local simple_types = {
 		end;
 	};
 
+	-- XEP-0066: Out of Band Data
 	oob_url = {"func", "jabber:iq:oob", "query",
 		function (s)
 			return s:get_child_text("url");
