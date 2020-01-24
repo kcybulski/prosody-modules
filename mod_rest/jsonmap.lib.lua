@@ -60,7 +60,7 @@ local simple_types = {
 			if type(s) == "table" then
 				disco.attr.node = tostring(s.node);
 				if s.identities then
-					for identity in ipairs(s.identities) do
+					for _, identity in ipairs(s.identities) do
 						disco:tag("identity", { category = identity[1], type = identity[2] }):up();
 					end
 				end
