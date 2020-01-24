@@ -65,7 +65,7 @@ local simple_types = {
 					end
 				end
 				if s.features then
-					for feature in ipairs(s.features) do
+					for _, feature in ipairs(s.features) do
 						disco:tag("feature", { var = feature }):up();
 					end
 				end
