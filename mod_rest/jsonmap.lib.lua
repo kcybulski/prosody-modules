@@ -61,7 +61,7 @@ local simple_types = {
 				disco.attr.node = tostring(s.node);
 				if s.identities then
 					for _, identity in ipairs(s.identities) do
-						disco:tag("identity", { category = identity[1], type = identity[2] }):up();
+						disco:tag("identity", { category = identity.category, type = identity.type, name = identity.name }):up();
 					end
 				end
 				if s.features then
