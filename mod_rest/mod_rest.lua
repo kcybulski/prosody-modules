@@ -224,6 +224,8 @@ if rest_url then
 			}, function (body, code, response)
 				if code == 0 then
 					module:log_status("error", "Could not connect to callback URL %q: %s", rest_url, body);
+					origin.send(st.error_reply(stanza, "wait", "recipient-unavailable", body));
+					return;
 				else
 					module:set_status("info", "Connected");
 				end
@@ -275,8 +277,6 @@ if rest_url then
 						reply = st.error_reply(stanza, "modify", "bad-request", body);
 					elseif code_hundreds == 500 then
 						reply = st.error_reply(stanza, "cancel", "internal-server-error", body);
-					elseif code == 0 then
-						reply = st.error_reply(stanza, "wait", "recipient-unavailable", body);
 					else
 						reply = st.error_reply(stanza, "cancel", "undefined-condition", body);
 					end
