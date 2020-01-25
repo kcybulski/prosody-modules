@@ -229,8 +229,14 @@ if rest_url then
 					if parsed.name == "message" and parsed.attr.type == "groupchat" then
 						parsed.attr.to = jid.bare(stanza.attr.from);
 					end
-					if parsed.name == "iq" or parsed.attr.type == "error" then
+					if not stanza.attr.type and parsed:get_child("error") then
+						parsed.attr.type = "error";
+					end
+					if parsed.attr.type == "error" then
 						parsed.attr.id = stanza.attr.id;
+					elseif parsed.name == "iq" then
+						parsed.attr.id = stanza.attr.id;
+						parsed.attr.type = "result";
 					end
 					reply = parsed;
 				end
