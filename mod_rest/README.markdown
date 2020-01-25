@@ -283,6 +283,98 @@ if __name__ == "__main__":
 Remember to set `rest_callback_content_type = "application/json"` for
 this to work.
 
+# JSON mapping
+
+This section describes the JSON mapping. It can't represent any possible
+stanza, for full flexibility use the XML mode.
+
+## Stanza basics
+
+`kind`
+:   String representing the kind of stanza, one of `"message"`,
+    `"presence"` or `"iq"`.
+
+`type`
+:   String with the type of stanza, appropriate values vary depending on
+    `kind`, see [RFC 6121]. E.g.`"chat"` for *message* stanzas etc.
+
+`to`
+:   String containing the XMPP Address of the destination / recipient of
+    the stanza.
+
+`from`
+:   String containing the XMPP Address of the sender the stanza.
+
+`id`
+:   String with a reasonably unique identifier for the stanza.
+
+## Basic Payloads
+
+### Messages
+
+`body`
+:   String, human readable text message.
+
+`subject`
+:   String, human readable summary equivalent to an email subject or the
+    chat room topic in a `type:groupchat` message.
+
+### Presence
+
+`show`
+:   String representing availability, e.g. `"away"`, `"dnd"`. No value
+    means a normal online status. See [RFC 6121] for the full list.
+
+`status`
+:   String with a human readable text message describing availability.
+
+## More payloads
+
+### Messages
+
+`state`
+:   String with current chat state, e.g. `"active"` (default) and
+    `"composing"` (typing).
+
+`html`
+:   String with HTML allowing rich formating. **MUST** be contained in a
+    `<body>` element.
+
+`oob_url`
+:   String with an URL of an external resource.
+
+### Presence
+
+`join`
+:   Boolean, used to join group chats.
+
+### IQ
+
+`ping`
+:   Boolean, a simple ping query. "Pongs" have only basic fields
+    presents.
+
+`version`
+:   Map with `name`, `version` fields, and optionally an `os` field, to
+    describe the software.
+
+#### Service Discovery
+
+`disco`
+
+:   Boolean `true` in a `kind:iq` `type:get` for a service discovery
+    query.
+
+    Responses have a map containing an array of available features in
+    the `features` key and an array of "identities" in the `identities`
+    key. Each identity has a `category` and `type` field as well as an
+    optional `name` field. See [XEP-0030] for further details.
+
+`items`
+:   Boolean `true` in a `kind:iq` `type:get` for a service discovery
+    items list query. The response contain an array of items like
+    `{"jid":"xmpp.address.here","name":"Description of item"}`.
+
 # Compatibility
 
 Requires Prosody trunk / 0.12
