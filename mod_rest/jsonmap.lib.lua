@@ -77,7 +77,7 @@ local simple_types = {
 			return { node = s.attr.node, identities = identities, features = features, };
 		end;
 		function  (s)
-			if type(s) == "table" then
+			if type(s) == "table" and s ~= json.null then
 				local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#info", node = s.node });
 				if s.identities then
 					for _, identity in ipairs(s.identities) do
@@ -107,7 +107,7 @@ local simple_types = {
 		end;
 		function  (s)
 			local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#items" });
-			if type(s) == "table" then
+			if type(s) == "table" and s ~= json.null then
 				for _, item in ipairs(s) do
 					if type(item) == "string" then
 						disco:tag("item", { jid = item });
