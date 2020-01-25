@@ -153,9 +153,15 @@ if rest_url then
 		send_type = "application/json";
 	end
 
+	module:set_status("info", "Not yet connected");
 	http.request(rest_url, {
 			method = "OPTIONS",
 		}, function (body, code, response)
+			if code == 0 then
+				return module:log_status("error", "Could not connect to callback URL %q: %s", rest_url, body);
+			else
+				module:set_status("info", "Connected");
+			end
 			if code == 200 and response.headers.accept then
 				send_type = decide_type(response.headers.accept);
 				module:log("debug", "Set 'rest_callback_content_type' = %q based on Accept header", send_type);
@@ -216,6 +222,11 @@ if rest_url then
 					Accept = table.concat(supported_types, ", ");
 				},
 			}, function (body, code, response)
+				if code == 0 then
+					return module:log_status("error", "Could not connect to callback URL %q: %s", rest_url, body);
+				else
+					module:set_status("info", "Connected");
+				end
 				if (code == 202 or code == 204) and not reply_needed then
 					-- Delivered, no reply
 					return;
