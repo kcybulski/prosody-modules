@@ -223,7 +223,7 @@ if rest_url then
 				},
 			}, function (body, code, response)
 				if code == 0 then
-					return module:log_status("error", "Could not connect to callback URL %q: %s", rest_url, body);
+					module:log_status("error", "Could not connect to callback URL %q: %s", rest_url, body);
 				else
 					module:set_status("info", "Connected");
 				end
