@@ -153,6 +153,15 @@ if rest_url then
 		send_type = "application/json";
 	end
 
+	http.request(rest_url, {
+			method = "OPTIONS",
+		}, function (body, code, response)
+			if code == 200 and response.headers.accept then
+				send_type = decide_type(response.headers.accept);
+				module:log("debug", "Set 'rest_callback_content_type' = %q based on Accept header", send_type);
+			end
+		end);
+
 	local code2err = {
 		[400] = { condition = "bad-request"; type = "modify" };
 		[401] = { condition = "not-authorized"; type = "auth" };
