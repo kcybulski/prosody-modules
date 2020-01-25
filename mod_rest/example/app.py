@@ -3,6 +3,11 @@ from flask import Flask, Response, request, jsonify
 app = Flask("echobot")
 
 
+@app.route("/api", methods=["OPTIONS"])
+def options():
+    return Response(status=200, headers={"accept": "application/json"})
+
+
 @app.route("/api", methods=["POST"])
 def hello():
     print(request.data)
