@@ -275,6 +275,8 @@ if rest_url then
 						reply = st.error_reply(stanza, "modify", "bad-request", body);
 					elseif code_hundreds == 500 then
 						reply = st.error_reply(stanza, "cancel", "internal-server-error", body);
+					elseif code == 0 then
+						reply = st.error_reply(stanza, "wait", "recipient-unavailable", body);
 					else
 						reply = st.error_reply(stanza, "cancel", "undefined-condition", body);
 					end
