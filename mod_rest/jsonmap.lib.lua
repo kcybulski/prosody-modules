@@ -77,9 +77,8 @@ local simple_types = {
 			return { node = s.attr.node, identities = identities, features = features, };
 		end;
 		function  (s)
-			local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#info" });
 			if type(s) == "table" then
-				disco.attr.node = tostring(s.node);
+				local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#info", node = s.node });
 				if s.identities then
 					for _, identity in ipairs(s.identities) do
 						disco:tag("identity", { category = identity.category, type = identity.type, name = identity.name }):up();
@@ -90,8 +89,10 @@ local simple_types = {
 						disco:tag("feature", { var = feature }):up();
 					end
 				end
+				return disco;
+			else
+				st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#info", });
 			end
-			return disco;
 		end;
 	};
 
