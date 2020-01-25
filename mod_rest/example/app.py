@@ -5,11 +5,20 @@ app = Flask("echobot")
 
 @app.route("/api", methods=["OPTIONS"])
 def options():
+    """
+    Startup check. Return an appropriate Accept header to confirm the
+    data type to use.
+    """
+
     return Response(status=200, headers={"accept": "application/json"})
 
 
 @app.route("/api", methods=["POST"])
 def hello():
+    """
+    Example RESTful JSON format stanza handler.
+    """
+
     print(request.data)
     if request.is_json:
         data = request.get_json()
@@ -18,13 +27,16 @@ def hello():
             return Response(status=400)
 
         if data["kind"] == "message" and "body" in data:
+            # Reply to a message
             return jsonify({"body": "Yes this is flask app"})
 
         elif data["kind"] == "iq" and data["type"] == "get":
             if "ping" in data:
+                # Respond to ping
                 return Response(status=204)
 
             elif "disco" in data:
+                # Return supported features
                 return jsonify(
                     {
                         "disco": {
@@ -45,11 +57,13 @@ def hello():
                 )
 
             elif "items" in data:
+                # Disco items
                 return jsonify(
                     {"items": [{"jid": "example.org", "name": "Example Dot Org"}]}
                 )
 
             elif "version" in data:
+                # Version info
                 return jsonify({"version": {"name": "app.py", "version": "0"}})
 
     return Response(status=501)
