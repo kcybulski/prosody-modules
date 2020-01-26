@@ -229,38 +229,41 @@ if rest_url then
 				else
 					module:set_status("info", "Connected");
 				end
-				if (code == 202 or code == 204) and not reply_needed then
-					-- Delivered, no reply
-					return;
-				end
 				local reply;
 
-				local parsed, err = parse(response.headers["content-type"], body);
-				if not parsed then
-					module:log("warn", "Failed parsing data from REST callback: %s, %q", err, body);
-				elseif parsed.name ~= stanza.name then
-					module:log("warn", "REST callback responded with the wrong stanza type, got %s but expected %s", parsed.name, stanza.name);
+				if code == 202 or code == 204 then
+					if not reply_needed then
+						-- Delivered, no reply
+						return;
+					end
 				else
-					parsed.attr = {
-						from = stanza.attr.to,
-						to = stanza.attr.from,
-						id = parsed.attr.id or id.medium();
-						type = parsed.attr.type,
-						["xml:lang"] = parsed.attr["xml:lang"],
-					};
-					if parsed.name == "message" and parsed.attr.type == "groupchat" then
-						parsed.attr.to = jid.bare(stanza.attr.from);
+					local parsed, err = parse(response.headers["content-type"], body);
+					if not parsed then
+						module:log("warn", "Failed parsing data from REST callback: %s, %q", err, body);
+					elseif parsed.name ~= stanza.name then
+						module:log("warn", "REST callback responded with the wrong stanza type, got %s but expected %s", parsed.name, stanza.name);
+					else
+						parsed.attr = {
+							from = stanza.attr.to,
+							to = stanza.attr.from,
+							id = parsed.attr.id or id.medium();
+							type = parsed.attr.type,
+							["xml:lang"] = parsed.attr["xml:lang"],
+						};
+						if parsed.name == "message" and parsed.attr.type == "groupchat" then
+							parsed.attr.to = jid.bare(stanza.attr.from);
+						end
+						if not stanza.attr.type and parsed:get_child("error") then
+							parsed.attr.type = "error";
+						end
+						if parsed.attr.type == "error" then
+							parsed.attr.id = stanza.attr.id;
+						elseif parsed.name == "iq" then
+							parsed.attr.id = stanza.attr.id;
+							parsed.attr.type = "result";
+						end
+						reply = parsed;
 					end
-					if not stanza.attr.type and parsed:get_child("error") then
-						parsed.attr.type = "error";
-					end
-					if parsed.attr.type == "error" then
-						parsed.attr.id = stanza.attr.id;
-					elseif parsed.name == "iq" then
-						parsed.attr.id = stanza.attr.id;
-						parsed.attr.type = "result";
-					end
-					reply = parsed;
 				end
 
 				if not reply then
