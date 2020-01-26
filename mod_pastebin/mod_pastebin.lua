@@ -155,10 +155,10 @@ end
 module:hook("muc-disco#info", function (event)
 	local reply, form, formdata = event.reply, event.form, event.formdata;
 	reply:tag("feature", { var = "https://modules.prosody.im/mod_pastebin" }):up();
-	table.insert(form, { name = "https://modules.prosody.im/mod_pastebin#max_lines", datatype = "xs:integer" });
-	table.insert(form, { name = "https://modules.prosody.im/mod_pastebin#max_characters", datatype = "xs:integer" });
-	formdata["https://modules.prosody.im/mod_pastebin#max_lines"] = tostring(line_threshold);
-	formdata["https://modules.prosody.im/mod_pastebin#max_characters"] = tostring(length_threshold);
+	table.insert(form, { name = "{https://modules.prosody.im/mod_pastebin}max_lines", datatype = "xs:integer" });
+	table.insert(form, { name = "{https://modules.prosody.im/mod_pastebin}max_characters", datatype = "xs:integer" });
+	formdata["{https://modules.prosody.im/mod_pastebin}max_lines"] = tostring(line_threshold);
+	formdata["{https://modules.prosody.im/mod_pastebin}max_characters"] = tostring(length_threshold);
 end);
 
 function expire_pastes(time)
