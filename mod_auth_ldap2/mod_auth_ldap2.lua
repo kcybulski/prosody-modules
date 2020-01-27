@@ -59,6 +59,10 @@ function provider.get_sasl_handler()
 end
 
 function provider.is_admin(jid)
+    local username, userhost = jsplit(jid);
+    if userhost ~= module.host then
+        return false;
+    end
     local admin_config = ldap.getparams().admin;
 
     if not admin_config then
@@ -66,7 +70,6 @@ function provider.is_admin(jid)
     end
 
     local ld       = ldap:getconnection();
-    local username = jsplit(jid);
     local filter   = ldap.filter.combine_and(admin_config.filter, admin_config.namefield .. '=' .. username);
 
     return ldap.singlematch {

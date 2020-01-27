@@ -135,7 +135,10 @@ end
 
 if ldap_admins then
 	function provider.is_admin(jid)
-		local username = jid_split(jid);
+		local username, user_host = jid_split(jid);
+		if user_host ~= module.host then
+			return false;
+		end
 		return ldap_do("search", 2, {
 			base = ldap_base;
 			scope = ldap_scope;
