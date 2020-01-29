@@ -91,7 +91,7 @@ local simple_types = {
 				end
 				return disco;
 			else
-				st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#info", });
+				return st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#info", });
 			end
 		end;
 	};
