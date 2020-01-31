@@ -203,11 +203,13 @@ local function st2json(s)
 	end
 
 	if t.type == "error" then
+		local error = s:get_child("error");
 		local err_typ, err_condition, err_text = s:get_error();
 		t.error = {
 			type = err_typ,
 			condition = err_condition,
-			text = err_text
+			text = err_text,
+			by = error.attr.by,
 		};
 		return t;
 	end
@@ -281,7 +283,7 @@ local function json2st(t)
 	end
 
 	if type(t.error) == "table" then
-		return st.error_reply(st.reply(s), str(t.error.type), str(t.error.condition), str(t.error.text));
+		return st.error_reply(st.reply(s), str(t.error.type), str(t.error.condition), str(t.error.text), str(t.error.by));
 	elseif t.type == "error" then
 		s:text_tag("error", t.body, { code = t.error_code and tostring(t.error_code) });
 		return s;
