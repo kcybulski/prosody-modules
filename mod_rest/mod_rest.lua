@@ -16,12 +16,33 @@ local allow_any_source = module:get_host_type() == "component";
 local validate_from_addresses = module:get_option_boolean("validate_from_addresses", true);
 local secret = assert(module:get_option_string("rest_credentials"), "rest_credentials is a required setting");
 local auth_type = assert(secret:match("^%S+"), "Format of rest_credentials MUST be like 'Bearer secret'");
-assert(auth_type == "Bearer", "Only 'Bearer' is supported in rest_credentials");
+assert(auth_type == "Bearer" or auth_type == "Basic", "Only 'Bearer' and 'Basic' are supported in rest_credentials");
 
 local jsonmap = module:require"jsonmap";
 -- Bearer token
 local function check_credentials(request)
 	return request.headers.authorization == secret;
+end
+if secret == "Basic" and module:get_host_type() == "local" then
+	local um = require "core.usermanager";
+	local encodings = require "util.encodings";
+	local base64 = encodings.base64;
+
+	function check_credentials(request)
+		local creds = string.match(request.headers.authorization, "^Basic%s+([A-Za-z0-9+/]+=?=?)%s*$");
+		if not creds then return false; end
+		creds = base64.decode(creds);
+		if not creds then return false; end
+		local username, password = string.match(creds, "^([^:]+):(.*)$");
+		if not username then return false; end
+		username, password = encodings.stringprep.nodeprep(username), encodings.stringprep.saslprep(password);
+		if not username then return false; end
+		module:log("debug", "usermanager.test_password(%q, %q, %q)", username, module.host, string.rep("*", #password))
+		if not um.test_password(username, module.host, password) then
+			return false;
+		end
+		return jid.join(username, module.host);
+	end
 end
 
 local function parse(mimetype, data)
@@ -64,11 +85,18 @@ end
 
 local function handle_post(event)
 	local request, response = event.request, event.response;
+	local from = module.host;
 	if not request.headers.authorization then
 		response.headers.www_authenticate = ("%s realm=%q"):format(auth_type, module.host.."/"..module.name);
 		return 401;
-	elseif not check_credentials(request) then
-		return 401;
+	else
+		local authz = check_credentials(request);
+		if not authz then
+			return 401;
+		end
+		if type(authz) == "string" then
+			from = authz;
+		end
 	end
 	local payload, err = parse(request.headers.content_type, request.body);
 	if not payload then
@@ -84,7 +112,6 @@ local function handle_post(event)
 	if not to then
 		return errors.new({ code = 422, text = "Invalid destination JID" });
 	end
-	local from = module.host;
 	if allow_any_source and payload.attr.from then
 		from = jid.prep(payload.attr.from);
 		if not from then
