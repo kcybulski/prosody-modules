@@ -47,7 +47,45 @@ local dataform = {
 		return form;
 	end;
 	function (x)
-		-- TODO
+		if type(x) == "table" and x ~= json.null then
+			local form = st.stanza("x", { xmlns = "jabber:x:data", type = x.type });
+			if x.title then
+				form:text_tag("title", x.title);
+			end
+			if x.instructions then
+				form:text_tag("instructions", x.instructions);
+			end
+			if type(x.fields) == "table" then
+				for _, f in ipairs(x.fields) do
+					if type(f) == "table" then
+						form:tag("field", { var = f.var, type = f.type, label = f.label });
+						if f.desc then
+							form:text_tag("desc", f.desc);
+						end
+						if f.required == true then
+							form:tag("required"):up();
+						end
+						if type(f.value) == "string" then
+							form:text_tag("value", f.value);
+						elseif type(f.value) == "table" then
+							for _, v in ipairs(f.value) do
+								form:text_tag("value", v);
+							end
+						end
+						if type(f.options) == "table" then
+							for _, o in ipairs(f.value) do
+								if type(o) == "table" then
+									form:tag("option", { label = o.label });
+									form:text_tag("value", o.value);
+									form:up();
+								end
+							end
+						end
+					end
+				end
+			end
+			return form;
+		end
 	end;
 };
 
