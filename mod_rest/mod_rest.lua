@@ -315,19 +315,17 @@ if rest_url then
 	end
 end
 
-if module:get_option_boolean("rest_json_errors", false) then
-	local http_server = require "net.http.server";
-	module:hook_object_event(http_server, "http-error", function (event)
-		local request, response = event.request, event.response;
-		if true or decide_type(request and request.headers.accept or "") == "application/json" then
-			if response then
-				response.headers.content_type = "application/json";
-			end
-			return json.encode({
-					type = "error",
-					error = event.error,
-					code = event.code,
-				});
+local http_server = require "net.http.server";
+module:hook_object_event(http_server, "http-error", function (event)
+	local request, response = event.request, event.response;
+	if true or decide_type(request and request.headers.accept or "") == "application/json" then
+		if response then
+			response.headers.content_type = "application/json";
 		end
-	end, 10);
-end
+		return json.encode({
+				type = "error",
+				error = event.error,
+				code = event.code,
+			});
+	end
+end, 10);
