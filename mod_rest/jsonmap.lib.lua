@@ -126,6 +126,50 @@ local simple_types = {
 		end;
 	};
 
+	-- XEP-0050: Ad-Hoc Commands
+	command = {"func", "http://jabber.org/protocol/commands", "command",
+		function (s)
+			local cmd = {
+				action = s.attr.action,
+				node = s.attr.node,
+				sessionid = s.attr.sessionid,
+				status = s.attr.status,
+			};
+			local actions = s:get_child("actions");
+			local note = s:get_child("note");
+			-- TODO -- local form = s:get_child("x", "jabber:x:data");
+			if actions then
+				cmd.actions = {
+					execute = actions.attr.execute,
+				};
+				for action in actions:childtags() do
+					cmd.actions[action.name] = true
+				end
+			elseif note then
+				cmd.note = {
+					type = note.attr.type;
+					text = note:get_text();
+				};
+			end
+			return cmd;
+		end;
+		function (s)
+			if type(s) == "table" and s ~= json.null then
+				local cmd = st.stanza("command", {
+						xmlns  = "http://jabber.org/protocol/commands",
+						action = s.action,
+						node = s.node,
+						sessionid = s.sessionid,
+						status = s.status,
+					});
+				return cmd;
+			elseif type(s) == "string" then -- assume node
+				return st.stanza("command", { xmlns  = "http://jabber.org/protocol/commands", node = s });
+			end
+			-- else .. missing required attribute
+		end;
+	};
+
 	-- XEP-0066: Out of Band Data
 	oob_url = {"func", "jabber:iq:oob", "query",
 		function (s)
@@ -165,6 +209,7 @@ local implied_kinds = {
 	items = "iq",
 	ping = "iq",
 	version = "iq",
+	command = "iq",
 
 	body = "message",
 	html = "message",
