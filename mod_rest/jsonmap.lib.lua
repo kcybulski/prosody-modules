@@ -4,6 +4,53 @@ local json = require "util.json";
 local st = require "util.stanza";
 local xml = require "util.xml";
 
+-- Reused in many XEPs so declared up here
+local dataform = {
+	"func", "jabber:x:data", "x",
+	function (s)
+		local fields = array();
+		local form = {
+			type = s.attr.type;
+			title = s:get_child_text("title");
+			instructions = s:get_child_text("instructions");
+			fields = fields;
+		};
+		for field in s:childtags("field") do
+			local i = {
+				var = field.attr.var;
+				type = field.attr.type;
+				label = field.attr.label;
+				desc = field:get_child_text("desc");
+				required = field:get_child("required") and true or nil;
+				value = field:get_child_text("value");
+			};
+			if field.attr.type == "jid-multi" or field.attr.type == "list-multi" or field.attr.type == "text-multi" then
+				local value = array();
+				for v in field:childtags("value") do
+					value:push(v:get_text());
+				end
+				if field.attr.type == "text-multi" then
+					i.value = value:concat("\n");
+				else
+					i.value = value;
+				end
+			end
+			if field.attr.type == "list-single" or field.attr.type == "list-multi" then
+				local options = array();
+				for o in field:childtags("option") do
+					options:push({ label = o.attr.label, value = o:get_child_text("value") });
+				end
+				i.options = options;
+			end
+			fields:push(i);
+		end
+		return form;
+	end;
+	function (x)
+		-- TODO
+	end;
+};
+
 local simple_types = {
 	-- basic message
 	body = "text_tag",
@@ -137,7 +184,7 @@ local simple_types = {
 			};
 			local actions = s:get_child("actions");
 			local note = s:get_child("note");
-			-- TODO -- local form = s:get_child("x", "jabber:x:data");
+			local form = s:get_child("x", "jabber:x:data");
 			if actions then
 				cmd.actions = {
 					execute = actions.attr.execute,
@@ -150,6 +197,9 @@ local simple_types = {
 					type = note.attr.type;
 					text = note:get_text();
 				};
+			end
+			if form then
+				cmd.form = dataform[4](form);
 			end
 			return cmd;
 		end;
