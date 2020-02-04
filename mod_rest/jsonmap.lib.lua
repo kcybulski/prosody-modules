@@ -98,7 +98,11 @@ local simple_types = {
 
 	items = {
 		"func", "http://jabber.org/protocol/disco#items", "query",
-		function (s) --> array of features
+		function (s) --> array of features | map with node
+			if s.attr.node and s.tags[1] == nil then
+				return { node = s.attr. node };
+			end
+
 			local items = array();
 			for item in s:childtags("item") do
 				items:push({ jid = item.attr.jid, node = item.attr.node, name = item.attr.name });
@@ -106,8 +110,8 @@ local simple_types = {
 			return items;
 		end;
 		function  (s)
-			local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#items" });
 			if type(s) == "table" and s ~= json.null then
+				local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#items", node = s.node });
 				for _, item in ipairs(s) do
 					if type(item) == "string" then
 						disco:tag("item", { jid = item });
@@ -115,8 +119,10 @@ local simple_types = {
 						disco:tag("item", { jid = item.jid, node = item.node, name = item.name });
 					end
 				end
+				return disco;
+			else
+				return st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#items", });
 			end
-			return disco;
 		end;
 	};
 
