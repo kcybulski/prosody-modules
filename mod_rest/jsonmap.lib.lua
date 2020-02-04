@@ -250,6 +250,26 @@ local simple_types = {
 						sessionid = s.sessionid,
 						status = s.status,
 					});
+				if type(s.actions) == "table" then
+					cmd:tag("actions", { execute = s.actions.execute });
+					do
+						if s.actions.next == true then
+							cmd:tag("next"):up();
+						end
+						if s.actions.prev == true then
+							cmd:tag("prev"):up();
+						end
+						if s.actions.complete == true then
+							cmd:tag("complete"):up();
+						end
+					end
+					cmd:up();
+				elseif type(s.note) == "table" then
+					cmd:text_tag("note", s.note.text, { type = s.note.type });
+				end
+				if s.form then
+					cmd:add_child(dataform[5](s.form));
+				end
 				return cmd;
 			elseif type(s) == "string" then -- assume node
 				return st.stanza("command", { xmlns  = "http://jabber.org/protocol/commands", node = s });
