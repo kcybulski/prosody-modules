@@ -24,49 +24,106 @@ local dummy_body = module:get_option_string("push_notification_important_body", 
 
 local host_sessions = prosody.hosts[module.host].sessions;
 local push_errors = {};
-local id2room = {}
-local id2user = {};
+local id2node = {};
 
 module:depends("muc");
+
+-- ordered table iterator, allow to iterate on the natural order of the keys of a table,
+-- see http://lua-users.org/wiki/SortedIteration
+local function __genOrderedIndex( t )
+	local orderedIndex = {}
+	for key in pairs(t) do
+		table.insert( orderedIndex, key )
+	end
+	-- sort in reverse order (newest one first)
+	table.sort( orderedIndex, function(a, b)
+		if a == nil or t[a] == nil or b == nil or t[b] == nil then return false end
+		-- only one timestamp given, this is the newer one
+		if t[a].timestamp ~= nil and t[b].timestamp == nil then return true end
+		if t[a].timestamp == nil and t[b].timestamp ~= nil then return false end
+		-- both timestamps given, sort normally
+		if t[a].timestamp ~= nil and t[b].timestamp ~= nil then return t[a].timestamp > t[b].timestamp end
+		return false	-- normally not reached
+	end)
+	return orderedIndex
+end
+local function orderedNext(t, state)
+	-- Equivalent of the next function, but returns the keys in timestamp
+	-- order. We use a temporary ordered key table that is stored in the
+	-- table being iterated.
+
+	local key = nil
+	--print("orderedNext: state = "..tostring(state) )
+	if state == nil then
+		-- the first time, generate the index
+		t.__orderedIndex = __genOrderedIndex( t )
+		key = t.__orderedIndex[1]
+	else
+		-- fetch the next value
+		for i = 1, #t.__orderedIndex do
+			if t.__orderedIndex[i] == state then
+				key = t.__orderedIndex[i+1]
+			end
+		end
+	end
+
+	if key then
+		return key, t[key]
+	end
+
+	-- no more value to return, cleanup
+	t.__orderedIndex = nil
+	return
+end
+local function orderedPairs(t)
+	-- Equivalent of the pairs() function on tables. Allows to iterate
+	-- in order
+	return orderedNext, t, nil
+end
+
+-- small helper function to return new table with only "maximum" elements containing only the newest entries
+local function reduce_table(table, maximum)
+	local count = 0;
+	local result = {};
+	for key, value in orderedPairs(table) do
+		count = count + 1;
+		if count > maximum then break end
+		result[key] = value;
+	end
+	return result;
+end
 
 -- For keeping state across reloads while caching reads
 local push_store = (function()
 	local store = module:open_store();
 	local push_services = {};
 	local api = {};
-	local function load_room(room)
-		if not push_services[room] then
+	function api:get(user)
+		if not push_services[user] then
 			local err;
-			push_services[room], err = store:get(room);
-			if not push_services[room] and err then
-				module:log("warn", "Error reading push notification storage for room '%s': %s", room, tostring(err));
-				push_services[room] = {};
-				return false;
+			push_services[user], err = store:get(user);
+			if not push_services[user] and err then
+				module:log("warn", "Error reading push notification storage for user '%s': %s", user, tostring(err));
+				push_services[user] = {};
+				return push_services[user], false;
 			end
 		end
-		return true;
+		if not push_services[user] then push_services[user] = {} end
+		return push_services[user], true;
 	end
-	function api:get(room, user)
-		load_room(room);
-		if not push_services[room] then push_services[room] = {}; push_services[room][user] = {}; end
-		return push_services[room][user], true;
-	end
-	function api:set(room, user, data)
-		push_services[room][user] = data;
-		local ok, err = store:set(room, push_services[room]);
+	function api:set(user, data)
+		push_services[user] = reduce_table(data, max_push_devices);
+		local ok, err = store:set(user, push_services[user]);
 		if not ok then
-			module:log("error", "Error writing push notification storage for room '%s' on behalf of user '%s': %s", room, user, tostring(err));
+			module:log("error", "Error writing push notification storage for user '%s': %s", user, tostring(err));
 			return false;
 		end
 		return true;
 	end
-	function api:get_room_users(room)
-		local users = {};
-		load_room(room);
-		for k, v in pairs(push_services[room]) do
-			table.insert(users, k);
-		end
-		return users;
+	function api:set_identifier(user, push_identifier, data)
+		local services = self:get(user);
+		services[push_identifier] = data;
+		return self:set(user, services);
 	end
 	return api;
 end)();
@@ -78,77 +135,90 @@ local handle_push_success, handle_push_error;
 function handle_push_error(event)
 	local stanza = event.stanza;
 	local error_type, condition = stanza:get_error();
-	local room = id2room[stanza.attr.id];
-	local user = id2user[stanza.attr.id];
-	if room == nil or user == nil then return false; end		-- unknown stanza? Ignore for now!
-	local push_service = push_store:get(room, user);
-	local push_identifier = room.."<"..user..">";
+	local node = id2node[stanza.attr.id];
+	if node == nil then return false; end		-- unknown stanza? Ignore for now!
+	local from = stanza.attr.from;
+	local user_push_services = push_store:get(node);
+	local changed = false;
 	
-	local stanza_id = hashes.sha256(push_identifier, true);
-	if stanza_id == stanza.attr.id then
-		if push_service and push_service.push_jid == stanza.attr.from and error_type ~= "wait" then
-			push_errors[push_identifier] = push_errors[push_identifier] + 1;
-			module:log("info", "Got error of type '%s' (%s) for identifier '%s': "
-				.."error count for this identifier is now at %s", error_type, condition, push_identifier,
-				tostring(push_errors[push_identifier]));
-			if push_errors[push_identifier] >= max_push_errors then
-				module:log("warn", "Disabling push notifications for identifier '%s'", push_identifier);
-				-- save changed global config
-				push_store:set(room, user, nil);
-				push_errors[push_identifier] = nil;
-				-- unhook iq handlers for this identifier (if possible)
-				if module.unhook then
-					module:unhook("iq-error/host/"..stanza_id, handle_push_error);
-					module:unhook("iq-result/host/"..stanza_id, handle_push_success);
-					id2room[stanza_id] = nil;
-					id2user[stanza_id] = nil;
+	for push_identifier, _ in pairs(user_push_services) do
+		local stanza_id = hashes.sha256(push_identifier, true);
+		if stanza_id == stanza.attr.id then
+			if user_push_services[push_identifier] and user_push_services[push_identifier].jid == from and error_type ~= "wait" then
+				push_errors[push_identifier] = push_errors[push_identifier] + 1;
+				module:log("info", "Got error of type '%s' (%s) for identifier '%s': "
+					.."error count for this identifier is now at %s", error_type, condition, push_identifier,
+					tostring(push_errors[push_identifier]));
+				if push_errors[push_identifier] >= max_push_errors then
+					module:log("warn", "Disabling push notifications for identifier '%s'", push_identifier);
+					-- remove push settings from sessions
+					if host_sessions[node] then
+						for _, session in pairs(host_sessions[node].sessions) do
+							if session.push_identifier == push_identifier then
+								session.push_identifier = nil;
+								session.push_settings = nil;
+								session.first_hibernated_push = nil;
+							end
+						end
+					end
+					-- save changed global config
+					changed = true;
+					user_push_services[push_identifier] = nil
+					push_errors[push_identifier] = nil;
+					-- unhook iq handlers for this identifier (if possible)
+					if module.unhook then
+						module:unhook("iq-error/host/"..stanza_id, handle_push_error);
+						module:unhook("iq-result/host/"..stanza_id, handle_push_success);
+						id2node[stanza_id] = nil;
+					end
 				end
+			elseif user_push_services[push_identifier] and user_push_services[push_identifier].jid == from and error_type == "wait" then
+				module:log("debug", "Got error of type '%s' (%s) for identifier '%s': "
+					.."NOT increasing error count for this identifier", error_type, condition, push_identifier);
 			end
-		elseif push_service and push_service.push_jid == stanza.attr.from and error_type == "wait" then
-			module:log("debug", "Got error of type '%s' (%s) for identifier '%s': "
-				.."NOT increasing error count for this identifier", error_type, condition, push_identifier);
 		end
+	end
+	if changed then
+		push_store:set(node, user_push_services);
 	end
 	return true;
 end
 
 function handle_push_success(event)
 	local stanza = event.stanza;
-	local room = id2room[stanza.attr.id];
-	local user = id2user[stanza.attr.id];
-	if room == nil or user == nil then return false; end		-- unknown stanza? Ignore for now!
-	local push_service = push_store:get(room, user);
-	local push_identifier = room.."<"..user..">";
+	local node = id2node[stanza.attr.id];
+	if node == nil then return false; end		-- unknown stanza? Ignore for now!
+	local from = stanza.attr.from;
+	local user_push_services = push_store:get(node);
 	
-	if hashes.sha256(push_identifier, true) == stanza.attr.id then
-		if push_service and push_service.push_jid == stanza.attr.from and push_errors[push_identifier] > 0 then
-			push_errors[push_identifier] = 0;
-			-- unhook iq handlers for this identifier (if possible)
-			if module.unhook then
-				module:unhook("iq-error/host/"..stanza.attr.id, handle_push_error);
-				module:unhook("iq-result/host/"..stanza.attr.id, handle_push_success);
-				id2room[stanza.attr.id] = nil;
-				id2user[stanza.attr.id] = nil;
+	for push_identifier, _ in pairs(user_push_services) do
+		if hashes.sha256(push_identifier, true) == stanza.attr.id then
+			if user_push_services[push_identifier] and user_push_services[push_identifier].jid == from and push_errors[push_identifier] > 0 then
+				push_errors[push_identifier] = 0;
+				module:log("debug", "Push succeeded, error count for identifier '%s' is now at %s again", push_identifier, tostring(push_errors[push_identifier]));
 			end
-			module:log("debug", "Push succeeded, error count for identifier '%s' is now at %s again", push_identifier, tostring(push_errors[push_identifier]));
 		end
 	end
 	return true;
 end
 
--- http://xmpp.org/extensions/xep-xxxx.html#disco
-module:hook("muc-disco#info", function(event)
+-- http://xmpp.org/extensions/xep-0357.html#disco
+local function account_dico_info(event)
 	(event.reply or event.stanza):tag("feature", {var=xmlns_push}):up();
-end);
+end
+module:hook("account-disco-info", account_dico_info);
 
 -- http://xmpp.org/extensions/xep-0357.html#enabling
 local function push_enable(event)
 	local origin, stanza = event.origin, event.stanza;
-	local room = jid.split(stanza.attr.to);
 	local enable = stanza.tags[1];
 	origin.log("debug", "Attempting to enable push notifications");
 	-- MUST contain a 'jid' attribute of the XMPP Push Service being enabled
 	local push_jid = enable.attr.jid;
+	-- SHOULD contain a 'node' attribute
+	local push_node = enable.attr.node;
+	-- CAN contain a 'include_payload' attribute
+	local include_payload = enable.attr.include_payload;
 	if not push_jid then
 		origin.log("debug", "MUC Push notification enable request missing the 'jid' field");
 		origin.send(st.error_reply(stanza, "modify", "bad-request", "Missing jid"));
@@ -159,21 +229,25 @@ local function push_enable(event)
 		-- Could be intentional
 		origin.log("debug", "No publish options in request");
 	end
+	local push_identifier = push_jid .. "<" .. (push_node or "");
 	local push_service = {
-		push_jid = push_jid;
-		device = stanza.attr.from;
+		jid = push_jid;
+		node = push_node;
+		include_payload = include_payload;
 		options = publish_options and st.preserialize(publish_options);
 		timestamp = os_time();
 	};
-	
-	local ok = push_store:set(room, stanza.attr.from, push_service);
+	local ok = push_store:set_identifier(origin.username.."@"..origin.host, push_identifier, push_service);
 	if not ok then
 		origin.send(st.error_reply(stanza, "wait", "internal-server-error"));
 	else
-		origin.log("info", "MUC Push notifications enabled for room %s by %s (%s)",
-			 tostring(room),
+		origin.push_identifier = push_identifier;
+		origin.push_settings = push_service;
+		origin.first_hibernated_push = nil;
+		origin.log("info", "MUC Push notifications enabled for %s by %s (%s)",
+			 tostring(stanza.attr.to),
 			 tostring(stanza.attr.from),
-			 tostring(push_jid)
+			 tostring(origin.push_identifier)
 			);
 		origin.send(st.reply(stanza));
 	end
@@ -185,31 +259,31 @@ module:hook("iq-set/host/"..xmlns_push..":enable", push_enable);
 -- http://xmpp.org/extensions/xep-0357.html#disabling
 local function push_disable(event)
 	local origin, stanza = event.origin, event.stanza;
-	local room = jid.split(stanza.attr.to);
 	local push_jid = stanza.tags[1].attr.jid; -- MUST include a 'jid' attribute
+	local push_node = stanza.tags[1].attr.node; -- A 'node' attribute MAY be included
 	if not push_jid then
 		origin.send(st.error_reply(stanza, "modify", "bad-request", "Missing jid"));
 		return true;
 	end
-	local push_identifier = room.."<"..stanza.attr.from..">";
-	local push_service = push_store:get(room, stanza.attr.from);
-	local ok = true;
-	if push_service.push_jid == push_jid then
-		origin.log("info", "Push notifications disabled for room %s by %s (%s)",
-			tostring(room),
-			sotring(stanza.attr.from),
-			tostring(push_jid)
-		);
-		ok = push_store:set(room, stanza.attr.from, nil);
-		push_errors[push_identifier] = nil;
-		if module.unhook then
-			local stanza_id = hashes.sha256(push_identifier, true);
-			module:unhook("iq-error/host/"..stanza_id, handle_push_error);
-			module:unhook("iq-result/host/"..stanza_id, handle_push_success);
-			id2room[stanza_id] = nil;
-			id2user[stanza_id] = nil;
+	local user_push_services = push_store:get(origin.username);
+	for key, push_info in pairs(user_push_services) do
+		if push_info.jid == push_jid and (not push_node or push_info.node == push_node) then
+			origin.log("info", "Push notifications disabled (%s)", tostring(key));
+			if origin.push_identifier == key then
+				origin.push_identifier = nil;
+				origin.push_settings = nil;
+				origin.first_hibernated_push = nil;
+			end
+			user_push_services[key] = nil;
+			push_errors[key] = nil;
+			if module.unhook then
+				module:unhook("iq-error/host/"..key, handle_push_error);
+				module:unhook("iq-result/host/"..key, handle_push_success);
+				id2node[key] = nil;
+			end
 		end
 	end
+	local ok = push_store:set(origin.username, user_push_services);
 	if not ok then
 		origin.send(st.error_reply(stanza, "wait", "internal-server-error"));
 	else
@@ -291,14 +365,23 @@ local function is_important(stanza)
 end
 
 local push_form = dataform {
-	{ name = "FORM_TYPE"; type = "hidden"; value = "urn:xmpp:muc_push:summary"; };
-	--{ name = "dummy"; type = "text-single"; };
+	{ name = "FORM_TYPE"; type = "hidden"; value = "urn:xmpp:push:summary"; };
+	{ name = "message-count"; type = "text-single"; };
+	{ name = "pending-subscription-count"; type = "text-single"; };
+	{ name = "last-message-sender"; type = "jid-single"; };
+	{ name = "last-message-body"; type = "text-single"; };
 };
 
 -- http://xmpp.org/extensions/xep-0357.html#publishing
-local function handle_notify_request(stanza, user, user_push_services)
+local function handle_notify_request(stanza, node, user_push_services, log_push_decline)
 	local pushes = 0;
 	if not user_push_services or next(user_push_services) == nil then return pushes end
+
+	-- XXX: customized
+	local body = stanza:get_child_text("body");
+	if not body then
+		return pushes;
+	end
 	
 	for push_identifier, push_info in pairs(user_push_services) do
 		local send_push = true;		-- only send push to this node when not already done for this stanza or if no stanza is given at all
@@ -306,7 +389,7 @@ local function handle_notify_request(stanza, user, user_push_services)
 			if not stanza._push_notify then stanza._push_notify = {}; end
 			if stanza._push_notify[push_identifier] then
 				if log_push_decline then
-					module:log("debug", "Already sent push notification for %s to %s (%s)", user, push_info.push_jid, tostring(push_info.node));
+					module:log("debug", "Already sent push notification for %s@%s to %s (%s)", node, module.host, push_info.jid, tostring(push_info.node));
 				end
 				send_push = false;
 			end
@@ -374,38 +457,11 @@ end
 -- archive message added
 local function archive_message_added(event)
 	-- event is: { origin = origin, stanza = stanza, for_user = store_user, id = id }
+	-- only notify for new mam messages when at least one device is online
 	local room = event.room;
 	local stanza = event.stanza;
-	local room_name = jid.split(room.jid);
-	
-	-- extract all real ocupant jids in room
-	occupants = {};
-	for nick, occupant in room:each_occupant() do
-		for jid in occupant:each_session() do
-			occupants[jid] = true;
-		end
-	end
-	
-	-- check all push registered users against occupants list
-	for _, user in pairs(push_store:get_room_users(room_name)) do
-		-- send push if not found in occupants list
-		if not occupants[user] then
-			local push_service = push_store:get(room_name, user);
-			handle_notify_request(event.stanza, user, push_service);
-		end
-	end
-	
-	
-	
-	
-	liste der registrierten push user eines raumes durchgehen
-		jeder user der NICHT im muc ist, wird gepusht
-	
-	
-	handle_notify_request(event.stanza, jid, user_push_services, true);
-	
-	
-	
+	local body = stanza:get_child_text('body');
+
 	for reference in stanza:childtags("reference", "urn:xmpp:reference:0") do
 		if reference.attr['type'] == 'mention' and reference.attr['begin'] and reference.attr['end'] then
 			local nick = extract_reference(body, reference.attr['begin'], reference.attr['end']);
@@ -427,16 +483,13 @@ end
 module:hook("muc-add-history", archive_message_added);
 
 local function send_ping(event)
-	local push_services = event.push_services;
-	if not push_services then
-		local room = event.room;
-		local user = event.user;
-		push_services = push_store:get(room, user);
-	end
+	local user = event.user;
+	local user_push_services = push_store:get(user);
+	local push_services = event.push_services or user_push_services;
 	handle_notify_request(nil, user, push_services, true);
 end
 -- can be used by other modules to ping one or more (or all) push endpoints
-module:hook("muc-cloud-notify-ping", send_ping);
+module:hook("cloud-notify-ping", send_ping);
 
 module:log("info", "Module loaded");
 function module.unload()
@@ -452,8 +505,7 @@ function module.unload()
 			local stanza_id = hashes.sha256(push_identifier, true);
 			module:unhook("iq-error/host/"..stanza_id, handle_push_error);
 			module:unhook("iq-result/host/"..stanza_id, handle_push_success);
-			id2room[stanza_id] = nil;
-			id2user[stanza_id] = nil;
+			id2node[stanza_id] = nil;
 		end
 	end
 
