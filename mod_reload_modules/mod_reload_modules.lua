@@ -8,6 +8,11 @@ function reload_all()
 		return;
 	end
 	local configured_modules = module:get_option_inherited_set("modules_enabled", {});
+	-- ignore removed hosts
+	if not prosody.hosts[module.host] then
+		module:log("warn", "Ignoring host %s: host was removed...", module.host);
+		return;
+	end
 	local loaded_modules = set.new(array.collect(it.keys(prosody.hosts[module.host].modules)));
 	local need_to_load = set.intersection(configured_modules - loaded_modules, modules);
 	local need_to_unload = set.intersection(loaded_modules - configured_modules, modules);
