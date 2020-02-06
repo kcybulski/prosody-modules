@@ -1,8 +1,8 @@
 ---
 labels:
-- 'Stage-Alpha'
+- 'Stage-Deprecated'
 - 'Type-Auth'
-summary: 'Authentication via external script/process'
+summary: 'Authentication via external script/process (DEPRECATED)'
 ...
 
 Introduction
@@ -10,20 +10,18 @@ Introduction
 
 Allow client authentication to be handled by an external script/process.
 
+**Warning:** This module is not currently maintained, and may be buggy and insecure in
+certain configurations/environments. It is **not** recommended for production use. Please
+use one of the [many other authentication modules](/type_auth).
+
 Installation
 ============
 
-mod\_auth\_external depends on a Lua module called
+mod\_auth\_external\_insecure depends on a Lua module called
 [lpty](http://www.tset.de/lpty/). You can install it on many platforms
 using [LuaRocks](http://luarocks.org/), for example:
 
     sudo luarocks install lpty
-
-Note: Earlier versions of the module did not depend on lpty. While using
-the newer version is strongly recommended, you can find the [older
-version
-here](https://hg.prosody.im/prosody-modules/raw-file/50ee38e95e75/mod_auth_external/mod_auth_external.lua)
-if you need it (revision of the repository).
 
 Configuration
 =============
@@ -32,9 +30,9 @@ As with all auth modules, there is no need to add this to
 modules\_enabled. Simply add in the global section, or for the relevant
 hosts:
 
-    authentication = "external"
+    authentication = "external_insecure"
 
-These options are specific to mod\_auth\_external:
+These options are specific to mod\_auth\_external\_insecure:
 
   -------------------------- -------------------------------------------------------------------------------------------------------------------------
   external\_auth\_protocol   May be "generic" or "ejabberd" (the latter for compatibility with ejabberd external auth scripts. Default is "generic".
