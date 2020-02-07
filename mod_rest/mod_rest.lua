@@ -37,7 +37,6 @@ if secret == "Basic" and module:get_host_type() == "local" then
 		if not username then return false; end
 		username, password = encodings.stringprep.nodeprep(username), encodings.stringprep.saslprep(password);
 		if not username then return false; end
-		module:log("debug", "usermanager.test_password(%q, %q, %q)", username, module.host, string.rep("*", #password))
 		if not um.test_password(username, module.host, password) then
 			return false;
 		end
