@@ -464,6 +464,8 @@ local function json2st(t)
 			elseif typ[1] == "func" then
 				s:add_child(typ[5](v)):up();
 			end
+		else
+			return nil, "unknown-field";
 		end
 	end
 
