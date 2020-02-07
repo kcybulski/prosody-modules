@@ -90,6 +90,14 @@ local dataform = {
 };
 
 local simple_types = {
+	-- top level stanza attributes
+	-- needed here to mark them as known fields
+	kind = "attr",
+	type = "attr",
+	to = "attr",
+	from = "attr",
+	id = "attr",
+
 	-- basic message
 	body = "text_tag",
 	subject = "text_tag",
@@ -453,6 +461,8 @@ local function json2st(t)
 		if typ then
 			if typ == "text_tag" then
 				s:text_tag(k, v);
+			elseif typ == "attr" then -- luacheck: ignore 542
+				-- handled already
 			elseif typ[1] == "text_tag" then
 				s:text_tag(typ[3] or k, v, typ[2] and { xmlns = typ[2] });
 			elseif typ[1] == "name" then
