@@ -6,6 +6,7 @@ local xml = require "util.xml";
 
 -- Reused in many XEPs so declared up here
 local dataform = {
+	-- Generic and complete dataforms mapping
 	"func", "jabber:x:data", "x",
 	function (s)
 		local fields = array();
@@ -88,6 +89,21 @@ local dataform = {
 		end
 	end;
 };
+
+local function formdata(s,t)
+	local form = st.stanza("x", { xmlns = "jabber:x:data", type = t });
+	for k,v in pairs(s) do
+		form:tag("field", { var = k });
+		if type(v) == "string" then
+			form:text_tag("value", v);
+		elseif type(v) == "table" then
+			for _, v_ in ipairs(v) do
+				form:text_tag("value", v_);
+			end
+		end
+	end
+	return form;
+end
 
 local simple_types = {
 	-- top level stanza attributes
@@ -277,6 +293,8 @@ local simple_types = {
 				end
 				if s.form then
 					cmd:add_child(dataform[5](s.form));
+				elseif s.data then
+					cmd:add_child(formdata(s.data));
 				end
 				return cmd;
 			elseif type(s) == "string" then -- assume node
