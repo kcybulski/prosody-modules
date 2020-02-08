@@ -375,6 +375,118 @@ stanza, for full flexibility use the XML mode.
     items list query. The response contain an array of items like
     `{"jid":"xmpp.address.here","name":"Description of item"}`.
 
+#### Ad-Hoc Commands
+
+Used to execute arbitrary commands on supporting entities.
+
+`command`
+
+:   String representing the command `node` or Map with the following
+    possible fields:
+
+    `node`
+    :   Required string with node from disco\#items query for the
+        command to execute.
+
+    `action`
+    :   Optional enum string defaulting to `"execute"`. Multi-step
+        commands may involve `"next"`, `"prev"`, `"complete"` or
+        `"cancel"`.
+
+    `actions`
+    :   Set (map of strings to `true`) with available actions to proceed
+        with in multi-step commands.
+
+    `status`
+    :   String describing the status of the command, normally
+        `"executing"`.
+
+    `sessionid`
+    :   Random session ID issued by the responder to identify the
+        session in multi-step commands.
+
+    `note`
+    :   Map with `"type"` and `"text"` fields that carry simple result
+        information.
+
+    `form`
+    :   Data form with description of expected input and data types in
+        the next step of multi-step commands. **TODO** document format.
+
+    `data`
+    :   Map with only the data for result dataforms. Fields may be
+        stings or arrays of strings.
+
+##### Example
+
+Discovering commands:
+
+``` {.json}
+{
+   "disco" : {
+      "node" : "http://jabber.org/protocol/commands"
+   },
+   "id" : "8iN9hwdAAcfTBchm",
+   "kind" : "iq",
+   "to" : "example.com",
+   "type" : "get"
+}
+```
+
+Response:
+
+``` {.json}
+{
+   "from" : "example.com",
+   "id" : "8iN9hwdAAcfTBchm",
+   "items" : [
+      {
+         "jid" : "example.com",
+         "name" : "Get uptime",
+         "node" : "uptime"
+      }
+   ],
+   "kind" : "iq",
+   "type" : "result"
+}
+```
+
+Execute the command:
+
+``` {.json}
+{
+   "command" : {
+      "node" : "uptime"
+   },
+   "id" : "Jv-87nRaP6Mnrp8l",
+   "kind" : "iq",
+   "to" : "example.com",
+   "type" : "set"
+}
+```
+
+Executed:
+
+``` {.json}
+{
+   "command" : {
+      "node" : "uptime",
+      "note" : {
+         "text" : "This server has been running for 0 days, 20 hours and 54 minutes (since Fri Feb  7 18:05:30 2020)",
+         "type" : "info"
+      },
+      "sessionid" : "6380880a-93e9-4f13-8ee2-171927a40e67",
+      "status" : "completed"
+   },
+   "from" : "example.com",
+   "id" : "Jv-87nRaP6Mnrp8l",
+   "kind" : "iq",
+   "type" : "result"
+}
+```
+
+-   **TODO** Describe multi-step commands with dataforms.
+
 # Compatibility
 
 Requires Prosody trunk / 0.12
