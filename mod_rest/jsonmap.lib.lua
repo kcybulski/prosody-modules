@@ -336,6 +336,18 @@ local simple_types = {
 		end
 	};
 
+	-- XEP-0004: Data Forms
+	dataform = dataform;
+
+	-- Simpler mapping from JSON map
+	formdata = {"func", "jabber:x:data", "",
+		function ()
+			-- Tricky to do in a generic way without each form layout
+			-- In the future, some well-known layouts might be understood
+			return nil, "not-implemented";
+		end,
+		formdata,
+	};
 };
 
 local implied_kinds = {
