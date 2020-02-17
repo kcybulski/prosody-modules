@@ -14,8 +14,8 @@ local multipliers = {
 
 local output_formats = {
 	default = "%s",
-	event = "%s %s",
-	delete = "user:delete%q -- %s"
+	event = "%s %s %s",
+	delete = "user:delete%q -- %s -- %s"
 }
 
 function module.command(arg)
@@ -24,7 +24,7 @@ function module.command(arg)
 		print("time is a number followed by 'day', 'week', 'month' or 'year'");
 		print("formats are:");
 		for name, fmt in pairs(output_formats) do
-			print(name, fmt:format("user@example.com", "last action"))
+			print(name, fmt:format("user@example.com", "<last action>", "<last action timestamp>"))
 		end
 		return;
 	end
@@ -44,7 +44,7 @@ function module.command(arg)
 		local last_action = last_active and last_active.event or "?"
 		last_active = last_active and last_active.timestamp or 0;
 		if last_active < max_age then
-			print(output:format(jid_join(user, host), last_action));
+			print(output:format(jid_join(user, host), last_action, os.date('%Y-%m-%d %H:%M:%S', last_active)));
 		end
 	end
 end
