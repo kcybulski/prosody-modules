@@ -412,9 +412,11 @@ local function list_rooms(event)
 	local room_list, i = {}, 1;
 	for room in each_room() do
 		if not (room.get_hidden or room.is_hidden)(room) then
+			local localpart = jid_split(room.jid);
 			room_list[i], i = {
 				jid = room.jid;
-				href = get_link(jid_split(room.jid), default_view);
+				localpart = localpart;
+				href = get_link(localpart, default_view);
 				name = room:get_name();
 				lang = room.get_language and room:get_language();
 				description = room:get_description();
