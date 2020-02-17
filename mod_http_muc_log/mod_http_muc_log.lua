@@ -255,10 +255,11 @@ local function years_page(event, path)
 	-- Phew, all wrangled, all that's left is rendering it with the template
 
 	response.headers.content_type = "text/html; charset=utf-8";
+	local room_obj = get_room(room);
 	return render(template, {
-		room = get_room(room)._data;
-		jid = get_room(room).jid;
-		jid_node = jid_split(get_room(room).jid);
+		room = room_obj._data;
+		jid = room_obj.jid;
+		jid_node = jid_split(room_obj.jid);
 		hide_presence = hide_presence(request);
 		presence_available = presence_logged;
 		dates = date_list;
@@ -391,14 +392,15 @@ local function logs_page(event, path)
 	end
 
 	response.headers.content_type = "text/html; charset=utf-8";
+	local room_obj = get_room(room);
 	return render(template, {
 		date = date;
-		room = get_room(room)._data;
-		jid = get_room(room).jid;
-		jid_node = jid_split(get_room(room).jid);
+		room = room_obj._data;
+		jid = room_obj.jid;
+		jid_node = jid_split(room_obj.jid);
 		hide_presence = hide_presence(request);
 		presence_available = presence_logged;
-		lang = get_room(room).get_language and get_room(room):get_language();
+		lang = room_obj.get_language and room_obj:get_language();
 		lines = logs;
 		links = links;
 		dates = {}; -- COMPAT util.interpolation {nil|func#...} bug
