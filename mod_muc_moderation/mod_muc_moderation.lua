@@ -1,3 +1,11 @@
+-- mod_muc_moderation
+--
+-- Copyright (C) 2015-2020 Kim Alvefur
+--
+-- This file is MIT licensed.
+--
+-- Implements: XEP-0425: Message Moderation
+--
 -- Imports
 local dt = require "util.datetime";
 local id = require "util.id";
