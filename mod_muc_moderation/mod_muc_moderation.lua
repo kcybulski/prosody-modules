@@ -109,7 +109,6 @@ module:hook("iq-set/bare/" .. xmlns_fasten .. ":apply-to", function (event)
 
 	-- Done, tell people about it
 	module:log("info", "Message with id '%s' in room %s moderated by %s, reason: %s", stanza_id, room_jid, actor, reason);
-	module:log("debug", ":broadcast(%s)", announcement);
 	room:broadcast(announcement);
 
 	origin.send(st.reply(stanza));
