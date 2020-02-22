@@ -411,30 +411,30 @@ local function st2json(s)
 		return t;
 	end
 
-	for k, typ in pairs(field_mappings) do
-		if typ == "text_tag" then
+	for k, mapping in pairs(field_mappings) do
+		if mapping == "text_tag" then
 			t[k] = s:get_child_text(k);
-		elseif typ[1] == "text_tag" then
-			t[k] = s:get_child_text(typ[3], typ[2]);
-		elseif typ[1] == "name" then
-			local child = s:get_child(nil, typ[2]);
+		elseif mapping[1] == "text_tag" then
+			t[k] = s:get_child_text(mapping[3], mapping[2]);
+		elseif mapping[1] == "name" then
+			local child = s:get_child(nil, mapping[2]);
 			if child then
 				t[k] = child.name;
 			end
-		elseif typ[1] == "attr" then
-			local child = s:get_child(typ[3], typ[2])
+		elseif mapping[1] == "attr" then
+			local child = s:get_child(mapping[3], mapping[2])
 			if child then
-				t[k] = child.attr[typ[4]];
+				t[k] = child.attr[mapping[4]];
 			end
-		elseif typ[1] == "bool_tag" then
-			if s:get_child(typ[3], typ[2]) then
+		elseif mapping[1] == "bool_tag" then
+			if s:get_child(mapping[3], mapping[2]) then
 				t[k] = true;
 			end
-		elseif typ[1] == "func" then
-			local child = s:get_child(typ[3], typ[2] or k);
+		elseif mapping[1] == "func" then
+			local child = s:get_child(mapping[3], mapping[2] or k);
 			-- TODO handle err
 			if child then
-				t[k] = typ[4](child);
+				t[k] = mapping[4](child);
 			end
 		end
 	end
@@ -487,22 +487,22 @@ local function json2st(t)
 	end
 
 	for k, v in pairs(t) do
-		local typ = field_mappings[k];
-		if typ then
-			if typ == "text_tag" then
+		local mapping = field_mappings[k];
+		if mapping then
+			if mapping == "text_tag" then
 				s:text_tag(k, v);
-			elseif typ == "attr" then -- luacheck: ignore 542
+			elseif mapping == "attr" then -- luacheck: ignore 542
 				-- handled already
-			elseif typ[1] == "text_tag" then
-				s:text_tag(typ[3] or k, v, typ[2] and { xmlns = typ[2] });
-			elseif typ[1] == "name" then
-				s:tag(v, { xmlns = typ[2] }):up();
-			elseif typ[1] == "attr" then
-				s:tag(typ[3] or k, { xmlns = typ[2], [ typ[4] or k ] = v }):up();
-			elseif typ[1] == "bool_tag" then
-				s:tag(typ[3] or k, { xmlns = typ[2] }):up();
-			elseif typ[1] == "func" then
-				s:add_child(typ[5](v)):up();
+			elseif mapping[1] == "text_tag" then
+				s:text_tag(mapping[3] or k, v, mapping[2] and { xmlns = mapping[2] });
+			elseif mapping[1] == "name" then
+				s:tag(v, { xmlns = mapping[2] }):up();
+			elseif mapping[1] == "attr" then
+				s:tag(mapping[3] or k, { xmlns = mapping[2], [ mapping[4] or k ] = v }):up();
+			elseif mapping[1] == "bool_tag" then
+				s:tag(mapping[3] or k, { xmlns = mapping[2] }):up();
+			elseif mapping[1] == "func" then
+				s:add_child(mapping[5](v)):up();
 			end
 		else
 			return nil, "unknown-field";
