@@ -7,8 +7,8 @@ local xml = require "util.xml";
 -- Reused in many XEPs so declared up here
 local dataform = {
 	-- Generic and complete dataforms mapping
-	"func", "jabber:x:data", "x",
-	function (s)
+	type = "func", xmlns = "jabber:x:data", tagname = "x",
+	st2json = function (s)
 		local fields = array();
 		local form = {
 			type = s.attr.type;
@@ -47,7 +47,7 @@ local dataform = {
 		end
 		return form;
 	end;
-	function (x)
+	json2st = function (x)
 		if type(x) == "table" and x ~= json.null then
 			local form = st.stanza("x", { xmlns = "jabber:x:data", type = x.type });
 			if x.title then
@@ -90,9 +90,9 @@ local dataform = {
 	end;
 };
 
-local function formdata(s,t)
+local function formdata(s, t)
 	local form = st.stanza("x", { xmlns = "jabber:x:data", type = t });
-	for k,v in pairs(s) do
+	for k, v in pairs(s) do
 		form:tag("field", { var = k });
 		if type(v) == "string" then
 			form:text_tag("value", v);
@@ -124,41 +124,41 @@ local field_mappings = {
 	status = "text_tag",
 	priority = "text_tag",
 
-	state = {"name", "http://jabber.org/protocol/chatstates"},
-	nick = {"text_tag", "http://jabber.org/protocol/nick", "nick"},
-	delay = {"attr", "urn:xmpp:delay", "delay", "stamp"},
-	replace = {"attr", "urn:xmpp:message-correct:0", "replace", "id"},
+	state = { type = "name", xmlns = "http://jabber.org/protocol/chatstates" },
+	nick = { type = "text_tag", xmlns = "http://jabber.org/protocol/nick", tagname = "nick" },
+	delay = { type = "attr", xmlns = "urn:xmpp:delay", tagname = "delay", attr = "stamp" },
+	replace = { type = "attr", xmlns = "urn:xmpp:message-correct:0", tagname = "replace", attr = "id" },
 
 	-- XEP-0045 MUC
 	-- TODO history, password, ???
-	join = {"bool_tag", "http://jabber.org/protocol/muc", "x"},
+	join = { type = "bool_tag", xmlns = "http://jabber.org/protocol/muc", tagname = "x" },
 
 	-- XEP-0071
 	html = {
-		"func", "http://jabber.org/protocol/xhtml-im", "html",
-		function (s) --> json string
-			return (tostring(s:get_child("body", "http://www.w3.org/1999/xhtml")):gsub(" xmlns='[^']*'","", 1));
+		type = "func", xmlns = "http://jabber.org/protocol/xhtml-im", tagname = "html",
+		st2json = function (s) --> json string
+			return (tostring(s:get_child("body", "http://www.w3.org/1999/xhtml")):gsub(" xmlns='[^']*'", "", 1));
 		end;
-		function (s) --> xml
+		json2st = function (s) --> xml
 			if type(s) == "string" then
-				return assert(xml.parse([[<x:html xmlns:x='http://jabber.org/protocol/xhtml-im' xmlns='http://www.w3.org/1999/xhtml'>]]..s..[[</x:html>]]));
+				return assert(xml.parse("<x:html xmlns:x='http://jabber.org/protocol/xhtml-im' xmlns='http://www.w3.org/1999/xhtml'>" .. s .. "</x:html>"));
 			end
 		end;
 	};
 
 	-- XEP-0199: XMPP Ping
-	ping = {"bool_tag", "urn:xmpp:ping", "ping"},
+	ping = { type = "bool_tag", xmlns = "urn:xmpp:ping", tagname = "ping" },
 
 	-- XEP-0092: Software Version
-	version = {"func", "jabber:iq:version", "query",
-		function (s)
+	version = { type = "func", xmlns = "jabber:iq:version", tagname = "query",
+		st2json = function (s)
 			return {
 				name = s:get_child_text("name");
 				version = s:get_child_text("version");
 				os = s:get_child_text("os");
 			}
 		end,
-		function (s)
+		json2st = function (s)
 			local v = st.stanza("query", { xmlns = "jabber:iq:version" });
 			if type(s) == "table" then
 				v:text_tag("name", s.name);
@@ -173,8 +173,8 @@ local field_mappings = {
 
 	-- XEP-0030
 	disco = {
-		"func", "http://jabber.org/protocol/disco#info", "query",
-		function (s) --> array of features
+		type = "func", xmlns = "http://jabber.org/protocol/disco#info", tagname = "query",
+		st2json = function (s) --> array of features
 			local identities, features = array(), array();
 			for tag in s:childtags() do
 				if tag.name == "identity" and tag.attr.category and tag.attr.type then
@@ -185,7 +185,7 @@ local field_mappings = {
 			end
 			return { node = s.attr.node, identities = identities, features = features, };
 		end;
-		function  (s)
+		json2st = function (s)
 			if type(s) == "table" and s ~= json.null then
 				local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#info", node = s.node });
 				if s.identities then
@@ -206,10 +206,10 @@ local field_mappings = {
 	};
 
 	items = {
-		"func", "http://jabber.org/protocol/disco#items", "query",
-		function (s) --> array of features | map with node
+		type = "func", xmlns = "http://jabber.org/protocol/disco#items", tagname = "query",
+		st2json = function (s) --> array of features | map with node
 			if s.attr.node and s.tags[1] == nil then
-				return { node = s.attr. node };
+				return { node = s.attr.node };
 			end
 
 			local items = array();
@@ -218,7 +218,7 @@ local field_mappings = {
 			end
 			return items;
 		end;
-		function  (s)
+		json2st = function (s)
 			if type(s) == "table" and s ~= json.null then
 				local disco = st.stanza("query", { xmlns = "http://jabber.org/protocol/disco#items", node = s.node });
 				for _, item in ipairs(s) do
@@ -236,8 +236,8 @@ local field_mappings = {
 	};
 
 	-- XEP-0050: Ad-Hoc Commands
-	command = {"func", "http://jabber.org/protocol/commands", "command",
-		function (s)
+	command = { type = "func", xmlns = "http://jabber.org/protocol/commands", tagname = "command",
+		st2json = function (s)
 			local cmd = {
 				action = s.attr.action,
 				node = s.attr.node,
@@ -261,19 +261,19 @@ local field_mappings = {
 				};
 			end
 			if form then
-				cmd.form = dataform[4](form);
+				cmd.form = dataform[4] (form);
 			end
 			return cmd;
 		end;
-		function (s)
+		json2st = function (s)
 			if type(s) == "table" and s ~= json.null then
 				local cmd = st.stanza("command", {
-						xmlns  = "http://jabber.org/protocol/commands",
-						action = s.action,
-						node = s.node,
-						sessionid = s.sessionid,
-						status = s.status,
-					});
+					xmlns = "http://jabber.org/protocol/commands",
+					action = s.action,
+					node = s.node,
+					sessionid = s.sessionid,
+					status = s.status,
+				});
 				if type(s.actions) == "table" then
 					cmd:tag("actions", { execute = s.actions.execute });
 					do
@@ -292,24 +292,24 @@ local field_mappings = {
 					cmd:text_tag("note", s.note.text, { type = s.note.type });
 				end
 				if s.form then
-					cmd:add_child(dataform[5](s.form));
+					cmd:add_child(dataform[5] (s.form));
 				elseif s.data then
 					cmd:add_child(formdata(s.data));
 				end
 				return cmd;
 			elseif type(s) == "string" then -- assume node
-				return st.stanza("command", { xmlns  = "http://jabber.org/protocol/commands", node = s });
+				return st.stanza("command", { xmlns = "http://jabber.org/protocol/commands", node = s });
 			end
 			-- else .. missing required attribute
 		end;
 	};
 
 	-- XEP-0066: Out of Band Data
-	oob_url = {"func", "jabber:iq:oob", "query",
-		function (s)
+	oob_url = { type = "func", xmlns = "jabber:iq:oob", tagname = "query",
+		st2json = function (s)
 			return s:get_child_text("url");
 		end;
-		function (s)
+		json2st = function (s)
 			if type(s) == "string" then
 				return st.stanza("query", { xmlns = "jabber:iq:oob" }):text_tag("url", s);
 			end
@@ -317,8 +317,8 @@ local field_mappings = {
 	};
 
 	-- XEP-XXXX: User-defined Data Transfer
-	payload = {"func", "urn:xmpp:udt:0", "payload",
-		function (s)
+	payload = { type = "func", xmlns = "urn:xmpp:udt:0", tagname = "payload",
+		st2json = function (s)
 			local rawjson = s:get_child_text("json", "urn:xmpp:json:0");
 			if not rawjson then return nil, "missing-json-payload"; end
 			local parsed, err = json.decode(rawjson);
@@ -328,10 +328,10 @@ local field_mappings = {
 				data = parsed;
 			};
 		end;
-		function (s)
+		json2st = function (s)
 			if type(s) == "table" then
 				return st.stanza("payload", { xmlns = "urn:xmpp:udt:0", datatype = s.datatype })
-					:tag("json", { xmlns = "urn:xmpp:json:0" }):text(json.encode(s.data));
+				:tag("json", { xmlns = "urn:xmpp:json:0" }):text(json.encode(s.data));
 			end;
 		end
 	};
@@ -340,13 +340,13 @@ local field_mappings = {
 	dataform = dataform;
 
 	-- Simpler mapping from JSON map
-	formdata = {"func", "jabber:x:data", "",
-		function ()
+	formdata = { type = "func", xmlns = "jabber:x:data", tagname = "",
+		st2json = function ()
 			-- Tricky to do in a generic way without each form layout
 			-- In the future, some well-known layouts might be understood
 			return nil, "not-implemented";
 		end,
-		formdata,
+		json2st = formdata,
 	};
 };
 
@@ -414,27 +414,27 @@ local function st2json(s)
 	for k, mapping in pairs(field_mappings) do
 		if mapping == "text_tag" then
 			t[k] = s:get_child_text(k);
-		elseif mapping[1] == "text_tag" then
-			t[k] = s:get_child_text(mapping[3], mapping[2]);
-		elseif mapping[1] == "name" then
-			local child = s:get_child(nil, mapping[2]);
+		elseif mapping.type == "text_tag" then
+			t[k] = s:get_child_text(mapping.tagname, mapping.xmlns);
+		elseif mapping.type == "name" then
+			local child = s:get_child(nil, mapping.xmlns);
 			if child then
 				t[k] = child.name;
 			end
-		elseif mapping[1] == "attr" then
-			local child = s:get_child(mapping[3], mapping[2])
+		elseif mapping.type == "attr" then
+			local child = s:get_child(mapping.tagname, mapping.xmlns);
 			if child then
-				t[k] = child.attr[mapping[4]];
+				t[k] = child.attr[mapping.attr];
 			end
-		elseif mapping[1] == "bool_tag" then
-			if s:get_child(mapping[3], mapping[2]) then
+		elseif mapping.type == "bool_tag" then
+			if s:get_child(mapping.tagname, mapping.xmlns) then
 				t[k] = true;
 			end
-		elseif mapping[1] == "func" then
-			local child = s:get_child(mapping[3], mapping[2] or k);
+		elseif mapping.type == "func" and mapping.st2json then
+			local child = s:get_child(mapping.tagname, mapping.xmlns or k);
 			-- TODO handle err
 			if child then
-				t[k] = mapping[4](child);
+				t[k] = mapping.st2json(child);
 			end
 		end
 	end
@@ -493,16 +493,16 @@ local function json2st(t)
 				s:text_tag(k, v);
 			elseif mapping == "attr" then -- luacheck: ignore 542
 				-- handled already
-			elseif mapping[1] == "text_tag" then
-				s:text_tag(mapping[3] or k, v, mapping[2] and { xmlns = mapping[2] });
-			elseif mapping[1] == "name" then
-				s:tag(v, { xmlns = mapping[2] }):up();
-			elseif mapping[1] == "attr" then
-				s:tag(mapping[3] or k, { xmlns = mapping[2], [ mapping[4] or k ] = v }):up();
-			elseif mapping[1] == "bool_tag" then
-				s:tag(mapping[3] or k, { xmlns = mapping[2] }):up();
-			elseif mapping[1] == "func" then
-				s:add_child(mapping[5](v)):up();
+			elseif mapping.type == "text_tag" then
+				s:text_tag(mapping.tagname or k, v, mapping.xmlns and { xmlns = mapping.xmlns });
+			elseif mapping.type == "name" then
+				s:tag(v, { xmlns = mapping.xmlns }):up();
+			elseif mapping.type == "attr" then
+				s:tag(mapping.tagname or k, { xmlns = mapping.xmlns, [mapping.attr or k] = v }):up();
+			elseif mapping.type == "bool_tag" then
+				s:tag(mapping.tagname or k, { xmlns = mapping.xmlns }):up();
+			elseif mapping.type == "func" and mapping.json2st then
+				s:add_child(mapping.json2st(v)):up();
 			end
 		else
 			return nil, "unknown-field";
