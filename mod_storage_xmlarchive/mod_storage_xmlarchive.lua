@@ -11,6 +11,7 @@ local hmac_sha256 = require"util.hashes".hmac_sha256;
 local st = require"util.stanza";
 local dt = require"util.datetime";
 local new_stream = require "util.xmppstream".new;
+local xml = require "util.xml";
 local empty = {};
 
 if not dm.append_raw then
@@ -57,6 +58,76 @@ function archive:append(username, _, data, when, with)
 		return nil, err;
 	end
 	return id;
+end
+
+function archive:get(username, id)
+	local dates = self:dates(username) or empty;
+	local day_idx, item_idx, items = self:_get_idx(username, id, dates);
+	if not day_idx then
+		return nil, "item-not-found";
+	end
+	module:log("debug", ":_get_idx(%q, %q) --> %q, %q", username, id, dates[day_idx], items[item_idx]);
+	local day = dates[day_idx];
+	local item = items[item_idx];
+	module:log("debug", "item = %q", item);
+	local filename = dm.getpath(username.."@"..day, self.host, self.store, "xml");
+	local xmlfile, ferr = io.open(filename, "r");
+	if not xmlfile then return nil, ferr; end
+	local p,err = xmlfile:seek("set", item.offset);
+	if p ~= item.offset or err ~= nil then return nil, err; end
+	local data = xmlfile:read(item.length);
+	local parsed, perr = xml.parse(data);
+	if not parsed then return nil, perr; end
+	return parsed, dt.parse(item.when), item.with;
+end
+
+local overwrite = module:get_option("xmlarchive_overwrite", false);
+
+function archive:set(username, id, data, new_when, new_with)
+	if not is_stanza(data) then
+		module:log("error", "Attempt to store non-stanza object, traceback: %s", debug.traceback());
+		return nil, "unsupported-datatype";
+	end
+
+	username = username or "@";
+	data = tostring(data) .. "\n";
+
+	local dates = self:dates(username) or empty;
+	local day_idx, item_idx, items = self:_get_idx(username, id, dates);
+	if not day_idx then
+		return nil, "item-not-found";
+	end
+	local day = dates[day_idx];
+	local item = items[item_idx];
+
+	local filename = dm.getpath(username.."@"..day, self.host, self.store, "xml");
+
+	local replaced, err = dm.append_raw(username.."@"..day, self.host, self.store, "xml", data);
+	if not replaced then return nil, err; end
+	local new_offset = err;
+
+	-- default yes or no?
+	if overwrite then
+		local xmlfile, ferr = io.open(filename, "r+");
+		if not xmlfile then return nil, ferr; end
+		local p,err = xmlfile:seek("set", item.offset);
+		if p ~= item.offset or err ~= nil then return nil, err; end
+		local _,err = xmlfile:write((" "):rep(item.length));
+		if err ~= nil then return nil, err; end
+		local _,err = xmlfile:close();
+		if err ~= nil then return nil, err; end
+	end
+
+	items[item_idx] = {
+		id = id,
+		when = new_when or item.when,
+		with = new_with or item.with,
+		offset = new_offset,
+		length = #data,
+		replaces = item,
+	};
+	local ok, err = dm.list_store(username.."@"..day, self.host, self.store, items);
+	return ok, err;
 end
 
 function archive:_get_idx(username, id, dates)
@@ -329,7 +400,6 @@ function module.command(arg)
 	if arg[1] == "convert" and (arg[2] == "to" or arg[2] == "from") and arg[4] then
 		local convert;
 		if arg[2] == "to" then
-			local xml = require "util.xml";
 			function convert(user, host, store)
 				local dates, err = archive.dates({ host = host, store = store }, user);
 				if not dates then assert(not err, err); return end
