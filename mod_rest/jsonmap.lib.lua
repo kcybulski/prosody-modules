@@ -105,7 +105,7 @@ local function formdata(s,t)
 	return form;
 end
 
-local simple_types = {
+local field_mappings = {
 	-- top level stanza attributes
 	-- needed here to mark them as known fields
 	kind = "attr",
@@ -411,7 +411,7 @@ local function st2json(s)
 		return t;
 	end
 
-	for k, typ in pairs(simple_types) do
+	for k, typ in pairs(field_mappings) do
 		if typ == "text_tag" then
 			t[k] = s:get_child_text(k);
 		elseif typ[1] == "text_tag" then
@@ -487,7 +487,7 @@ local function json2st(t)
 	end
 
 	for k, v in pairs(t) do
-		local typ = simple_types[k];
+		local typ = field_mappings[k];
 		if typ then
 			if typ == "text_tag" then
 				s:text_tag(k, v);
