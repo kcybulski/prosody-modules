@@ -316,8 +316,8 @@ local field_mappings = {
 		end;
 	};
 
-	-- XEP-XXXX: User-defined Data Transfer
-	payload = { type = "func", xmlns = "urn:xmpp:udt:0", tagname = "payload",
+	-- XEP-0432: Simple JSON Messaging
+	payload = { type = "func", xmlns = "urn:xmpp:json-msg:0", tagname = "payload",
 		st2json = function (s)
 			local rawjson = s:get_child_text("json", "urn:xmpp:json:0");
 			if not rawjson then return nil, "missing-json-payload"; end
@@ -330,7 +330,7 @@ local field_mappings = {
 		end;
 		json2st = function (s)
 			if type(s) == "table" then
-				return st.stanza("payload", { xmlns = "urn:xmpp:udt:0", datatype = s.datatype })
+				return st.stanza("payload", { xmlns = "urn:xmpp:json-msg:0", datatype = s.datatype })
 				:tag("json", { xmlns = "urn:xmpp:json:0" }):text(json.encode(s.data));
 			end;
 		end
