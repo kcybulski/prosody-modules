@@ -36,9 +36,7 @@ local function update_occupant(event)
 	stanza:remove_children("occupant-id", xmlns_occupant_id);
 
 	local unique_id = generate_id(occupant, room);
-	stanza:tag("occupant-id", { xmlns = xmlns_occupant_id })
-		:text(unique_id)
-		:up();
+	stanza:tag("occupant-id", { xmlns = xmlns_occupant_id, id = unique_id }):up();
 end
 
 module:add_feature(xmlns_occupant_id);
