@@ -261,7 +261,7 @@ local field_mappings = {
 				};
 			end
 			if form then
-				cmd.form = dataform[4] (form);
+				cmd.form = dataform.st2json(form);
 			end
 			return cmd;
 		end;
