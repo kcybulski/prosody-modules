@@ -1,10 +1,10 @@
-module:set_global();
-
 local http = require "util.http";
 local jid = require "util.jid";
 local json = require "util.json";
 local usermanager = require "core.usermanager";
 local errors = require "util.error";
+
+local tokens = module:depends("authtokens");
 
 local function oauth_error(err_name, err_desc)
 	return errors.new({
@@ -17,9 +17,11 @@ local function oauth_error(err_name, err_desc)
 end
 
 local function new_access_token(username, host, scope, ttl)
+	local token_jid = jid.join(username, host);
+	local token = tokens.create_jid_token(token_jid, token_jid, scope, ttl);
 	return {
 		token_type = "bearer";
-		access_token = "test-token";
+		access_token = token;
 		expires_in = ttl;
 		-- TODO: include refresh_token when implemented
 	};
@@ -34,7 +36,7 @@ function grant_type_handlers.password(params)
 	if params.scope then
 		return oauth_error("invalid_scope", "unknown scope requested");
 	end
-	if not (request_username and request_host) or not (hosts[request_host]) then
+	if not (request_username and request_host) or request_host ~= module.host then
 		return oauth_error("invalid_request", "invalid JID");
 	end
 	if usermanager.test_password(request_username, request_host, request_password) then
