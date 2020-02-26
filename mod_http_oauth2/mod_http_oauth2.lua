@@ -4,7 +4,7 @@ local json = require "util.json";
 local usermanager = require "core.usermanager";
 local errors = require "util.error";
 
-local tokens = module:depends("authtokens");
+local tokens = module:depends("tokenauth");
 
 local function oauth_error(err_name, err_desc)
 	return errors.new({
