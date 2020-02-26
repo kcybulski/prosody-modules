@@ -68,13 +68,22 @@ local function parse(mimetype, data)
 			return parsed, err;
 		end
 		return jsonmap.json2st(parsed);
+	elseif mimetype == "application/x-www-form-urlencoded"then
+		local parsed = http.formdecode(data);
+		if type(parsed) == "string" then
+			return parse("text/plain", parsed);
+		end
+		for i = #parsed, 1, -1 do
+			parsed[i] = nil;
+		end
+		return jsonmap.json2st(parsed);
 	elseif mimetype == "text/plain" then
 		return st.message({ type = "chat" }, data);
 	end
 	return nil, "unknown-payload-type";
 end
 
-local supported_types = { "application/xmpp+xml", "application/json" };
+local supported_types = { "application/xmpp+xml", "application/json", "application/x-www-form-urlencoded" };
 
 local function decide_type(accept)
 	-- assumes the accept header is sorted
