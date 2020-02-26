@@ -30,7 +30,12 @@ local function generate_id(occupant, room)
 end
 
 local function update_occupant(event)
-	local stanza, occupant, room = event.stanza, event.occupant, event.room;
+	local stanza, room, occupant, dest_occupant = event.stanza, event.room, event.occupant, event.dest_occupant;
+
+	-- "muc-occupant-pre-change" provides "dest_occupant" but not "occupant".
+	if dest_occupant ~= nil then
+		occupant = dest_occupant;
+	end
 
 	-- strip any existing <occupant-id/> tags to avoid forgery
 	stanza:remove_children("occupant-id", xmlns_occupant_id);
@@ -47,4 +52,5 @@ end);
 -- TODO: Handle MUC-PMs
 module:hook("muc-broadcast-presence", update_occupant);
 module:hook("muc-occupant-pre-join", update_occupant);
+module:hook("muc-occupant-pre-change", update_occupant);
 module:hook("muc-occupant-groupchat", update_occupant);
