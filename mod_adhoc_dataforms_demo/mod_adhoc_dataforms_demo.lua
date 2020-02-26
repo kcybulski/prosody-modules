@@ -120,7 +120,7 @@ end
 module:provides("adhoc",
 	adhoc_new("Dataforms Demo",
 		"xmpp:zash.se/mod_adhoc_dataforms_demo#form",
-		adhoc_util.new_simple_form(form, handler)));
+		adhoc_util.new_simple_form(form, handler), "any"));
 
 
 local function multi_step_command(_, data, state)
@@ -175,5 +175,5 @@ end
 module:provides("adhoc",
 	adhoc_new("Multi-step command demo",
 		"xmpp:zash.se/mod_adhoc_dataforms_demo#multi",
-		multi_step_command));
+		multi_step_command, "any"));
 
