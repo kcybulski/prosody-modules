@@ -292,7 +292,7 @@ local field_mappings = {
 					cmd:text_tag("note", s.note.text, { type = s.note.type });
 				end
 				if s.form then
-					cmd:add_child(dataform[5] (s.form));
+					cmd:add_child(dataform.json2st(s.form));
 				elseif s.data then
 					cmd:add_child(formdata(s.data));
 				end
