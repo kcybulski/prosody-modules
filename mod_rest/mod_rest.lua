@@ -142,7 +142,10 @@ local function handle_post(event)
 				return encode(send_type, result.stanza);
 			end,
 			function (error)
-				if error.context and error.context.stanza then
+				if not errors.is_err(error) then
+					module:log("error", "Uncaught native error: %s", error);
+					return select(2, errors.coerce(nil, error));
+				elseif error.context and error.context.stanza then
 					response.headers.content_type = send_type;
 					module:log("debug", "Sending[rest]: %s", error.context.stanza:top_tag());
 					return encode(send_type, error.context.stanza);
