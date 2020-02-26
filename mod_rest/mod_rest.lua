@@ -17,7 +17,7 @@ local xml = require "util.xml";
 
 local jsonmap = module:require"jsonmap";
 
-local tokens = module:depends("authtokens");
+local tokens = module:depends("tokenauth");
 
 local auth_mechanisms = module:get_option_set("rest_auth_mechanisms", { "Basic", "Bearer" });
 
