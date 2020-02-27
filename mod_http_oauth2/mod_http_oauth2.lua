@@ -45,6 +45,27 @@ function grant_type_handlers.password(params)
 	return oauth_error("invalid_grant", "incorrect credentials");
 end
 
+if module:get_host_type() == "component" then
+	local component_secret = assert(module:get_option_string("component_secret"), "'component_secret' is a required setting when loaded on a Component");
+
+	function grant_type_handlers.password(params)
+		local request_jid = assert(params.username, oauth_error("invalid_request", "missing 'username' (JID)"));
+		local request_password = assert(params.password, oauth_error("invalid_request", "missing 'password'"));
+		local request_username, request_host, request_resource = jid.prepped_split(request_jid);
+		if params.scope then
+			return oauth_error("invalid_scope", "unknown scope requested");
+		end
+		if not request_host or request_host ~= module.host then
+			return oauth_error("invalid_request", "invalid JID");
+		end
+		if request_password == component_secret then
+			local granted_jid = jid.join(request_username, request_host, request_resource);
+			return json.encode(new_access_token(granted_jid, request_host, nil, nil));
+		end
+		return oauth_error("invalid_grant", "incorrect credentials");
+	end
+end
+
 function handle_token_grant(event)
 	local params = http.formdecode(event.request.body);
 	if not params then
