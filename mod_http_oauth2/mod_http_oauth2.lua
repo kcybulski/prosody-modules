@@ -16,8 +16,7 @@ local function oauth_error(err_name, err_desc)
 	});
 end
 
-local function new_access_token(username, host, scope, ttl)
-	local token_jid = jid.join(username, host);
+local function new_access_token(token_jid, scope, ttl)
 	local token = tokens.create_jid_token(token_jid, token_jid, scope, ttl);
 	return {
 		token_type = "bearer";
@@ -40,7 +39,8 @@ function grant_type_handlers.password(params)
 		return oauth_error("invalid_request", "invalid JID");
 	end
 	if usermanager.test_password(request_username, request_host, request_password) then
-		return json.encode(new_access_token(request_username, request_host, nil, nil));
+		local granted_jid = jid.join(request_username, request_host);
+		return json.encode(new_access_token(granted_jid, request_host, nil, nil));
 	end
 	return oauth_error("invalid_grant", "incorrect credentials");
 end
