@@ -31,7 +31,7 @@ local grant_type_handlers = {};
 function grant_type_handlers.password(params)
 	local request_jid = assert(params.username, oauth_error("invalid_request", "missing 'username' (JID)"));
 	local request_password = assert(params.password, oauth_error("invalid_request", "missing 'password'"));
-	local request_username, request_host = jid.prepped_split(request_jid);
+	local request_username, request_host, request_resource = jid.prepped_split(request_jid);
 	if params.scope then
 		return oauth_error("invalid_scope", "unknown scope requested");
 	end
@@ -39,7 +39,7 @@ function grant_type_handlers.password(params)
 		return oauth_error("invalid_request", "invalid JID");
 	end
 	if usermanager.test_password(request_username, request_host, request_password) then
-		local granted_jid = jid.join(request_username, request_host);
+		local granted_jid = jid.join(request_username, request_host, request_resource);
 		return json.encode(new_access_token(granted_jid, request_host, nil, nil));
 	end
 	return oauth_error("invalid_grant", "incorrect credentials");
