@@ -64,7 +64,7 @@ local function send_reminder (reminder)
 	local bare = jid.bare(reminder.jid);
 	module:log("debug", "Sending reminder %s to %s", reminder.id, bare);
 	local message = st.message({ from = "localhost"; to = bare; id = id.short() })
-		:tag("reminder", {xmlns = xmlns_reminders})
+		:tag("reminder", {id = reminder.id; xmlns = xmlns_reminders})
 		:add_child(reminder.text)
 		:tag("date"):text(datetime.datetime(reminder.date)):up();
 	module:send(message);
@@ -110,7 +110,6 @@ local function process_reminders_store ()
 end
 
 local function create_reminder (jid, reminder)
-	local rem = st.clone(reminder);
 	local date = reminder:get_child("date");
 	local text = reminder:get_child("text");
 	if date == nil or text == nil then
@@ -123,10 +122,11 @@ local function create_reminder (jid, reminder)
 	end
 	if parsed_date < now then
 		return nil, reminder_error("past_date"), nil
-	end	
-	rem.attr.id = id.medium();
+	end
+	local reminder_id = id.medium();
+	local rem = st.stanza("reminder", {xmlns = xmlns_reminders; id = reminder_id});
 	local data = {
-		id = rem.attr.id;
+		id = reminder_id;
 		jid = jid;
 		text = text;
 		date = parsed_date;
