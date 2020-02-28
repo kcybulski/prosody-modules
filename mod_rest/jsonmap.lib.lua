@@ -4,108 +4,8 @@ local json = require "util.json";
 local st = require "util.stanza";
 local xml = require "util.xml";
 
--- Reused in many XEPs so declared up here
-local dataform = {
-	-- Generic and complete dataforms mapping
-	type = "func", xmlns = "jabber:x:data", tagname = "x",
-	st2json = function (s)
-		local fields = array();
-		local form = {
-			type = s.attr.type;
-			title = s:get_child_text("title");
-			instructions = s:get_child_text("instructions");
-			fields = fields;
-		};
-		for field in s:childtags("field") do
-			local i = {
-				var = field.attr.var;
-				type = field.attr.type;
-				label = field.attr.label;
-				desc = field:get_child_text("desc");
-				required = field:get_child("required") and true or nil;
-				value = field:get_child_text("value");
-			};
-			if field.attr.type == "jid-multi" or field.attr.type == "list-multi" or field.attr.type == "text-multi" then
-				local value = array();
-				for v in field:childtags("value") do
-					value:push(v:get_text());
-				end
-				if field.attr.type == "text-multi" then
-					i.value = value:concat("\n");
-				else
-					i.value = value;
-				end
-			end
-			if field.attr.type == "list-single" or field.attr.type == "list-multi" then
-				local options = array();
-				for o in field:childtags("option") do
-					options:push({ label = o.attr.label, value = o:get_child_text("value") });
-				end
-				i.options = options;
-			end
-			fields:push(i);
-		end
-		return form;
-	end;
-	json2st = function (x)
-		if type(x) == "table" and x ~= json.null then
-			local form = st.stanza("x", { xmlns = "jabber:x:data", type = x.type });
-			if x.title then
-				form:text_tag("title", x.title);
-			end
-			if x.instructions then
-				form:text_tag("instructions", x.instructions);
-			end
-			if type(x.fields) == "table" then
-				for _, f in ipairs(x.fields) do
-					if type(f) == "table" then
-						form:tag("field", { var = f.var, type = f.type, label = f.label });
-						if f.desc then
-							form:text_tag("desc", f.desc);
-						end
-						if f.required == true then
-							form:tag("required"):up();
-						end
-						if type(f.value) == "string" then
-							form:text_tag("value", f.value);
-						elseif type(f.value) == "table" then
-							for _, v in ipairs(f.value) do
-								form:text_tag("value", v);
-							end
-						end
-						if type(f.options) == "table" then
-							for _, o in ipairs(f.value) do
-								if type(o) == "table" then
-									form:tag("option", { label = o.label });
-									form:text_tag("value", o.value);
-									form:up();
-								end
-							end
-						end
-					end
-				end
-			end
-			return form;
-		end
-	end;
-};
-
-local function formdata(s, t)
-	local form = st.stanza("x", { xmlns = "jabber:x:data", type = t });
-	for k, v in pairs(s) do
-		form:tag("field", { var = k });
-		if type(v) == "string" then
-			form:text_tag("value", v);
-		elseif type(v) == "table" then
-			for _, v_ in ipairs(v) do
-				form:text_tag("value", v_);
-			end
-		end
-	end
-	return form;
-end
-
-local field_mappings = {
+local field_mappings; -- in scope for "func" mappings
+field_mappings = {
 	-- top level stanza attributes
 	-- needed here to mark them as known fields
 	kind = "attr",
@@ -261,7 +161,7 @@ local field_mappings = {
 				};
 			end
 			if form then
-				cmd.form = dataform.st2json(form);
+				cmd.form = field_mappings.dataform.st2json(form);
 			end
 			return cmd;
 		end;
@@ -292,9 +192,9 @@ local field_mappings = {
 					cmd:text_tag("note", s.note.text, { type = s.note.type });
 				end
 				if s.form then
-					cmd:add_child(dataform.json2st(s.form));
+					cmd:add_child(field_mappings.dataform.json2st(s.form));
 				elseif s.data then
-					cmd:add_child(formdata(s.data));
+					cmd:add_child(field_mappings.formdata.json2st(s.data));
 				end
 				return cmd;
 			elseif type(s) == "string" then -- assume node
@@ -337,16 +237,112 @@ local field_mappings = {
 	};
 
 	-- XEP-0004: Data Forms
-	dataform = dataform;
+	dataform = {
+		-- Generic and complete dataforms mapping
+		type = "func", xmlns = "jabber:x:data", tagname = "x",
+		st2json = function (s)
+			local fields = array();
+			local form = {
+				type = s.attr.type;
+				title = s:get_child_text("title");
+				instructions = s:get_child_text("instructions");
+				fields = fields;
+			};
+			for field in s:childtags("field") do
+				local i = {
+					var = field.attr.var;
+					type = field.attr.type;
+					label = field.attr.label;
+					desc = field:get_child_text("desc");
+					required = field:get_child("required") and true or nil;
+					value = field:get_child_text("value");
+				};
+				if field.attr.type == "jid-multi" or field.attr.type == "list-multi" or field.attr.type == "text-multi" then
+					local value = array();
+					for v in field:childtags("value") do
+						value:push(v:get_text());
+					end
+					if field.attr.type == "text-multi" then
+						i.value = value:concat("\n");
+					else
+						i.value = value;
+					end
+				end
+				if field.attr.type == "list-single" or field.attr.type == "list-multi" then
+					local options = array();
+					for o in field:childtags("option") do
+						options:push({ label = o.attr.label, value = o:get_child_text("value") });
+					end
+					i.options = options;
+				end
+				fields:push(i);
+			end
+			return form;
+		end;
+		json2st = function (x)
+			if type(x) == "table" and x ~= json.null then
+				local form = st.stanza("x", { xmlns = "jabber:x:data", type = x.type });
+				if x.title then
+					form:text_tag("title", x.title);
+				end
+				if x.instructions then
+					form:text_tag("instructions", x.instructions);
+				end
+				if type(x.fields) == "table" then
+					for _, f in ipairs(x.fields) do
+						if type(f) == "table" then
+							form:tag("field", { var = f.var, type = f.type, label = f.label });
+							if f.desc then
+								form:text_tag("desc", f.desc);
+							end
+							if f.required == true then
+								form:tag("required"):up();
+							end
+							if type(f.value) == "string" then
+								form:text_tag("value", f.value);
+							elseif type(f.value) == "table" then
+								for _, v in ipairs(f.value) do
+									form:text_tag("value", v);
+								end
+							end
+							if type(f.options) == "table" then
+								for _, o in ipairs(f.value) do
+									if type(o) == "table" then
+										form:tag("option", { label = o.label });
+										form:text_tag("value", o.value);
+										form:up();
+									end
+								end
+							end
+						end
+					end
+				end
+				return form;
+			end
+		end;
+	};
 
-	-- Simpler mapping from JSON map
+	-- Simpler mapping of dataform from JSON map
 	formdata = { type = "func", xmlns = "jabber:x:data", tagname = "",
 		st2json = function ()
 			-- Tricky to do in a generic way without each form layout
 			-- In the future, some well-known layouts might be understood
 			return nil, "not-implemented";
 		end,
-		json2st = formdata,
+		json2st = function (s, t)
+			local form = st.stanza("x", { xmlns = "jabber:x:data", type = t });
+			for k, v in pairs(s) do
+				form:tag("field", { var = k });
+				if type(v) == "string" then
+					form:text_tag("value", v);
+				elseif type(v) == "table" then
+					for _, v_ in ipairs(v) do
+						form:text_tag("value", v_);
+					end
+				end
+			end
+			return form;
+		end
 	};
 };
 
