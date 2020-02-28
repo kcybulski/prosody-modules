@@ -344,6 +344,31 @@ field_mappings = {
 			return form;
 		end
 	};
+
+	-- XEP-0039: Statistics Gathering
+	stats = { type = "func", xmlns = "http://jabber.org/protocol/stats", tagname = "query",
+		st2json = function (s)
+			local o = array();
+			for stat in s:childtags("stat") do
+				o:push({
+						name = stat.attr.name;
+						unit = stat.attr.unit;
+						value = stat.attr.value;
+					});
+			end
+			return o;
+		end;
+		json2st = function (j)
+			local stats = st.stanza("query", { xmlns = "http://jabber.org/protocol/stats" });
+			if type(j) == "table" then
+				for _, stat in ipairs(j) do
+					stats:tag("stat", { name = stat.name, unit = stat.unit, value = stat.value }):up();
+				end
+			end
+			return stats;
+		end;
+	};
+
 };
 
 local implied_kinds = {
