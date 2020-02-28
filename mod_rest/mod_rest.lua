@@ -87,6 +87,7 @@ local supported_types = {
 	"application/xmpp+xml",
 	"application/json",
 	"application/x-www-form-urlencoded",
+	"text/plain",
 };
 
 local function decide_type(accept)
