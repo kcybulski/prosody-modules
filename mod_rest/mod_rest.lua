@@ -83,7 +83,11 @@ local function parse(mimetype, data)
 	return nil, "unknown-payload-type";
 end
 
-local supported_types = { "application/xmpp+xml", "application/json", "application/x-www-form-urlencoded" };
+local supported_types = {
+	"application/xmpp+xml",
+	"application/json",
+	"application/x-www-form-urlencoded",
+};
 
 local function decide_type(accept)
 	-- assumes the accept header is sorted
