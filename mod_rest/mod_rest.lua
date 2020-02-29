@@ -161,7 +161,7 @@ local function handle_post(event)
 	local send_type = decide_type((request.headers.accept or "") ..",".. request.headers.content_type)
 	if payload.name == "iq" then
 		function origin.send(stanza)
-			prosody.core_route_stanza(nil, stanza);
+			module:send(stanza);
 		end
 		if payload.attr.type ~= "get" and payload.attr.type ~= "set" then
 			return errors.new({ code = 422, text = "'iq' stanza must be of type 'get' or 'set'" });
