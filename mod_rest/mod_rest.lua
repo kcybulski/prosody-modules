@@ -115,6 +115,17 @@ local function encode(type, s)
 	return tostring(s);
 end
 
+local post_errors = {
+	parse = { code = 400, condition = "not-well-formed", text = "Failed to parse payload", },
+	xmlns = { code = 422, condition = "invalid-namespace", text = "'xmlns' attribute must be empty", },
+	name = { code = 422, condition = "unsupported-stanza-type", text = "Invalid stanza, must be 'message', 'presence' or 'iq'.", },
+	to = { code = 422, condition = "improper-addressing", text = "Invalid destination JID", },
+	from = { code = 422, condition = "invalid-from", text = "Invalid source JID", },
+	post_auth = { code = 403, condition = "not-authorized", text = "Not authorized to send stanza with requested 'from'", },
+	iq_type = { code = 422, condition = "invalid-xml", text = "'iq' stanza must be of type 'get' or 'set'", },
+	iq_tags = { code = 422, condition = "bad-format", text = "'iq' stanza must have exactly one child tag", },
+};
+
 local function handle_post(event)
 	local request, response = event.request, event.response;
 	local from;
@@ -133,26 +144,26 @@ local function handle_post(event)
 	local payload, err = parse(request.headers.content_type, request.body);
 	if not payload then
 		-- parse fail
-		return errors.new({ code = 400, text = "Failed to parse payload" }, { error = err, type = request.headers.content_type, data = request.body });
+		return errors.new("parse", { error = err, type = request.headers.content_type, data = request.body, }, post_errors);
 	end
 	if payload.attr.xmlns then
-		return errors.new({ code = 422, text = "'xmlns' attribute must be empty" });
+		return errors.new("xmlns", nil, post_errors);
 	elseif payload.name ~= "message" and payload.name ~= "presence" and payload.name ~= "iq" then
-		return errors.new({ code = 422, text = "Invalid stanza, must be 'message', 'presence' or 'iq'." });
+		return errors.new("name", nil, post_errors);
 	end
 	local to = jid.prep(payload.attr.to);
 	if not to then
-		return errors.new({ code = 422, text = "Invalid destination JID" });
+		return errors.new("to", nil, post_errors);
 	end
 	if payload.attr.from then
 		local requested_from = jid.prep(payload.attr.from);
 		if not requested_from then
-			return errors.new({ code = 422, text = "Invalid source JID" });
+			return errors.new("from", nil, post_errors);
 		end
 		if jid.compare(requested_from, from) then
 			from = requested_from;
 		else
-			return errors.new({ code = 403, text = "Not authorized to send from "..requested_from });
+			return errors.new("from_auth", nil, post_errors);
 		end
 	end
 	payload.attr = {
@@ -169,9 +180,9 @@ local function handle_post(event)
 			module:send(stanza);
 		end
 		if payload.attr.type ~= "get" and payload.attr.type ~= "set" then
-			return errors.new({ code = 422, text = "'iq' stanza must be of type 'get' or 'set'" });
+			return errors.new("iq_type", nil, post_errors);
 		elseif #payload.tags ~= 1 then
-			return errors.new({ code = 422, text = "'iq' stanza must have exactly one child tag" });
+			return errors.new("iq_tags", nil, post_errors);
 		end
 		return module:send_iq(payload, origin):next(
 			function (result)
