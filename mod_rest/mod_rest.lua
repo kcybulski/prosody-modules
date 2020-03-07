@@ -394,13 +394,27 @@ end
 
 local supported_errors = {
 	"text/html",
+	"application/xmpp+xml",
 	"application/json",
 };
 
 local http_server = require "net.http.server";
 module:hook_object_event(http_server, "http-error", function (event)
 	local request, response = event.request, event.response;
-	if decide_type(request and request.headers.accept or "", supported_errors) == "application/json" then
+	local response_as = decide_type(request and request.headers.accept or "", supported_errors);
+	if response_as == "application/xmpp+xml" then
+		if response then
+			response.headers.content_type = "application/xmpp+xml";
+		end
+		local stream_error = st.stanza("error", { xmlns = "http://etherx.jabber.org/streams" });
+		if event.error then
+			stream_error:tag(event.error.condition, {xmlns = 'urn:ietf:params:xml:ns:xmpp-streams' }):up();
+			if event.error.text then
+				stream_error:text_tag("text", event.error.text, {xmlns = 'urn:ietf:params:xml:ns:xmpp-streams' });
+			end
+		end
+		return tostring(stream_error);
+	elseif response_as == "application/json" then
 		if response then
 			response.headers.content_type = "application/json";
 		end
