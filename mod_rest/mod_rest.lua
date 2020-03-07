@@ -83,14 +83,7 @@ local function parse(mimetype, data)
 	return nil, "unknown-payload-type";
 end
 
-local supported_types = {
-	"application/xmpp+xml",
-	"application/json",
-	"application/x-www-form-urlencoded",
-	"text/plain",
-};
-
-local function decide_type(accept)
+local function decide_type(accept, supported_types)
 	-- assumes the accept header is sorted
 	local ret = supported_types[1];
 	for i = 2, #supported_types do
@@ -100,6 +93,18 @@ local function decide_type(accept)
 	end
 	return ret;
 end
+
+local supported_inputs = {
+	"application/xmpp+xml",
+	"application/json",
+	"application/x-www-form-urlencoded",
+	"text/plain",
+};
+
+local supported_outputs = {
+	"application/xmpp+xml",
+	"application/json",
+};
 
 local function encode(type, s)
 	if type == "application/json" then
@@ -158,7 +163,7 @@ local function handle_post(event)
 		["xml:lang"] = payload.attr["xml:lang"],
 	};
 	module:log("debug", "Received[rest]: %s", payload:top_tag());
-	local send_type = decide_type((request.headers.accept or "") ..",".. request.headers.content_type)
+	local send_type = decide_type((request.headers.accept or "") ..",".. request.headers.content_type, supported_outputs)
 	if payload.name == "iq" then
 		function origin.send(stanza)
 			module:send(stanza);
@@ -224,7 +229,7 @@ if rest_url then
 				module:set_status("info", "Connected");
 			end
 			if code == 200 and response.headers.accept then
-				send_type = decide_type(response.headers.accept);
+				send_type = decide_type(response.headers.accept, supported_outputs);
 				module:log("debug", "Set 'rest_callback_content_type' = %q based on Accept header", send_type);
 			end
 		end);
@@ -280,7 +285,7 @@ if rest_url then
 				headers = {
 					["Content-Type"] = send_type,
 					["Content-Language"] = stanza.attr["xml:lang"],
-					Accept = table.concat(supported_types, ", ");
+					Accept = table.concat(supported_inputs, ", ");
 				},
 			}, function (body, code, response)
 				if code == 0 then
@@ -376,10 +381,15 @@ if rest_url then
 	end
 end
 
+local supported_errors = {
+	"text/html",
+	"application/json",
+};
+
 local http_server = require "net.http.server";
 module:hook_object_event(http_server, "http-error", function (event)
 	local request, response = event.request, event.response;
-	if decide_type(request and request.headers.accept or "") == "application/json" then
+	if decide_type(request and request.headers.accept or "", supported_errors) == "application/json" then
 		if response then
 			response.headers.content_type = "application/json";
 		end
