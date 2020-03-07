@@ -340,6 +340,7 @@ field_mappings = {
 						form:text_tag("value", v_);
 					end
 				end
+				form:up();
 			end
 			return form;
 		end
