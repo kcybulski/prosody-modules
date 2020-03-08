@@ -45,7 +45,7 @@ local core_process_stanza = prosody.core_process_stanza;
 local sessionmanager = require"core.sessionmanager";
 
 assert(max_hibernated_sessions > 0, "smacks_max_hibernated_sessions must be greater than 0");
-assert(max_old_sessions > 0, "smacks_old_sessions must be greater than 0");
+assert(max_old_sessions > 0, "smacks_max_old_sessions must be greater than 0");
 
 local c2s_sessions = module:shared("/*/c2s/sessions");
 
@@ -110,7 +110,7 @@ local function stoppable_timer(delay, callback)
 	end);
 	if timer and timer.stop then return timer; end		-- new prosody api includes stop() function
 	return {
-		stop = function () stopped = true end;
+		stop = function(self) stopped = true end;
 		timer;
 	};
 end
@@ -393,7 +393,7 @@ module:hook_stanza(xmlns_sm3, "a", handle_a);
 -- and won't slow non-198 sessions). We can also then remove the .handled flag
 -- on stanzas
 
-function handle_unacked_stanzas(session)
+local function handle_unacked_stanzas(session)
 	local queue = session.outgoing_stanza_queue;
 	local error_attr = { type = "cancel" };
 	if #queue > 0 then
@@ -411,6 +411,38 @@ function handle_unacked_stanzas(session)
 		end
 	end
 end
+
+-- don't send delivery errors for messages which will be delivered by mam later on
+module:hook("delivery/failure", function(event)
+	local session, stanza = event.session, event.stanza;
+	-- Only deal with authenticated (c2s) sessions
+	if session.username then
+		if stanza.name == "message" and stanza.attr.xmlns == nil and
+				( stanza.attr.type == "chat" or ( stanza.attr.type or "normal" ) == "normal" ) then
+			-- do nothing here for normal messages and don't send out "message delivery errors",
+			-- because messages are already in MAM at this point (no need to frighten users)
+			if session.mam_requested and stanza._was_archived then
+				return true;		-- stanza handled, don't send an error
+			end
+			-- store message in offline store, if this client does not use mam *and* was the last client online
+			local sessions = prosody.hosts[module.host].sessions[session.username] and
+					prosody.hosts[module.host].sessions[session.username].sessions or nil;
+			if sessions and next(sessions) == session.resource and next(sessions, session.resource) == nil then
+				module:fire_event("message/offline/handle", { origin = session, stanza = stanza } );
+				return true;		-- stanza handled, don't send an error
+			end
+		end
+	end
+end);
+
+-- mark stanzas as archived --> this will allow us to send back errors for stanzas not archived
+-- because the user configured the server to do so ("no-archive"-setting for one special contact for example)
+module:hook("archive-message-added", function(event)
+	local session, stanza, for_user, stanza_id  = event.origin, event.stanza, event.for_user, event.id;
+	if session then session.log("debug", "Marking stanza as archived, archive_id: %s, stanza: %s", tostring(stanza_id), tostring(stanza:top_tag())); end
+	if not session then module:log("debug", "Marking stanza as archived in unknown session, archive_id: %s, stanza: %s", tostring(stanza_id), tostring(stanza:top_tag())); end
+	stanza._was_archived = true;
+end);
 
 module:hook("pre-resource-unbind", function (event)
 	local session, err = event.session, event.error;
@@ -531,6 +563,7 @@ function handle_resume(session, stanza, xmlns_sm)
 			c2s_sessions[conn] = nil;
 			conn:close();
 		end
+		local migrated_session_log = session.log;
 		original_session.ip = session.ip;
 		original_session.conn = session.conn;
 		original_session.send = session.send;
@@ -565,9 +598,9 @@ function handle_resume(session, stanza, xmlns_sm)
 		for i=1,#queue do
 			session.send(queue[i]);
 		end
-		session.log("debug", "all stanzas resent, now disabling send() in this session, #queue = %d", #queue);
+		session.log("debug", "all stanzas resent, now disabling send() in this migrated session, #queue = %d", #queue);
 		function session.send(stanza)
-			session.log("warn", "Tried to send stanza on old session migrated by smacks resume (maybe there is a bug?): %s", tostring(stanza));
+			migrated_session_log("error", "Tried to send stanza on old session migrated by smacks resume (maybe there is a bug?): %s", tostring(stanza));
 			return false;
 		end
 		module:fire_event("smacks-hibernation-end", {origin = session, resumed = original_session, queue = queue});
