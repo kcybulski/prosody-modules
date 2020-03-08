@@ -67,6 +67,7 @@ if module:get_host_type() == "component" then
 end
 
 function handle_token_grant(event)
+	event.response.headers.content_type = "application/json";
 	local params = http.formdecode(event.request.body);
 	if not params then
 		return oauth_error("invalid_request");
