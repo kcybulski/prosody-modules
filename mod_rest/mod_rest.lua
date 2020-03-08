@@ -424,4 +424,4 @@ module:hook_object_event(http_server, "http-error", function (event)
 				code = event.code,
 			});
 	end
-end, 10);
+end, 1);
