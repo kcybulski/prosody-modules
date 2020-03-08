@@ -101,7 +101,7 @@ local function stoppable_timer(delay, callback)
 	end);
 	if timer and timer.stop then return timer; end		-- new prosody api includes stop() function
 	return {
-		stop = function () stopped = true end;
+		stop = function(self) stopped = true end;
 		timer;
 	};
 end
