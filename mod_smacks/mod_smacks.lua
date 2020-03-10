@@ -439,8 +439,8 @@ end);
 -- because the user configured the server to do so ("no-archive"-setting for one special contact for example)
 module:hook("archive-message-added", function(event)
 	local session, stanza, for_user, stanza_id  = event.origin, event.stanza, event.for_user, event.id;
-	if session then session.log("debug", "Marking stanza as archived, archive_id: %s, stanza: %s", tostring(stanza_id), tostring(stanza:top_tag())); end
-	if not session then module:log("debug", "Marking stanza as archived in unknown session, archive_id: %s, stanza: %s", tostring(stanza_id), tostring(stanza:top_tag())); end
+	local log = session.log or module._log
+	log("debug", "Marking stanza as archived, archive_id: %s, stanza: %s", tostring(stanza_id), tostring(stanza:top_tag()));
 	stanza._was_archived = true;
 end);
 
