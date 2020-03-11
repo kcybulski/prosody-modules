@@ -73,7 +73,13 @@ Configured in-band by supporting clients.
 Compatibility
 =============
 
-Should work with 0.9+.
+----- -----------------------------------------------------------------------------
+  trunk Works
+  0.11  Works
+  0.10  Works
+  0.9   Support dropped, use version last supported version [675726ab06d3]
+  ----- -----------------------------------------------------------------------------
 
 [^1]: The service which is expected to forward notifications to something like Google Cloud Messaging or Apple Notification Service
 [^2]: [business_rules.markdown](//hg.prosody.im/prosody-modules/file/tip/mod_cloud_notify/business_rules.markdown)
+[675726ab06d3]: //hg.prosody.im/prosody-modules/raw-file/675726ab06d3/mod_cloud_notify/mod_cloud_notify.lua
