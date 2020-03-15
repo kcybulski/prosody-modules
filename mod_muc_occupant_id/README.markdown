@@ -14,12 +14,11 @@ TODO
 ====
 
 - Subject messages
-- MUC-PM support
 
 Compatibility
 =============
 
   ------- ------------------
   trunk   Works
-  0.11    Works
+  0.11    Works; except in MUC-PMs
   ------- ------------------

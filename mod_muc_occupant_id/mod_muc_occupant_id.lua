@@ -44,13 +44,24 @@ local function update_occupant(event)
 	stanza:tag("occupant-id", { xmlns = xmlns_occupant_id, id = unique_id }):up();
 end
 
+local function muc_private(event)
+	local stanza, room = event.stanza, event.room;
+	local occupant = room._occupants[stanza.attr.from];
+
+	update_occupant({
+		stanza = stanza,
+		room = room,
+		occupant = occupant,
+	});
+end
+
 module:add_feature(xmlns_occupant_id);
 module:hook("muc-disco#info", function (event)
 	event.reply:tag("feature", { var = xmlns_occupant_id }):up();
 end);
 
--- TODO: Handle MUC-PMs
 module:hook("muc-broadcast-presence", update_occupant);
 module:hook("muc-occupant-pre-join", update_occupant);
 module:hook("muc-occupant-pre-change", update_occupant);
 module:hook("muc-occupant-groupchat", update_occupant);
+module:hook("muc-private-message", muc_private);
