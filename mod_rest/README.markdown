@@ -423,7 +423,7 @@ Discovering commands:
 
 ``` {.json}
 {
-   "disco" : {
+   "items" : {
       "node" : "http://jabber.org/protocol/commands"
    },
    "id" : "8iN9hwdAAcfTBchm",
