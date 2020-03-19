@@ -1,5 +1,5 @@
 ---
-summary: API for managing MUC hats
+summary: Ad-hoc commands for managing MUC hats
 ---
 
 # Introduction
