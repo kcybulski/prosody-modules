@@ -7,7 +7,7 @@ summary: API for managing MUC hats
 This module provides an internal API (i.e. to other modules) to manage
 'hats' for users in MUC rooms.
 
-Hats (first defined in XEP-0317, currently deferred) are additional identifiers
+Hats (first defined in [XEP-0317], currently deferred) are additional identifiers
 that can be attached to users in a group chat. For example in an educational
 context, you may have a 'Teacher' hat that allows students to identify their
 teachers.
@@ -15,7 +15,7 @@ teachers.
 Hats consist of a machine-readable unique identifier (a URI), and optionally
 a human-readable label.
 
-XEP-0317 suggests a protocol for users to manage their own hats, but though the
+[XEP-0317] suggests a protocol for users to manage their own hats, but though the
 API in this module allows for both user-managed and system-managed hats, there is
 currently no protocol implemented for users to manage their own hats, which is
 rarely desired in real-world implementations.

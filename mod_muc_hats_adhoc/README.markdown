@@ -7,7 +7,7 @@ summary: Ad-hoc commands for managing MUC hats
 This module provides an internal API (i.e. to other modules) to manage
 'hats' for users in MUC rooms.
 
-Hats (first defined in XEP-0317, currently deferred) are additional identifiers
+Hats (first defined in [XEP-0317], currently deferred) are additional identifiers
 that can be attached to users in a group chat. For example in an educational
 context, you may have a 'Teacher' hat that allows students to identify their
 teachers.
@@ -33,5 +33,5 @@ browser in Gajim, Psi/Psi+ and other clients), and you'll find the commands
 on the MUC host.
 
 Also note that the display of hats in clients is currently non-existent, but
-will hopefully improve after XEP-0317 is resurrected or replaced.
+will hopefully improve after [XEP-0317] is resurrected or replaced.
 
