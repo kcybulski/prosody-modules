@@ -6,7 +6,6 @@
 -- This module is MIT/X11 licensed.
 
 module:set_global();
-module:depends "http";
 
 local tostring = tostring;
 local t_insert = table.insert;
@@ -140,6 +139,7 @@ local function get_metrics(event)
 end
 
 function module.add_host(module)
+	module:depends "http";
 	module:provides("http", {
 		default_path = "metrics";
 		route = {
