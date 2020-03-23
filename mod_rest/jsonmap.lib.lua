@@ -75,7 +75,7 @@ field_mappings = {
 	disco = {
 		type = "func", xmlns = "http://jabber.org/protocol/disco#info", tagname = "query",
 		st2json = function (s) --> array of features
-			local identities, features = array(), array();
+			local identities, features, extensions = array(), array(), {};
 			for tag in s:childtags() do
 				if tag.name == "identity" and tag.attr.category and tag.attr.type then
 					identities:push({ category = tag.attr.category, type = tag.attr.type, name = tag.attr.name });
@@ -83,7 +83,16 @@ field_mappings = {
 					features:push(tag.attr.var);
 				end
 			end
-			return { node = s.attr.node, identities = identities, features = features, };
+			for form in s:childtags("x", "jabber:x:data") do
+				local jform = field_mappings.formdata.st2json(form);
+				local form_type = jform["FORM_TYPE"];
+				if jform then
+					jform["FORM_TYPE"] = nil;
+					extensions[form_type] = jform;
+				end
+			end
+			if next(extensions) == nil then extensions = nil; end
+			return { node = s.attr.node, identities = identities, features = features, extensions = extensions };
 		end;
 		json2st = function (s)
 			if type(s) == "table" and s ~= json.null then
@@ -96,6 +105,12 @@ field_mappings = {
 				if s.features then
 					for _, feature in ipairs(s.features) do
 						disco:tag("feature", { var = feature }):up();
+					end
+				end
+				if s.extensions then
+					for form_type, extension in pairs(s.extensions) do
+						extension["FORM_TYPE"] = form_type;
+						disco:add_child(field_mappings.formdata.json2st(extension));
 					end
 				end
 				return disco;
@@ -324,10 +339,28 @@ field_mappings = {
 
 	-- Simpler mapping of dataform from JSON map
 	formdata = { type = "func", xmlns = "jabber:x:data", tagname = "",
-		st2json = function ()
-			-- Tricky to do in a generic way without each form layout
-			-- In the future, some well-known layouts might be understood
-			return nil, "not-implemented";
+		st2json = function (s)
+			local r = {};
+			for field in s:childtags("field") do
+				if field.attr.var then
+					local values = array();
+					for value in field:childtags("value") do
+						values:push(value:get_text());
+					end
+					if field.attr.type == "list-single" or field.attr.type == "list-multi" then
+						r[field.attr.var] = values;
+					elseif field.attr.type == "text-multi" then
+						r[field.attr.var] = values:concat("\n");
+					elseif field.attr.type == "boolean" then
+						r[field.attr.var] = values[1] == "1" or values[1] == "true";
+					elseif field.attr.type then
+						r[field.attr.var] = values[1] or json.null;
+					else -- type is optional, no way to know if multiple or single value is expected
+						r[field.attr.var] = values;
+					end
+				end
+			end
+			return r;
 		end,
 		json2st = function (s, t)
 			local form = st.stanza("x", { xmlns = "jabber:x:data", type = t });

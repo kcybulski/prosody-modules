@@ -375,6 +375,11 @@ stanza, for full flexibility use the XML mode.
     items list query. The response contain an array of items like
     `{"jid":"xmpp.address.here","name":"Description of item"}`.
 
+`extensions`
+:   Map of extended feature discovery (see [XEP-0128]) data with
+    `FORM_DATA` fields as the keys pointing at maps with the rest of the
+    data.
+
 #### Ad-Hoc Commands
 
 Used to execute arbitrary commands on supporting entities.
