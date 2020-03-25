@@ -13,7 +13,7 @@ This is a Prosody authentication plugin which uses LDAP as the backend.
 Dependecies
 ===========
 
-This module depends on [LuaLDAP](http://www.keplerproject.org/lualdap/)
+This module depends on [LuaLDAP](https://github.com/lualdap/lualdap)
 for connecting to an LDAP server.
 
 Configuration
