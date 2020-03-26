@@ -17,7 +17,7 @@ local cache = dep.softreq("util.cache");	-- only available in prosody 0.10+
 local uuid_generate = require "util.uuid".generate;
 local jid = require "util.jid";
 
-local t_insert, t_remove = table.insert, table.remove;
+local t_remove = table.remove;
 local math_min = math.min;
 local math_max = math.max;
 local os_time = os.time;
@@ -199,9 +199,16 @@ local function request_ack_if_needed(session, force, reason)
 	end
 end
 
+local function is_stanza(stanza)
+	return stanza.attr and
+		(	not stanza.attr.xmlns or
+			stanza.attr.xmlns == 'jabber:client' or
+			stanza.attr.xmlns == 'jabber:server'
+		) and not stanza.name:find":";
+end
+
 local function outgoing_stanza_filter(stanza, session)
-	local is_stanza = stanza.attr and not stanza.attr.xmlns and not stanza.name:find":";
-	if is_stanza and not stanza._cached then -- Stanza in default stream namespace
+	if is_stanza(stanza) and not stanza._cached then
 		local queue = session.outgoing_stanza_queue;
 		local cached_stanza = st.clone(stanza);
 		cached_stanza._cached = true;
@@ -226,7 +233,7 @@ local function outgoing_stanza_filter(stanza, session)
 end
 
 local function count_incoming_stanzas(stanza, session)
-	if not stanza.attr.xmlns then
+	if is_stanza(stanza) then
 		session.handled_stanza_count = session.handled_stanza_count + 1;
 		session.log("debug", "Handled %d incoming stanzas", session.handled_stanza_count);
 	end
