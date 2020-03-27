@@ -199,16 +199,16 @@ local function request_ack_if_needed(session, force, reason)
 	end
 end
 
-local function is_stanza(stanza)
-	return stanza.attr and
-		(	not stanza.attr.xmlns or
-			stanza.attr.xmlns == 'jabber:client' or
-			stanza.attr.xmlns == 'jabber:server'
-		) and not stanza.name:find":";
-end
-
 local function outgoing_stanza_filter(stanza, session)
-	if is_stanza(stanza) and not stanza._cached then
+	-- XXX: Normally you wouldn't have to check the xmlns for a stanza as it's
+	-- supposed to be nil.
+	-- However, when using mod_smacks with mod_websocket, then mod_websocket's
+	-- stanzas/out filter can get called before this one and adds the xmlns.
+	local is_stanza = stanza.attr and
+		(not stanza.attr.xmlns or stanza.attr.xmlns == 'jabber:client')
+		and not stanza.name:find":";
+
+	if is_stanza and not stanza._cached then
 		local queue = session.outgoing_stanza_queue;
 		local cached_stanza = st.clone(stanza);
 		cached_stanza._cached = true;
@@ -233,7 +233,7 @@ local function outgoing_stanza_filter(stanza, session)
 end
 
 local function count_incoming_stanzas(stanza, session)
-	if is_stanza(stanza) then
+	if not stanza.attr.xmlns then
 		session.handled_stanza_count = session.handled_stanza_count + 1;
 		session.log("debug", "Handled %d incoming stanzas", session.handled_stanza_count);
 	end
