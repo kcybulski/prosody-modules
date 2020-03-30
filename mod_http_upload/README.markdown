@@ -67,7 +67,7 @@ Expired files are deleted when a new upload slot is requested,
 A command exists to invoke expiry:
 
 ```
-prosodyctl mod_http_upload expire [optional list of users]
+prosodyctl mod_http_upload expire [list of users or hosts]
 ```
 
 ### User quota
