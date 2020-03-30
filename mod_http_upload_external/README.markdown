@@ -26,8 +26,16 @@ To implement your own service compatible with this module, check out the impleme
 Configuration
 =============
 
-Add `"http_upload_external"` to modules_enabled in your global section, or under the host(s) you wish
-to use it on.
+The module can be added as a new Component definition:
+
+``` {.lua}
+Component "upload.example.org" "http_upload_external"
+http_upload_external_base_url = "https://your.example.com/upload/service"
+http_upload_external_secret = "your shared secret"
+```
+
+It should **not** be added to modules_enabled.
+
 
 External URL
 ------------
