@@ -427,6 +427,10 @@ function module.command(args)
 				end
 			end
 		end
+	else
+		print("prosodyctl mod_http_upload expire [host or user@host]+")
+		print("\tProcess upload expiry for the given list of hosts and/or users");
+		return 1;
 	end
 end
 
