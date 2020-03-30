@@ -14,6 +14,8 @@ This module serves a small snippet of HTML that loads
 [Converse.js](https://conversejs.org/), configured to work with the
 VirtualHost that it is loaded onto.
 
+It becomes available on an URL like `https://example.com:5281/conversejs`
+
 Configuration
 =============
 
