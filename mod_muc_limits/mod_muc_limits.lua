@@ -74,7 +74,7 @@ end
 
 if rooms then
 	function module.unload()
-		for room_jid, room in pairs(rooms) do
+		for room_jid, room in pairs(rooms) do --luacheck: ignore 213/room_jid
 			room.throttle = nil;
 		end
 	end
