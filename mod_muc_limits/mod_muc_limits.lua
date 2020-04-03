@@ -13,6 +13,7 @@ local period = math.max(module:get_option_number("muc_event_rate", 0.5), 0);
 local burst = math.max(module:get_option_number("muc_burst_factor", 6), 1);
 
 local max_nick_length = module:get_option_number("muc_max_nick_length", 23); -- Default chosen through scientific methods
+local join_only = module:get_option_boolean("muc_limit_joins_only", false);
 local dropped_count = 0;
 local dropped_jids;
 
@@ -79,12 +80,16 @@ if rooms then
 		end
 	end
 
-	module:hook("message/bare", handle_stanza, 501);
-	module:hook("message/full", handle_stanza, 501);
-	module:hook("presence/bare", handle_stanza, 501);
 	module:hook("presence/full", handle_stanza, 501);
+	if not join_only then
+		module:hook("message/bare", handle_stanza, 501);
+		module:hook("message/full", handle_stanza, 501);
+		module:hook("presence/bare", handle_stanza, 501);
+	end
 else
 	module:hook("muc-occupant-pre-join", handle_stanza);
-	module:hook("muc-occupant-pre-change", handle_stanza);
-	module:hook("muc-occupant-groupchat", handle_stanza);
+	if not join_only then
+		module:hook("muc-occupant-pre-change", handle_stanza);
+		module:hook("muc-occupant-groupchat", handle_stanza);
+	end
 end
