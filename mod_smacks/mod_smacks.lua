@@ -34,11 +34,11 @@ local xmlns_delay = "urn:xmpp:delay";
 local sm2_attr = { xmlns = xmlns_sm2 };
 local sm3_attr = { xmlns = xmlns_sm3 };
 
-local resume_timeout = module:get_option_number("smacks_hibernation_time", 300);
+local resume_timeout = module:get_option_number("smacks_hibernation_time", 600);
 local s2s_smacks = module:get_option_boolean("smacks_enabled_s2s", false);
 local s2s_resend = module:get_option_boolean("smacks_s2s_resend", false);
 local max_unacked_stanzas = module:get_option_number("smacks_max_unacked_stanzas", 0);
-local delayed_ack_timeout = module:get_option_number("smacks_max_ack_delay", 60);
+local delayed_ack_timeout = module:get_option_number("smacks_max_ack_delay", 30);
 local max_hibernated_sessions = module:get_option_number("smacks_max_hibernated_sessions", 10);
 local max_old_sessions = module:get_option_number("smacks_max_old_sessions", 10);
 local core_process_stanza = prosody.core_process_stanza;

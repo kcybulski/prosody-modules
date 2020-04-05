@@ -27,12 +27,18 @@ still online for a short (configurable) period of time. If the client
 reconnects within this period, any stanzas in the queue that the client
 did not receive are re-sent.
 
-If the client fails to reconnect before the timeout then it is marked
-offline as normal, and any stanzas in the queue are returned to the
-sender as a "recipient-unavailable" error.
+If the client fails to reconnect before the timeout it will be marked as
+offline like prosody does on disconnect without mod_smacks.
+If the client is the last one for this jid, all message stanzas are added to
+the offline store and all other stanzas stanzas are returned with an
+"recipient-unavailable" error. If the client is not the last one with an
+open smacks session, *all* stanzas are returned with an "recipient-unavailable" error.
 
-If you don't want this behaviour on timeout you can use [mod_smacks_offline]
-or [mod_smacks_noerror] to customize the behaviour further.
+If you deliberately disabled [mod_offline], all message stanzas of the last client
+are also returned with an "recipient-unavailable" error, because the can not be
+added to the offline storage.
+If you don't want this behaviour you can use [mod_nooffline_noerror] to suppress the error.
+This is generally only advisable, if you are sure that all your clients are using MAM!
 
 This module also provides some events used by [mod_cloud_notify].
 These events are: "smacks-ack-delayed", "smacks-hibernation-start" and
@@ -49,10 +55,10 @@ Configuration
 
   Option                              Default           Description
   ----------------------------------  ----------------- ------------------------------------------------------------------------------------------------------------------
-  `smacks_hibernation_time`           300 (5 minutes)   The number of seconds a disconnected session should stay alive for (to allow reconnect)
+  `smacks_hibernation_time`           600 (10 minutes)  The number of seconds a disconnected session should stay alive for (to allow reconnect)
   `smacks_enabled_s2s`                false             Enable Stream Management on server connections? *Experimental*
   `smacks_max_unacked_stanzas`        0                 How many stanzas to send before requesting acknowledgement
-  `smacks_max_ack_delay`              60 (1 minute)     The number of seconds an ack must be unanswered to trigger an "smacks-ack-delayed" event
+  `smacks_max_ack_delay`              30 (1/2 minute)   The number of seconds an ack must be unanswered to trigger an "smacks-ack-delayed" event
   `smacks_max_hibernated_sessions`    10                The number of allowed sessions in hibernated state (limited per user)
   `smacks_max_old_sessions`           10                The number of allowed sessions with timed out hibernation for which the h-value is still kept (limited per user)
 
@@ -80,6 +86,6 @@ Clients that support [XEP-0198]:
 -   Monal (iOS)
 
 [7693724881b3]: //hg.prosody.im/prosody-modules/raw-file/7693724881b3/mod_smacks/mod_smacks.lua
-[mod_smacks_offline]: //modules.prosody.im/mod_smacks_offline
-[mod_smacks_noerror]: //modules.prosody.im/mod_smacks_noerror
+[mod_offline]: //modules.prosody.im/mod_offline
+[mod_nooffline_noerror]: //modules.prosody.im/mod_nooffline_noerror
 [mod_cloud_notify]: //modules.prosody.im/mod_cloud_notify
