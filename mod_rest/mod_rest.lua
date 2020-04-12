@@ -116,6 +116,8 @@ local function encode(type, s)
 end
 
 local post_errors = {
+	noauthz = { code = 401, type = "auth", condition = "not-authorized", text = "No credentials provided" },
+	unauthz = { code = 403, type = "auth", condition = "not-authorized", text = "Credentials not accepted" },
 	parse = { code = 400, condition = "not-well-formed", text = "Failed to parse payload", },
 	xmlns = { code = 422, condition = "invalid-namespace", text = "'xmlns' attribute must be empty", },
 	name = { code = 422, condition = "unsupported-stanza-type", text = "Invalid stanza, must be 'message', 'presence' or 'iq'.", },
@@ -133,11 +135,11 @@ local function handle_post(event)
 
 	if not request.headers.authorization then
 		response.headers.www_authenticate = www_authenticate_header;
-		return 401;
+		return errors.new("noauthz", nil, post_errors);
 	else
 		origin = check_credentials(request);
 		if not origin then
-			return 401;
+			return errors.new("unauthz", nil, post_errors);
 		end
 		from = jid.join(origin.username, origin.host, origin.resource);
 	end
