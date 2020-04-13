@@ -1,3 +1,5 @@
+local unpack = table.unpack or unpack;
+
 local interpolation = require "util.interpolation";
 local template = interpolation.new("%b$$", function (s) return ("%q"):format(s) end);
 

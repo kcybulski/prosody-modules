@@ -2,6 +2,7 @@
 local condition_handlers = {};
 
 local jid = require "util.jid";
+local unpack = table.unpack or unpack;
 
 -- Helper to convert user-input strings (yes/true//no/false) to a bool
 local function string_to_boolean(s)
