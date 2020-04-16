@@ -44,8 +44,10 @@ module:hook("iq-get/host/urn:xmpp:extdisco:2:services", function(event)
     local userpart = tostring(expires_at);
     local nonce = base64.encode(hmac_sha1(secret, tostring(userpart), false));
     origin.send(st.reply(stanza):tag("services", {xmlns = "urn:xmpp:extdisco:2"})
-        :tag("service", { type = "stun", host = host, port = ("%d"):format(port) }):up()
-        :tag("service", { type = "turn", host = host, port = ("%d"):format(port), username = userpart, password = nonce, expires = datetime(expires_at), restricted = "1"  }):up()
+        :tag("service", { type = "stun", transport = "udp", host = host, port = ("%d"):format(port) }):up()
+        :tag("service", { type = "stun", transport = "tcp", host = host, port = ("%d"):format(port) }):up()
+        :tag("service", { type = "turn", transport = "udp", host = host, port = ("%d"):format(port), username = userpart, password = nonce, expires = datetime(expires_at), restricted = "1"  }):up()
+        :tag("service", { type = "turn", transport = "tcp", host = host, port = ("%d"):format(port), username = userpart, password = nonce, expires = datetime(expires_at), restricted = "1"  }):up()
     );
     return true;
 end);
