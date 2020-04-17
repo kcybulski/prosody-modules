@@ -50,6 +50,9 @@ local function configure_room(room, config)
 	if config.persistent ~= nil then
 		should_save = room:set_persistent(config.persistent) or should_save;
 	end
+	if config.presence_broadcast ~= nil then
+		should_save = room:set_presence_broadcast(config.presence_broadcast) or should_save;
+	end
 	if config.public ~= nil then
 		should_save = room:set_hidden(not config.public) or should_save;
 	end
