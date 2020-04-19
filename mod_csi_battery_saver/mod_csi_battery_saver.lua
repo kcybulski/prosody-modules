@@ -97,11 +97,15 @@ local function is_important(stanza, session)
 		if carbon then stanza = carbon; end
 
 		local st_type = stanza.attr.type;
+
 		-- headline message are always not important
 		if st_type == "headline" then return false; end
 
 		-- chat markers (XEP-0333) are important, too, because some clients use them to update their notifications
 		if stanza:child_with_ns("urn:xmpp:chat-markers:0") then return true; end;
+
+		-- XEP-0353: Jingle Message Initiation incoming call messages
+		if stanza:child_with_ns("urn:xmpp:jingle-message:0") then return true; end
 
 		-- carbon copied outgoing messages are important (some clients update their notifications upon receiving those) --> don't return false here
 		--if carbon and stanza_direction == "out" then return false; end
