@@ -125,7 +125,7 @@ end
 
 function condition_handlers.PENDING_SUBSCRIPTION_FROM_SENDER()
 	return "(bare_to == bare_from or to_node and rostermanager.is_contact_pending_in(to_node, to_host, bare_from))",
-	       { "rostermanager", "split_to", "bare_to", "bare_from" };	
+	       { "rostermanager", "split_to", "bare_to", "bare_from" };
 end
 
 function condition_handlers.PAYLOAD(payload_ns)
