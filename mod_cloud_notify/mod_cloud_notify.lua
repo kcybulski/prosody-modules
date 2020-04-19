@@ -375,25 +375,29 @@ local function process_stanza_queue(queue, session, queue_type)
 	local notified = { unimportant = false; important = false }
 	for i=1, #queue do
 		local stanza = queue[i];
-		local node = get_push_settings(stanza, session);
-		stanza_type = "unimportant"
-		if dummy_body and is_important(stanza) then stanza_type = "important"; end
-		if not notified[stanza_type] then		-- only notify if we didn't try to push for this stanza type already
-			-- session.log("debug", "Invoking cloud handle_notify_request() for smacks queued stanza: %d", i);
-			if handle_notify_request(stanza, node, user_push_services, false) ~= 0 then
-				if session.hibernating and not session.first_hibernated_push then
-					-- if important stanzas are treated differently (pushed with last-message-body field set to dummy string)
-					-- and the message was important (e.g. had a last-message-body field) OR if we treat all pushes equally,
-					-- then record the time of first push in the session for the smack module which will extend its hibernation
-					-- timeout based on the value of session.first_hibernated_push
-					if not dummy_body or (dummy_body and is_important(stanza)) then
-						session.first_hibernated_push = os_time();
+		-- fast ignore of already pushed stanzas
+		if stanza and not (stanza._push_notify and stanza._push_notify[session.push_identifier]) then
+			local node = get_push_settings(stanza, session);
+			stanza_type = "unimportant"
+			if dummy_body and is_important(stanza) then stanza_type = "important"; end
+			if not notified[stanza_type] then		-- only notify if we didn't try to push for this stanza type already
+				-- session.log("debug", "Invoking cloud handle_notify_request() for smacks queued stanza: %d", i);
+				if handle_notify_request(stanza, node, user_push_services, false) ~= 0 then
+					if session.hibernating and not session.first_hibernated_push then
+						-- if important stanzas are treated differently (pushed with last-message-body field set to dummy string)
+						-- if the message was important (e.g. had a last-message-body field) OR if we treat all pushes equally,
+						-- then record the time of first push in the session for the smack module which will extend its hibernation
+						-- timeout based on the value of session.first_hibernated_push
+						if not dummy_body or (dummy_body and is_important(stanza)) then
+							session.first_hibernated_push = os_time();
+						end
 					end
+					session.log("debug", "Cloud handle_notify_request() > 0, not notifying for other %s queued stanzas of type %s", queue_type, stanza_type);
+					notified[stanza_type] = true
 				end
-				session.log("debug", "Cloud handle_notify_request() > 0, not notifying for other %s queued stanzas of type %s", queue_type, stanza_type);
-				notified[stanza_type] = true
 			end
 		end
+		if notified.unimportant and notified.important then break; end		-- stop processing the queue if all push types are exhausted
 	end
 end
 
