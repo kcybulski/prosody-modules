@@ -1,6 +1,7 @@
 
 local lfs = require "lfs";
 local resolve_relative_path = require "core.configmanager".resolve_relative_path;
+local envload = require "util.envload".envload;
 local logger = require "util.logger".init;
 local it = require "util.iterators";
 local set = require "util.set";
@@ -543,7 +544,7 @@ end
 -- a value to be returned on PASS
 local function compile_handler(code_string, filename)
 	-- Prepare event handler function
-	local chunk, err = loadstring(code_string, "="..filename);
+	local chunk, err = envload(code_string, "="..filename, _G);
 	if not chunk then
 		return nil, "Error compiling (probably a compiler bug, please report): "..err;
 	end
