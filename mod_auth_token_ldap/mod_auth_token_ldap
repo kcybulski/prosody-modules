@@ -152,6 +152,8 @@ function init_session(event)
                 session.auth_token = query and params.token or nil;
                 if (session.auth_token ~= nil) then
                         auth_type = "token";
+		else
+			auth_type = "ldap";
                 end
                 -- previd is used together with https://modules.prosody.im/mod_smacks.html
                 -- the param is used to find resumed session and re-use anonymous(random) user id
